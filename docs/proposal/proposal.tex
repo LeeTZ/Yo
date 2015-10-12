@@ -1,0 +1,360 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}     
+\usepackage[utf8]{inputenc}  % Accents codés dans la fonte
+\usepackage[frenchb]{babel}  % Les traductions françaises
+
+\usepackage{amsmath}         % Les maths de base
+\usepackage[svgnames]{xcolor}% Pour les besoins de PythonTeX
+\usepackage{geometry}        % Gestion des dimensions des pages
+\usepackage{graphicx}        % Gestion des inclusions graphiques
+\usepackage{listings}
+
+\usepackage{subcaption} 
+\usepackage{color}
+\usepackage{xcolor}
+\DeclareCaptionFont{black}{\ttfamily\color{black}}
+\usepackage{hhline}
+
+\usepackage[font=black]{caption}
+\DeclareCaptionFormat{listing}{\colorbox{gray!22}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=black,textfont=black,skip=-2pt}
+\lstset{
+    xleftmargin=3.5pt,
+    xrightmargin =-2.1pt,
+    aboveskip= 2pt,
+    basicstyle=\ttfamily\small,
+    commentstyle=\mdseries\color{gray},
+    frame=lbr,
+    language = Python,
+    keywordstyle=\bfseries\color{blue},
+    escapeinside={(*@}{@*)},
+    rulecolor=\color{gray!50}
+ }
+ 
+ \lstset{
+ 	emph={
+    	downto, func, ret, \&\&, ||%
+    } ,emphstyle={\bfseries\color{blue}}
+ }
+ 
+\renewcommand{\lstlistingname}{Example}
+
+
+% Un raccourci pour composer les unités en caractères droits
+\newcommand{\U}[1]{~\mathrm{#1}}
+
+% Présentation de l'abstract pour la problématique
+\usepackage[runin]{abstract}
+
+\usepackage{enumitem}
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+
+% Titre et auteurs du document
+\title{\textit{Yo}: A Video Analytical Editing Programming Language}
+\author{Mengqing Wang, Munan Cheng, Tiezheng Li, Yufei Ou}
+\date{\{mw3061,mc4081,tl2693,yo2265\}@columbia.edu}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\textit{Yo} is a user-friendly programming language for movie production. We offer the fastest and most efficient non-linear video editing and analyzing. Users can produce videos from varieties of sources such as images or existing video clips and apply system- or user-defined functions to perform seamless video editing such as clip construction, duration adjustment, subtitle burning. Besides, \textit{Yo} provides strong self-defined libraries for digital video analysis, such as sentimental analysis and pattern recognition etc. In this light, \textit{Yo}'s objective is to facilitate analytical editing on videos and less human effort needs to be involved.
+
+
+
+\section{Frame, Clip, Layer}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{concepts.pdf}
+	\caption{Frame, Clip and Layer}
+	\label{fig:concepts}
+\end{figure}
+
+The concepts of \textit{frame}, \textit{clip} and \textit{layer} are as illustrated in Figure \ref{fig:concepts}. These concepts are recursively defined but can be simplified as follows. A \textit{frame} is seen as one of a sequence still images which compose a \textit{clip}. It can be constructed directly from an image stored on the hard disk or an extract from an existing \textit{clip}. Once a \textit{clip} is assembled from a series of frames at a certain frame rate (usually 24 frames per second), it can be exported as the final product, or to be layered with other \textit{clip}s to form a new \textit{clip}.
+
+Below we show the common operations on these elements.
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{c|l}
+      \text{Frames} & \begin{tabular}[x]{@{}l@{}}Contruct a frame from an image \\ Extract frames from clips \\ Modify a frame (e.g. adjust image color)\end{tabular}\\
+      \hline
+      \text{Clips} &\begin{tabular}[x]{@{}l@{}} Construct a clip from frames \\ Trim, concatenate clips  \\ Adjust playing speed \\ Layer multiple clips and form a new one \\ Arrange inner-clips on the time line \end{tabular}\\
+      \hline
+      \text{Layers} & \textit{Yo} does not support operations on conceptual layers
+    \end{tabular}
+    \caption{Operations for frames, layers and clips}
+    \label{tab:table1}
+  \end{center}
+\end{table}
+\pagebreak
+
+
+\section{Features}
+To reduce the learning curve for new users, \textit{Yo} scripts borrows much grammar from Python and C++. The user code would be compiled into C++ code (to be compiled by a C++ compiler) and executed utilizing a collection of C++ libraries such as \texttt{libopenshot}\footnote{https://launchpad.net/libopenshot}. 
+
+\textit{Yo} is planned to support the following language features:
+\begin{enumerate}
+\item Automatic garbage collection and easy interpolation with existing C++ code and libraries.
+\item Maximum code cleanliness: indent blocking, newline instead of colon between statements.%: Syntax is a lot more cleaner and it is easy for compilers to identify tabs instead of self-defined characters.
+\item Anonymous function.
+\item Functional syntax sugar: with built-in functions such as \texttt{map, filter, lapply}, users can define powerful inline expressions.%anonymous functions from these higher-order utilities. 
+\item Object-oriented programming.%: Object-oriented paradigm has great advantages including code reuse and encapsulation.
+\item Deep optimization by compiler.
+\end{enumerate}
+
+\section{Use Case}
+
+Now we show how \textit{Yo} facilitates movie editing with a couple of examples.
+
+\subsection{Storyboard}
+The first example involves concatenating a collection of images into a clip, joining it with a series of existing clips, and showing a subtitle on the most front layer.
+  
+\begin{lstlisting}[caption=Arrange clips and add subtitles]
+# Read all images in directory "wd"
+frames = [readFrame(f) for f in wd if f.endwith(".png")]
+
+# Turn each Frame into a Clip of one second, and concatenate
+# them into a new Clip called "clip_f"
+clip_f = lapply(+, Clip(), [Clip(fm, dur=1.0) for fm in frames])
+
+# Read all videos in directory "wd"
+clips = [readVideo(f) for f in wd if f.endwith(".avi")]
+
+# Join a part of clips[0] (4.5s to 12.5s) and clips[1] 
+# (starting from 3.5s till end) to "clip_f"
+clip_v = clip_f + clips[0](4.5:12.5) + clips[1](3.5:)
+
+# Add a subtitle above "clip_f" at 7.0s which lasts 3.0s
+clip_st = clip_v ^ Subtitle('Yo, world!', duration=3.0) @ 7.0
+\end{lstlisting}
+
+\subsection{Effects}
+Next we apply quick color corrections to a part of the clip.
+\begin{lstlisting}[caption=Add effects to frames]
+# Define a function that recolors all pixels RGB(>140,?,<50)
+func changeColor(fm)
+  for row in fm.pixels
+    for p in row
+      if p.r > 140 && p.b < 50
+        p.r = 200
+        p.b = 20
+  ret fm
+
+# toClip is a built-in function that turn frames into a clip 
+# apply "changeColor" to part of clip
+newClip = clip(:5.6) + toClip(map(lambda x->changeColor(x),
+				clip(5.6:15.6).frames())) + 
+            clip(15.6:)
+\end{lstlisting}
+
+\subsection{Analysis}
+Here we show how \textit{Yo} performs analytical editing.
+The below expression performs the following:
+\begin{enumerate}[label=(\alph*)]
+\item Filter the clips and only keep those shorter than 10 seconds;
+\item Scale the clips to 720x360
+\item Trim off the first and the last second in each clip;
+\item Concatenate these clips into a video.
+\end{enumerate}
+
+\begin{lstlisting}[caption=Calculate based on videos]
+lapply(+, Clip(), 
+  [c(1.0:-1.0).scale(720) for c in clips if c.duration < 10.0]
+)
+\end{lstlisting}
+
+The analytical editing becomes quite handy when we want to extract clip pieces of some interesting features from a long, everlasting (think of a security camera) video. For example, the following statement extract all clips with Yo's appearance:
+\begin{lstlisting}[caption=Identify Yo's face :)]
+face = readFrame("yo_face.png")
+yo_appearance = lapply(+, Clip(), 
+   [fm for fm in clips.frames() if imageMatch(fm, face) > 0.95])
+)
+\end{lstlisting}
+
+
+\section{Syntax}
+\subsection{Types}
+Like a scripting language, users do not need explicit type declaration for variables. The equal sign $=$ is used to assign values to variables. Types of variables are inferred and could be overwritten.\\ 
+Basic data types: 
+\begin{enumerate}
+\item \textit{int}: signed integers
+\item \textit{double}: floating point real values 
+\item \textit{bool}: boolean 
+\item \textit{string}: a contiguous set of characters
+\end{enumerate}
+Composite data types:
+\begin{enumerate}
+\item \textit{array}: holds a sequence of elements of the same type
+\item \textit{tuple}: holds a sequence of elements, immutable
+\item \textit{struct}: a user-defined prototype for an object that defines a set of attributes including variables and methods
+\end{enumerate}
+
+\begin{lstlisting}[caption=TypeExample]
+answer  = 42           # int
+endtime = 7.5          # double
+subtitle = "Yo,world"  # string
+criteria = (a > 2)     # boolean
+clips = []             # array
+color = (255,136,23)   # tuple
+clip = Clip()          # struct
+\end{lstlisting}
+
+\subsection{Operators}
+\textit{Yo} provides with operators as shown in Table\ref{tab:operator}.
+
+\begin{table}[h!]
+  \begin{center}
+    \caption{Operators and Notations in Yo.}
+    \label{tab:operator}
+    \begin{tabular}{c|l}
+      \# & start of comment line\\
+      \hline
+      \text{\#\{} & start of multi-line comment\\
+      \hline
+      \text{\#\}} & end of multi-line comment\\
+      \hline
+      \text{+} & \begin{tabular}[x]{@{}l@{}} add operator\\ concatenate clips\end{tabular}\\
+      \hline
+      \text{-} & subtract \& negate operator\\
+      \hline
+      \text{*} & multiply operator\\
+      \hline
+      \text{/} & divide operator\\
+      \hline
+      \text{\%} &\begin{tabular}[x]{@{}l@{}} mod operator \\ format output specifier\end{tabular}\\
+      \hline
+      \text{\&}  &\begin{tabular}[x]{@{}l@{}}same layer operator, a \& b set the z-index of layer in clip b\\ equals to the one of clip a \\\end{tabular}\\
+      \hline
+      \text{\^{}} \text{@} & \begin{tabular}[x]{@{}l@{}} above layer operator, a \^{} b \text{@} c set the z-index of layer in clip b\\ larger than the one of clip a, with a offset of c second \\ \end{tabular}\\
+      \hline
+      \text{\&\&} & and operator \\
+      \hline
+      \text{||} & or operator \\
+      \hline
+      \text{!} & not operator \\
+      \hline
+      \text{<} & less-than operator \\
+      \hline
+      \text{<=} & less-than-or-equal operator \\
+      \hline
+      \text{==} & equal operator \\
+      \hline
+      \text{>=} & greater-than-or-equal operator \\
+      \hline
+      \text{>} & greater-than operator \\
+      \hline
+      \text{=} & assign operator \\
+      \hline
+      \text{<-} & \begin{tabular}[x]{@{}l@{}} list comprehension generator \\ single assignment operator \end{tabular} \\
+      \hline
+      \text{->} & lambda function definition operator\\
+      \hline
+      \text{.} & call member or function in struct operator\\
+      \hline
+      \text{:} & list slice operator \\ 
+      \hline
+      $\sim$ & inference operator \\
+      \hline
+      \text{"}, \text{'} & string construction operator\\
+      \hline
+      \text{[ ]} & array construction operator\\ 
+      \hline
+      \text{( )} & \begin{tabular}[x]{@{}l@{}} tuple construction operator \\ clip time access operator \end{tabular}\\
+      \hline
+      \text{,} & separator
+    \end{tabular}
+  \end{center}
+\end{table}
+
+
+\subsection{Control Flow}
+\textit{Yo} supports basic control flow. To help understand the code, the \textit{Yo} code snippet is followed by C++ code that achieves the same effect.
+
+\begin{lstlisting}[caption=\textit{Yo} Control Flow Example]
+# conditional statement
+if clip.time > 10
+  log(clip.time)
+   
+# cascading for-loop
+for i <- 1 to 10, j <- 1 to 10, i + j == 10
+  log("%d+%d=%d\n", i, j, i + j)
+    
+s = 0
+for i <- 10 downto 1 by -1, i != 2, x <- a[i]
+  s += x
+    
+# suffix if/while/for
+log("Yo world") if length > 100
+fun1() while a > b
+a[i] = 0 for i <- 1 to 10, i % 2 == 0
+\end{lstlisting}
+
+\begin{lstlisting}[caption=C++ Control Flow Example]
+int main() {
+  if (clip.time > 10){
+    printf("%d",clip.time);
+  }
+  for (auto i = 1; i <= 10; ++i) {
+    for (auto j = 1; j <= 10; ++j) {
+      if (i + j == 10) {
+        printf("%d+%d=%d\n", i, j, i + j);
+      }
+    }
+  }
+    auto sum = 0;
+    for (auto i = 10; i >= 1; i = i + -1) {
+      if (i != 2) {
+        for (auto x : a[i]) {
+          sum += x;
+        }
+      }
+    }
+    if (length > 100) {
+      printf("Yo world");
+    }
+    while (a > b) {
+      fun1();
+    }
+    for (auto i = 1; i <= 10; ++i) {
+      if (i % 2 == 0) {
+        a[i] = 0;
+      }
+    }
+}
+\end{lstlisting}
+
+\subsection{Functions}
+\textit{Yo} functions are defined starting with keyword \texttt{func}. Lambda functions are also supported.
+\begin{lstlisting}[caption=Function Example]
+# function declaration
+func longerTime (a, b)
+  if a.duration > b.duration
+    return a.duration
+  else
+    return b.duration
+
+# function calls
+longerTime(clip1,clip2)
+
+# lambda functions
+pixels = map(lambda x -> x.r=200 && x.b=20, selected_pixels)
+\end{lstlisting}
+
+\subsection{IO}
+\textit{Yo} load video, audio and image files on the drive, render the  timeline and output edited video. To debug and log, a log function that dumps standard output stream is provided.
+\begin{lstlisting}[caption=IO Example]
+# read all images in a directory "wd"
+frames = [readFrame(f) for f in wd if f.endwith(".png")]
+
+# read all videos in directory "wd"
+clips = [readVideo(f) for f in wd if f.endwith(".avi")]
+
+# log file name to stdout
+log(clips[0].filename)
+
+# output final movie
+saveClip("myYo.webm",final_cut)
+\end{lstlisting}
+\end{document}

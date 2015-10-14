@@ -1,0 +1,145 @@
+% @Author: LeeTZ
+% @Date:   2015-10-14 14:28:14
+% @Last Modified by:   LeeTZ
+% @Last Modified time: 2015-10-14 15:10:20
+
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}     
+\usepackage[utf8]{inputenc}  % Accents codés dans la fonte
+\usepackage[frenchb]{babel}  % Les traductions françaises
+
+\usepackage{amsmath}         % Les maths de base
+\usepackage[svgnames]{xcolor}% Pour les besoins de PythonTeX
+\usepackage{geometry}        % Gestion des dimensions des pages
+\usepackage{graphicx}        % Gestion des inclusions graphiques
+\usepackage{listings}
+
+\usepackage{subcaption} 
+\usepackage{color}
+\usepackage{xcolor}
+\DeclareCaptionFont{black}{\ttfamily\color{black}}
+\usepackage{hhline}
+
+\usepackage[font=black]{caption}
+\DeclareCaptionFormat{listing}{\colorbox{gray!22}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=black,textfont=black,skip=-2pt}
+\lstset{
+    xleftmargin=3.5pt,
+    xrightmargin =-2.1pt,
+    aboveskip= 2pt,
+    basicstyle=\ttfamily\small,
+    commentstyle=\mdseries\color{gray},
+    frame=lbr,
+    language = Python,
+    keywordstyle=\bfseries\color{blue},
+    escapeinside={(*@}{@*)},
+    rulecolor=\color{gray!50}
+ }
+ 
+ \lstset{
+    emph={
+        downto, func, ret, \&\&, ||%
+    } ,emphstyle={\bfseries\color{blue}}
+ }
+ 
+\renewcommand{\lstlistingname}{Example}
+
+
+% Un raccourci pour composer les unités en caractères droits
+\newcommand{\U}[1]{~\mathrm{#1}}
+
+% Présentation de l'abstract pour la problématique
+\usepackage[runin]{abstract}
+
+\usepackage{enumitem}
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+
+% Titre et auteurs du document
+\title{\textit{Yo}: Language Reference Manual}
+\author{Mengqing Wang, Munan Cheng, Tiezheng Li, Yufei Ou}
+\date{\{mw3061,mc4081,tl2693,yo2265\}@columbia.edu}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+\subsection{What is Yo}
+\textit{Yo} is a user-friendly programming language for movie production. We offer the fastest and most efficient non-linear video editing and analyzing. Users can produce videos from varieties of sources such as images or existing video clips and apply system- or user-defined functions to perform seamless video editing such as clip construction, duration adjustment, subtitle burning. Besides, \textit{Yo} provides strong self-defined libraries for digital video analysis, such as sentimental analysis and pattern recognition etc. In this light, \textit{Yo}'s objective is to facilitate analytical editing on videos and less human effort needs to be involved.
+
+\subsection{Frame, Clip, Layer}
+
+The concepts of \textit{frame}, \textit{clip} and \textit{layer} are as illustrated. These concepts are recursively defined but can be simplified as follows. A \textit{frame} is seen as one of a sequence still images which compose a \textit{clip}. It can be constructed directly from an image stored on the hard disk or an extract from an existing \textit{clip}. Once a \textit{clip} is assembled from a series of frames at a certain frame rate (usually 24 frames per second), it can be exported as the final product, or to be layered with other \textit{clip}s to form a new \textit{clip}.
+
+Below we show the common operations on these elements.
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{c|l}
+      \text{Frames} & \begin{tabular}[x]{@{}l@{}}Contruct a frame from an image \\ Extract frames from clips \\ Modify a frame (e.g. adjust image color)\end{tabular}\\
+      \hline
+      \text{Clips} &\begin{tabular}[x]{@{}l@{}} Construct a clip from frames \\ Trim, concatenate clips  \\ Adjust playing speed \\ Layer multiple clips and form a new one \\ Arrange inner-clips on the time line \end{tabular}\\
+      \hline
+      \text{Layers} & \textit{Yo} does not support operations on conceptual layers
+    \end{tabular}
+    \caption{Operations for frames, layers and clips}
+    \label{tab:table1}
+  \end{center}
+\end{table}
+\section{Syntax Notations}
+describe the syntax notations used in this reference manual.\\
+e.g. How to note identifier or functions here, the usage of italic or bold format, the usage of \{ \}.
+\section{Lexical Conventions}
+\subsection{Comments}
+single line\\
+multi lines\\
+nest or not\\
+\subsection{Identifiers}
+the naming convetions of identifier
+\subsection{Keywords}
+list all the keywords reserved
+\subsection{Constants}
+integer, real number, string constants
+\subsection{Operators}
+An operator is a special token that performs an operation, such as addition or subtraction, on either one, two, or three operands. Full coverage of operators can be found in a later chapter. 
+\subsection{Separators}
+A separator separates tokens. White space (see next section) is a separator, but it is not a token. The other separators are all single-character tokens themselves: \\
+( ) [ ]  , \\
+\subsection{White space}
+blank and tab \\
+here we use indent to saparate blocks\\
+
+\section{Data Types}
+
+\subsection{Type Inference}
+we have many data types, see below\\
+but we do not have to explictly declare the type of a variable\\
+
+\subsection{Primitive Data Types}
+\subsubsection{Integer}
+\subsubsection{Real number Double}
+\subsubsection{Boolean}
+\subsubsection{String}
+
+
+\subsection{Non-Primitive Data Types}
+\subsubsection{array}
+\subsubsection{tuple}
+\subsubsection{struct}
+
+\subsection{Built-in Types}
+
+\section{Expressions}
+\section{Statements}
+\section{Functions}
+\section{Library Functions}
+\section{Program Structure and Scope}
+
+\subsection{Prgram Structure}
+
+\subsection{Scope}
+the scope and lifetime of varialbes\\
+
+\section{Sample Program}
+\end{document}

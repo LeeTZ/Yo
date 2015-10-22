@@ -1,0 +1,6 @@
+.texpadtmp
+*.cmo
+*.cmi
+*.out
+*.diff
+.DS_Store

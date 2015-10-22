@@ -4,7 +4,8 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
-%token <int> LITERAL
+%token <int> LITERALINT
+%token <float> LITERALDOUBLE
 %token <string> ID
 %token EOF
 

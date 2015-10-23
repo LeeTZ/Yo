@@ -1,7 +1,7 @@
 % @Author: LeeTZ
 % @Date:   2015-10-14 14:28:14
 % @Last Modified by:   LeeTZ
-% @Last Modified time: 2015-10-22 16:01:45
+% @Last Modified time: 2015-10-22 23:46:36
 
 \documentclass[12pt]{article}
 \usepackage[T1]{fontenc}     
@@ -11,13 +11,14 @@
 \usepackage[top=2.4cm,bottom=2.4cm,left=2.4cm,right=2.4cm]{geometry}
 \usepackage{graphicx}        % Gestion des inclusions graphiques
 \usepackage{listings}
-
+\usepackage{fancyhdr}
 \usepackage{subcaption} 
 \usepackage{color}
 \usepackage{xcolor}
 \DeclareCaptionFont{black}{\ttfamily\color{black}}
 \usepackage{hhline}
-
+\usepackage{mdframed}
+\definecolor{lightgray}{gray}{0.90}
 \usepackage[font=black]{caption}
 \DeclareCaptionFormat{listing}{\colorbox{gray!22}{\parbox{\textwidth}{#1#2#3}}}
 \captionsetup[lstlisting]{format=listing,labelfont=black,textfont=black,skip=-2pt}
@@ -38,7 +39,7 @@
  
  \lstset{
     emph={
-        downto, func, return, type, Int, Double, \&\&, ||%
+        continue, break, downto, func, return, type, Int, Double, String, \&\&, ||%
     } ,emphstyle={\bfseries\color{blue}}
  }
  
@@ -50,7 +51,6 @@
 \renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
 
 
-% Titre et auteurs du document
 \title{\textit{Yo}: Language Reference Manual}
 \author{Mengqing Wang, Munan Cheng, Tiezheng Li, Yufei Ou}
 \date{\{mw3061,mc4081,tl2693,yo2265\}@columbia.edu}
@@ -62,7 +62,7 @@
 
 
 \section{Introduction}
-\subsection{What is Yo}
+
 \textit{Yo} is a user-friendly programming language for movie production. We offer the fastest and most efficient non-linear video editing and analyzing. Users can produce videos from varieties of sources such as images or existing video clips and apply system- or user-defined functions to perform seamless video editing such as clip construction, duration adjustment, subtitle burning. Besides, \textit{Yo} provides strong self-defined libraries for digital video analysis, such as sentimental analysis and pattern recognition etc. In this light, \textit{Yo}'s objective is to facilitate analytical editing on videos and less human effort needs to be involved.
 
 
@@ -73,6 +73,7 @@ In this document the following notations are used. \\
 \item Braces ({ }) enclose alternate item choices, which are separated from each other by vertical bars (|).
 \item Asterisks (*) indicate items to be repeated zero or more times.
 \item Slash(-) is a shorthand for writing continuous elements. 
+\item Double colon with a equal operator(::=) is used for definition.
 \end{itemize}
 
 \section{Lexical Conventions}
@@ -89,11 +90,14 @@ comment #}
 Nested comments are not allowed in \textit{Yo}.
 
 \subsection{Identifiers} %YO
+\label{subsec:identifiers}
 An identifier starts with a letter or an underscore, optionally followed by a series of characters (letter, underscore, number). The length varies from 1 to 256. Note that \textit{Yo} is a case-sensitive language, which means \texttt{yo42} is different from \texttt{Yo42}. \\
-Formally, an identifier can be expressed in regular expression as 
-\begin{lstlisting}[caption=Identifier Definition]
+Formally, an identifier can be expressed in regular expression as \\
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
 [a-zA-Z_][a-zA-Z0-9_]{0,255}.
-\end{lstlisting}
+\end{verbatim}
+\end{mdframed}
 Legal examples: \texttt{\_number,\_number1,number2,number\_3,Number}\\
 Illegal examples: \texttt{2num,Int,num\%\$2}\\
 
@@ -106,93 +110,45 @@ This is a list of reserved keywords in \textit{Yo}. Since they are used by the l
 break   & func   & lambda  \\
 continue & global & return  \\
 else  & if     & struct \\
-for   & in     & while  \\
+eval   & in     & while  \\
+for  & &
 \end{tabular}
 \end{table}
-%\subsection{Constants} %YO
-%integer, real number, string constants, boolean constants
-\subsection{Operators} %YO
-An operator is a special token that performs an operation, such as addition or subtraction, on either one, two, or three operands. 
-\subsubsection{arithmetic operators}
 
-\begin{table}[h!]
-  \begin{center}
-    \caption{Operators in Yo.}
-    \label{tab:operator}
-    \begin{tabular}{c|l}
-      \text{+} & \begin{tabular}[x]{@{}l@{}} add operator\\ concatenate clips\end{tabular}\\
-      \hline
-      \text{-} & subtract \& negate operator\\
-      \hline
-      \text{*} & multiply operator\\
-      \hline
-      \text{/} & divide operator\\
-      \hline
-      \text{\%} &\begin{tabular}[x]{@{}l@{}} mod operator \\ format output specifier\end{tabular}\\
-      \hline
-      \text{\&}  &\begin{tabular}[x]{@{}l@{}}same layer operator, a \& b set the z-index of layer in clip b\\ equals to the one of clip a \\\end{tabular}\\
-      \hline
-      \text{\^{}} \text{@} & \begin{tabular}[x]{@{}l@{}} above layer operator, a \^{} b \text{@} c set the z-index of layer in clip b\\ larger than the one of clip a, with a offset of c second \\ \end{tabular}\\
-      \hline
-      \text{\&\&} & and operator \\
-      \hline
-      \text{||} & or operator \\
-      \hline
-      \text{!} & not operator \\
-      \hline
-      \text{<} & less-than operator \\
-      \hline
-      \text{<=} & less-than-or-equal operator \\
-      \hline
-      \text{==} & equal operator \\
-      \hline
-      \text{>=} & greater-than-or-equal operator \\
-      \hline
-      \text{>} & greater-than operator \\
-      \hline
-      \text{=} & assign operator \\
-      \hline
-      \text{<-} & \begin{tabular}[x]{@{}l@{}} list comprehension generator \\ single assignment operator \end{tabular} \\
-      \hline
-      \text{->} & function and lambda function definition operator\\
-      \hline
-      \text{.} & member and instance in type \\
-      \hline
-      \text{:} & list slice operator \\ 
-      \hline
-      $\sim$ & inference operator \\
-      \hline
-      \text{"} & string construction operator\\
-      \hline
-      \text{[ ]} & array construction operator\\ 
-      \hline
-      \text{( )} & tuple construction operator \\
-      \hline
-      \text{,} & separator
-    \end{tabular}
-  \end{center}
-\end{table}
+\subsection{Operators} %YO
+An operator is a special token that performs an operation, such as addition or subtraction, on either one, two, or three operands. A full coverage of operators can be found in a later chapter, See chapter \textbf{6 Expression and Operators}.
 
 \subsection{Separators} %YO
 A separator separates tokens. White space (see next section) is a separator, but it is not a token. The other separators are all single-character tokens themselves: \\
 ( ) [ ] , \\
-\subsection{Whitespace} %YO
-Whitespace is used to denote blocks (In other languages curly brackets (\{ and \}) are common). When you indent, it becomes a child of the previous line. In addition to the indentation, the parent also has a colon following it.\\
-Contrast \textit{Python}, \textit{Yo} only accepts tab indent to separate blocks, blank indent is forbidden (in other words, blank is used to separate tokens and is not appeared at the beginning of any line).\\
-\begin{lstlisting}[caption=Whitespace and blocks]
-im_a_parent:
-  im_a_child:
-      im_a_grandchild
-    im_another_child:
-      im_a_grandchild
-\end{lstlisting}
-Usually \texttt{for,while,if,else if,else} start the block. To end a block, you simple outdent. In the above example \texttt{im\_a\_child} and \texttt{im\_another\_child} are in the same scope.
 
+\subsection{New Line}
+A physical line ends with an explicit \texttt{\textbackslash n} input from the user while a logical line contains a complete statement. A logical line can be consist of multiple physical lines, all except the last one ending with an explicit \texttt{\textbackslash}.
+\begin{lstlisting}[caption=Logical Line Split]
+line 1 \
+  line 1 continued \
+ line 1 last line
+\end{lstlisting}
+
+
+\subsection{Whitespace} %YO
+Whitespace characters such as tab and space are generally used to separate tokens. But \textit{Yo} is not a free-format language, which means in some cases, the position and number of whitespaces matters to the code interpretation. Leading tab whitespace is used to denote code blocks and to compute the code hierarchy (similar to curly brackets in C-family languages). Briefly, an extra leading tab lowers the level of this line in the code hierarchy.% In addition to the indentation, the parent also has a colon following it.
+
+In contrast to \textit{Python}, \textit{Yo} only accepts tab \texttt{\textbackslash} for leading indent, and space is not allowed. In other words, space should not appear at the beginning of any line (except for a continuing physical line where all the leading whitespaces are ignored).\\
+\begin{lstlisting}[caption=Whitespace and blocks]
+im_a_parent
+  im_a_child
+    im_a_grandchild
+  im_another_child
+    im_a_grandchild
+\end{lstlisting}
+
+Usually, \texttt{for,while,if,else if,else} and function definition may start a new code block. The code block ends with an un-indent. In the above example \texttt{im\_a\_child} and \texttt{im\_another\_child} are at the same code indention level.
 
 \section{Program Structure and Scope} %MC
 
 \subsection{Program Structure} %MC
-a basic view of program Structure.\\
+\textit{Yo} program must exist entirely in a single source file, with a ".yo" extension.
 \subsection{Scope} %MC
 % MW: Did we define namespace before? I just realized scope is more of a definition related with namespaces instead of functions! So I moved it here. Please cut anything you think irrelevant.
 The definition of scope is designed for namespaces where they can be structured without conflicts in different hierarchies. The purpose of scope is to help find the correct object with the variable name. \textit{Yo} extends the LEG-rule standing for: \\ \\
@@ -208,8 +164,8 @@ The following example illustrates the  blocks for different scopes:
 \begin{lstlisting}[caption=Scope]
   p1 = "global variable"
  
-  func a_func(p1: String):
-      print p1
+  func a_func(p1: String)
+      log p1
  
   a_func("local variable")
     #p1: local variable 
@@ -218,19 +174,20 @@ The following example illustrates the  blocks for different scopes:
 \end{lstlisting}
 
 \section{Types}
-\textit{Yo} is a statically and strongly typed programming language, which means the type for each variable, expression or function is determined at compile time and remain unchanged throughout the program.
+\textit{Yo} is a statically and strongly typed programming language, which means the type for each variable, expression or function is determined at compile time and remain unchanged throughout the program.\\
 
-\textit{Yo} has an object-oriented model in which every value is an object and each operation is a method call. We have a pure and uniform object model in the sense that the traditional primitive values (integers, double-precision floating numbers) and functions are incorporated into the object model.
+\textit{Yo} has an object-oriented model in which every value is an object and each operation is a method call. We have a pure and uniform object model in the sense that the traditional primitive values (integers, double-precision floating numbers) and functions are incorporated into the object model.\\
 
 In this section, we will show the definition of type and list the built-in types which can be used as building blocks for the user-defined types. %\textit{Type} in \textit{Yo} is a blueprint for objects, which resembles the \textit{class} concept in other languages such as C++, Java and Python. 
-There are three kinds of types: variable types, function types and the \textit{None} type. For the sake of definition, we will mention function in this section, but the details will be covered in later sections.
+There are three kinds of types: variable types, function types and the \textit{None} type. For the sake of definition, we will mention function in this section, but the details will be covered in later sections.\\
 
 \subsection{Variable Type Definition} %MC
 %Briefly, it is a composition of a number of (0,1,2,$\dots$) member elements. Each member can be a value object or a function object.
 
 A variable type can be defined at the most top level of the program or be nested in another type. The definition starts with the keyword \texttt{type} and the type identifier. Conventionally, we use capitalized identifiers for type names. Then follows the declaration of a number of (0,1,2,$\dots$) members of variable types or function types. A variable-type member is declared by writing the member identifier and its type name or type definition. The type for the member has to be defined in its referencing scope, or a compile error occurs. A function-type member is always defined in-place. Formally,
-
-\begin{lstlisting}[caption=Type Definition Syntax]
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# A Type Definition Syntax
 TypeDef ::= "type" Identifier
       ElementDecl
             
@@ -239,48 +196,58 @@ ElementDecl ::=
   | FuncDef
   | TypeDef
   | ElementDecl
-\end{lstlisting}
-
+\end{verbatim}
+\end{mdframed}
 In the example below we define the type \texttt{CilpSetting}, which contains 4 variable-type members (3 built-in typed, 2 nested typed, 1 in-place typed) and a function-type member.
-
-\begin{lstlisting}[caption=Type Definition Example]
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# A clip setting example
 type ClipSetting
-  fps: Int
-  alpha: Double
-  zindex: Double
+    fps: Int
+    alpha: Double
+    zindex: Double
+    clips: Clip[]
     
-  type ClipTime
-    absTime: Double
-    eval (absoluteTime: Double)
-          absTime = absoluteTime
+    type ClipTime
+        absTime: Double
+        eval (absoluteTime: Double)
+            absTime = absoluteTime
             return this
     
-  startTime: ClipTime
-  endTime: ClipTime
+    startTime: ClipTime
+    endTime: ClipTime
     
-  color: type ClipColorMode
+    color: type ClipColorMode
         mode: String
         degree: Int
-        eval (colorMode: String, colorDegree, Int)
-          mode = colorMode
-          degree = colorDegree
-          return this
-  eval (framePerSecond: Int, transparency: Double, \
-          depth: Double, colorMode: ClipColorMode)
-      fps = framePerSecond
-      alpha = transparency
-      zindex = depth
-      color = colorMode
-      return this
-\end{lstlisting}
+        eval (colorMode: String, colorDegree: Int)
+            mode = colorMode
+            degree = colorDegree
+            return this
+            
+    eval (framePerSecond: Int, transparency: Double, \
+              depth: Double, colorMode: ClipColorMode)
+        fps = framePerSecond
+        alpha = transparency
+        zindex = depth
+        color = colorMode
+        return this
+\end{verbatim}
+\end{mdframed}
+
+% MW: 
+% Clip operations: move/trim/cascade a clip
 
 \subsection{Type Constructor and Object Instantiation}
 The work of constructing an object (or instance) of the type is done in the \texttt{eval} function. This function is required for every variable type. Although the details for function will be elaborated in Section \ref{sec:function}, we emphasize here that the \texttt{eval} function for a variable type has to return an object of this type.
 
 We can instantiate an object of a type in an expression of type name followed by a list of parameters in parenthesis. Formally,
-\begin{lstlisting}[caption=Object Instantiation Syntax]
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# Object Instantiation Syntax
 ObjInst ::= Identifier "(" ParamList ")"
-\end{lstlisting}
+\end{verbatim}
+\end{mdframed}
 where \texttt{ParamList} is defined in Section \ref{sec:paramPassing}.
 
 \subsection{Built-in Types} %MC
@@ -296,8 +263,8 @@ where \texttt{ParamList} is defined in Section \ref{sec:paramPassing}.
 Users can use these built-in typed objects without explicitly writing the object instantiating expression. These are sometimes called constants in other languages. But since everything is an object in \textit{Yo}, we regard them as shorthand to make these built-in objects. Notations are listed below:
 
 \begin{itemize}
-\item \texttt{Int}: [0-9]+ e.g. \texttt{86} (Integers outside this range will cause an error)
-\item \texttt{Double}: [0-9]+\textbackslash.[0-9]+ e.g. \texttt{32.4}, \texttt{0.43}
+\item \texttt{Int}: [`-' `+']?[0-9]+ e.g. \texttt{86} (Leading zeros will be ignored and integers outside this range will cause an error)
+\item \texttt{Double}: [`-' `+']?[0-9]+\textbackslash.[0-9]+ e.g. \texttt{32.4}, \texttt{0.43}
 \item \texttt{Bool}: \texttt{True}/ \texttt{False}
 \item \texttt{String}: \texttt{"abc"}
 \item \texttt{Array}: \texttt{[1,3,5,2,5]}, \texttt{["a","c","e","b","f"]}
@@ -308,18 +275,43 @@ The operator on these types can be found in Table \ref{tab:operator}.
 \subsection{Frame and Clip}
 There are two other built-in types: \texttt{Frame} and \texttt{Clip}. The concepts of \textit{frame}, \textit{clip} and \textit{layer} are as illustrated. A \textit{Frame} is seen as one of a sequence still images which compose a \textit{Clip}. It can be constructed directly from an image stored on the hard disk or an extract from an existing \textit{Clip}. Once a \textit{Clip} is assembled from a series of frames at a certain frame rate (usually 24 frames per second), it can be exported as the final product, or to be layered with other \textit{Clip}s to form a new \textit{Clip}.
 
-Below we show the common operations on \texttt{Frame} and \texttt{Clip}.
-\begin{table}[h!]
-  \begin{center}
-    \begin{tabular}{c|l}
-      \text{Frames} & \begin{tabular}[x]{@{}l@{}}Contruct a frame from an image \\ Extract frames from clips \\ Modify a frame (e.g. adjust image color)\end{tabular}\\
-      \hline
-      \text{Clips} &\begin{tabular}[x]{@{}l@{}} Construct a clip from frames \\ Trim, concatenate clips  \\ Adjust playing speed \\ Layer multiple clips and form a new one \\ Arrange inner-clips on the time line \end{tabular}
-    \end{tabular}
-    \caption{Operations for frames, layers and clips}
-    \label{tab:table1}
-  \end{center}
-\end{table}
+The constructor of the \texttt{Frame} type takes the file name (absolute location) of a picture on the disk. The program fails when there is an error opening the file (e.g. file does not exists).
+
+\begin{lstlisting}[caption=Frame Instantiation]
+  frame = Frame("~/images/pic001.png")
+\end{lstlisting}
+
+The structure of Clip is outlined as below
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+type Clip
+    allClips: Clip[]
+    startTime: Int # start time relative to the parent Clip
+    length : Double # Clip length in seconds
+    playTime: Double # the actual play time
+    src: String # file path if applicable
+    func getFrame(frameIndex: Int) # returns a Frame
+    func eval(videoName: String) # construct from a movie file
+    func eval(frameList: Frame[]) # construct from an array of Frames
+\end{verbatim}
+\end{mdframed}
+
+The Clips can be constructed from an existing video on the disk or from a list of Frames. Users can extract a Frame from a clip by specifying the index of the frame. The play speed can be altered by setting the \texttt{playTime} and the speedup will be calculated from  \texttt{length}/\texttt{playTime}.
+
+Common operations on \texttt{Frame} and \texttt{Clip} and be found in section \ref{subsec:clip frame ops}.
+%\begin{table}[h!]
+%  \begin{center}
+%    \begin{tabular}{c|l}
+%      \text{Frames} & \begin{tabular}[x]{@{}l@{}}Contruct a frame from an image \\ Extract frames from clips 
+%      %\\ Modify a frame (e.g. adjust image color)
+%      \end{tabular}\\
+%      \hline
+%      \text{Clips} &\begin{tabular}[x]{@{}l@{}} Construct a clip from frames \\ Trim, concatenate clips  \\ Adjust playing speed \\ Layer multiple clips and form a new one \\ Arrange inner-clips on the time line \end{tabular}
+%    \end{tabular}
+%    \caption{Operations for frames, layers and clips}
+%    \label{tab:table1}
+%  \end{center}
+%\end{table}
 
 
 %\subsection{Type Inference} %TL
@@ -329,77 +321,181 @@ Below we show the common operations on \texttt{Frame} and \texttt{Clip}.
 
 %layer acts as a member of clip 
 
-\section{Expressions} %TL
-This section describes the expression in \textit{Yo}.An expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and function calls that return values. Here are some examples:
-%Some example
-Subexpressions can be grouped by parentheses.
-%Parentthese example
+
+\section{Expressions and Operators} %TL
+This section describes the expression in \textit{Yo}. 
 \subsection{Primary expressions} %TL
+An expression consists of at least one operand and zero or more operators. Operands are typed objects such as constants, variables, and function calls that return values. Constants are integer, double, string, boolean that are define in chapter \textbf{5 Type}. For details of the definition of function calls, see chapter \textbf{8 Functions}\\
+Subexpressions can be grouped by parentheses.\\
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+Expression ::= Identifier
+| Constant
+| Funcalls
+| ( Expression )
 
-\subsection{Assignment operators} %TL
-Assignment operators store values in variables.
-
-
+Constant ::= Int
+| Bool
+| Double
+| String
+\end{verbatim}
+\end{mdframed}
+Here are some examples:
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+42              # constant
+3 * a + 5       # calculation on variables
+gcd(20,25)      # a function call
+(1 + 2) * (3 - 4)   # parentheses grouped expressions
+\end{verbatim}
+\end{mdframed}
 \subsection{Arithmetic operators} %TL
 \textit{Yo} provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with modular division and negation. Usage of these operators is straightforward; here are some examples:
-%Some arithmetic examples
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+x = 4 + 2              # addition         x = 6
+y = x - 5              # substraction     y = 1
+z = x * y              # multiplication   z = 6
+w = z / 2              # division         w = 3
+d = 10 % 3             # modular divison  d = 1
+d = -x                 # negation, unary  d = -6
+\end{verbatim}
+\end{mdframed}
 \subsection{Comparison operators} %TL
-Comparison operators are used to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. The comparison `result is either true or false, respectively.
-
+Comparison operators are used to determine how two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. The comparison result is either true or false, respectively.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+if (a > b)
+    log ("a is greater than b")
+if (a >= b)
+    log ("a is greater than or equal to b")
+if (a < b)
+    log ("a is less than b")
+if (a <= b)
+    log ("a is less than or equal to b")
+if (a == b)
+    log ("a is euqal to b")
+if (a != b)
+    log ("a is not equal to b")
+\end{verbatim}
+\end{mdframed}
 \subsection{Logical operators} %TL
 Logical operators test the truth value of a pair of operands. Any nonzero expression is considered true, while an expression that evaluates to zero is considered false.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+if (a && b)
+    log ("a is true and b is true")
+if (a || b)
+    log ("a is true or b is true")
+if (!a)
+    log ("a is not true")
+\end{verbatim}
+\end{mdframed}
+\subsection{Assignment operators} %TL
+Assignment operators store values in variables. This operator associate from right to left. In the example below, \texttt{b} is firstly assigned and then \texttt{a} is assigned. After the statement is executed, both \texttt{a} and \texttt{b} are equal to $42$.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+a = b = 42
+\end{verbatim}
+\end{mdframed}
 
-\subsection{Clip operators} %TL
+\subsection{Clip and Frame operators}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{concepts.pdf}
+  \caption{Layering operation}
+  \label{fig:layer}
+\end{figure}
+
+\label{subsec:clip frame ops}
+\textit{Yo} allows two clips to be concatenated easily.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# concatenate a clip2 to the end of clip1 and form a new Clip
+clip3 = clip1 & clip2
+\end{verbatim}
+\end{mdframed}
+
+\textit{Yo} also subscripts the Clip so that users can extract a range of clip. If the start/end time is not specified, the begin/finish time is used.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# get 2.4s - 8.0s of the clip (returns a clip)
+clip2 = clip[2.4:8.0]
+
+# get the first 3.2s of a clip
+clip2 = clip[:3.2]
+
+# get 2.4s till the end of a clip
+clip2 = clip[2.4:]
+\end{verbatim}
+\end{mdframed}
+
+The clip can be layered on the top of another clip to form a new clip. We use a ternary operator \textit{a $\hat{ }$ b@c} to denote putting $a$ on top of $b$, with time offset of $c$ seconds.
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# put clip2 on top of clip1, with time offset of 2.4s
+clip1 ^ clip2 @ 2.4
+\end{verbatim}
+\end{mdframed}
 
 \subsection{Member Access operators} %TL
-You can use the member access operator . to access the members of a structure or union variable. You put the name of the structure variable on the left side of the operator, and the name of the member on the right side.
+The member access operator \texttt{.} is used to access the members of an object: object name followed by the member name
+\begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]
+\begin{verbatim}
+# Get a member variable in object myObject
+a = myObject.myVariable      
+# Call a member function defined in object myObject
+b = myObject.myFunction(0)    
+\end{verbatim}
+\end{mdframed}
 
 \subsection{Operator Precedence and Associative Property} %TL
-When an expression contains multiple operators, such as a + b * f(), the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the function f with no arguments, multiply the result by b, then add that result to a. 
+When an expression contains multiple operators, such as \texttt{a + b * f()}, the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the function f with no arguments, multiply the result by b, then add that result to a. 
 The following is a list of types of expressions, presented in order of highest precedence first. Sometimes two or more operators have equal precedence; all those operators are applied from left to right unless stated otherwise.
-
-Function calls, array subscripting, and membership access operator expressions.
-Unary operators, including logical negation, bitwise complement, increment, decrement, unary positive, unary negative, indirection operator, address operator, type casting, and sizeof expressions. When several unary operators are consecutive, the later ones are nested within the earlier ones.
-Multiplication, division, and modular division expressions.
-Addition and subtraction expressions.
-Bitwise shifting expressions.
-Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to
-expressions.
-Equal-to and not-equal-to expressions.
-Logical AND expressions.
-Logical OR expressions.
-All assignment expressions, including compound assignment. When multiple assignment statements appear as subexpressions in a single larger expression, they are evaluated right to left.
+\begin{enumerate}
+\item Function calls, array subscripting and slicing, and membership access operator expressions.
+\item Unary operators, When several unary operators are consecutive, the later ones are nested within the earlier ones.
+\item Multiplication, division, and modular division expressions. 
+\item  Addition and subtraction expressions. 
+\item Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to expressions.
+\item Equal-to and not-equal-to expressions.
+\item Logical AND expressions.
+\item Logical OR expressions.
+\item Clip concatenation. 
+\item Clip cascading.
+\item All assignment expressions.
+\end{enumerate}
 
 %
 \section{Statements}
-\subsection{Simple Statements} %YO
-\subsubsection{Expressions} %YO
+\subsection{Simple statements}
 \subsubsection{continue} %YO
 \begin{lstlisting}[caption=continue]
 continue_stmt ::=  "continue"
 \end{lstlisting}
-continue may only occur syntactically nested in a for or while loop, but not nested in a function or class definition within that loop. It continues with the next cycle of the nearest enclosing loop.
+continue may only occur syntactically nested in a for or while loop, but not nested in a function or class definition within that loop. It continues with the next cycle of the nearest enclosing loop.\\
 
 \subsubsection{break} %YO
 \begin{lstlisting}[caption=break]
 break_stmt ::=  "break"
 \end{lstlisting}
 break may only occur syntactically nested in a for or while loop, but not nested in a function or class definition within that loop. It terminates the nearest enclosing loop, skipping the optional else clause if the loop has one.\\
-If a for loop is terminated by break, since the loop control target is a local variable, its current value can not be used after the break.
+If a for loop is terminated by break, since the loop control target is a local variable, its current value can not be used after the break.\\
 
 \subsubsection{return} %YO
 \begin{lstlisting}[caption=return]
 return_stmt ::=  "return" expr
 \end{lstlisting}
-return may only occur syntactically nested in a function definition, not within a nested class definition.???\\ %Is that appliable to our language?
+return may only occur syntactically nested in a function definition, not within a nested class definition.
 return leaves the current function call with the expr as return value.\\
 %Can expr be optional?
 
 \subsubsection{log} %YO
 \begin{lstlisting}[caption=log]
-log_stmt ::=  "log" expr???
+log_stmt ::=  "log" expr
 \end{lstlisting}
-log ...... to standard output.
+log evaluates the expr and writes the resulting object to standard output.\\
 
 \subsection{Compound statements}
 \subsubsection{if} %YO
@@ -421,54 +517,12 @@ This repeatedly tests the judgement and, if it is true, executes the expr; if th
 \subsubsection{for} %YO
 The for statement is used to iterate over the elements of an array or continuous integers from a to b:
 \begin{lstlisting}[caption=for]
- for_stmt ::=  "for" target "<-" [a "to" b | array] ":" expr
- 
- 
- !@#$%^&***SOMEBODY JUST MOVE THE FOLLOWING CODE AWAY >.<
- type Int
-  val: int
-    
-  func + (p: Int)
-      return val + p
-    
-    func + (p: Double)
-      return Double(val) + p
-        
-    eval (p: Double)
-      return 
- 
- type TYPENAME
-  MEMVAR: MEMTYPE
-    
-    func f (PARAM1: PARAMTYPE1, PARAM2: PARAMTYPE2)
-    return ...
-    
-    eval (PARAM1: PARAMTYPE1, PARAM2: PARAMTYPE2)
-    
-    eval (PARAM1: MEMTYPE)
-      MEMVAR = PARAM1
-        return this
-    
- a = A(1)
- a.f(3,2)
-    
- # int * int => int
- func add (PARAM1: Int, PARAM2: Int)
-  return PARAM1 + PARAM2
-    
- type $add
-  eval (PARAM1: PARAMTYPE1, PARAM2: PARAMTYPE2)
-      return ...
-        
- c = f(3,2)
- 
- func apply (f: func, p1: Int, p2: Int)
-  return f(p1,p2)
- 
+ for_stmt ::=  "for" target "=" [a "to" b | array] ":" expr
+
 \end{lstlisting}
 An iterator is created for the result of the expression [a "to" b | array]. The expr is then executed once for each item provided by the iterator, in the order of ascending indices. Each item in turn is assigned to the target list using the standard rules for assignments, and then the expr is executed. When the items are exhausted (which is immediately when the sequence is empty), the loop terminates.
 
-\section{Function} %MW
+\section{Functions} %MW
 \label{sec:function}
 This section discusses the use of functions, which are types in \textit{Yo} and provides the detail for how to declare and define functions, specify parameters and return types. 
 \subsection{Definition} %MW
@@ -480,24 +534,24 @@ A function definition will create a new function and provides the information be
 \end{itemize}
 The syntax for a function definition is shown below:
 \begin{lstlisting}[caption=Function Definition]
- func FUNCNAME (PARAM1: PARAMTYPE1, PARAM2: PARAMTYPE2)
+ func funcname (param1: paramtype1, param2: paramtype2)
   #Function logic
 \end{lstlisting}
 In the example, \textit{func} is a keyword which indicates that a function type is defined. The function type is generated as:
 \begin{lstlisting}[caption=Function Definition]
  type $FUNCNAME
-  eval (PARAM1: PARAMTYPE1, PARAM2: PARAMTYPE2)
+  eval (param1: paramtype1, param2: paramtype2)
       #Function logic
 \end{lstlisting}
 The function identifier is followed by the function name. The naming convention has been specified in \textbf{3.2 Identifiers}.
 %Either inside the type, or outside the type (\texttt{self} being the first parameter)
 %\subsection{Scope} %MW
 \subsection{Parameter declaration}
-Parameters with both names \textit{PARAMNAME} and \textit{PARAMTYPE} should be declared. The annotation for parameters declaration is shown below:
+Parameters with both names \textit{paramname} and \textit{paramtype} should be declared. The annotation for parameters declaration is shown below:
 \begin{lstlisting}[caption=Parameter declaration]
-func foo(a: Int, b: Double = 0.5):
+func foo(a: Int, b: Double = 0.5)
 \end{lstlisting}
-The naming convention for parameters can be referred in \textbf{3.2 Identifiers}. The parameter type can be built-in or user-defined types.
+The naming convention for parameters can be referred in section \ref{subsec:identifiers}. The parameter type can be built-in or user-defined types.
 Parameters are statically typed, which means 
 The following types of parameters that can be passed to a function:
 \begin{itemize}
@@ -514,8 +568,10 @@ c=foo(2,3)
 \textit{Yo} also supports named parameters, which means when a function is called, parameters can be explicitly assigned a value by name. These are used to implement default, or optional, values. For example:
 \begin{lstlisting}[caption=Named parameters]
 func foo(a: Int, b: Int, c:Boolean = True):
-  if c : return a+b
-    else : return a-b
+  if c
+    return a+b
+  else
+    return a-b
 
 d=foo(2,3)
 #d=5
@@ -525,9 +581,11 @@ e=foo(2,3,False)
 \end{lstlisting}
 The order of the named parameters does not matter, the following two cases yield the same results:
 \begin{lstlisting}[caption=Non-ordered named parameters]
-func foo(a: Int, b: Int, c:Boolean = True):
-  if c : return a+b
-    else : return a-b
+func foo(a: Int, b: Int, c:Bool = True):
+  if c
+    return a+b
+  else
+    return a-b
 
 d=foo(3,2)
 #d=5
@@ -536,33 +594,42 @@ e=foo(2,3)
 #e=5
 \end{lstlisting}
 The priority for a function to pass parameters is that it firstly matches up the positional parameters, and it will then assigns any named parameters specified in the function call.
+
 \subsection{Parameter passing}
 \label{sec:paramPassing}
 Parameters are call-by-object in \textit{Yo}, which means references are created to objects. When a function is called, the object reference is passed to the function parameters. They can't be changed if it is immutable while they can be changed in place in the function if it is mutable.  
-\subsection{Function return types}
-A function returns an object as the execution result. 
+
+\subsection{Function Return Types}
+A function returns an object as the execution result. The built-in type inference mechanism can allow the omit of certain types. The compiler will deduce the return type based on the body of the function object. 
+
 \subsection{Recursitivity} %MW
 Recursitivity is a property that a function can be called by themselves. The following example shows recursitivity is useful in the calculating an integer's factorial:
 \begin{lstlisting}[caption=Calculate the factorial of n]
- func factorial (n: Int)
-    if n==1 : return 1
-        else : return factorial(n-1)*n
+func factorial (n: Int)
+  if n==1
+    return 1
+  else
+    return factorial(n-1)*n
 \end{lstlisting}
 %\subsection{Lambdas}
 
-\subsection{Built-in Functions} %MW
-\subsubsection{IO}
-\begin{itemize}
-  \item readFrame(filename) \\
-    Return a frame object from an image file
-    \item writeFrame \\
-    Write a frame to an image file
-    \item log(file=sys.stdout) \\
-    Print objects to the stream file, default to be standard output in screen.
-\end{itemize}
-\subsubsection{Type Conversions}
-Type conversions are built-in functions 
+\subsection{Built-in Type Conversions} %MW
+Refer to Table \ref{tab:my-label}.
 
+\begin{table}[ht!]
+\centering
+\begin{tabular}{|l|l|l|} 
+\hline
+
+Functions & Conversion rule       & Example                                     \\ \hline
+Int()     & String, Double to Int & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Int("9001")\\ 9001\\ \textgreater\textgreater Int(8000.0)\\ 8000\end{tabular}                                              \\ \hline
+Double()  & String, Int to Double & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Double("800")\\ 800.0 \\ \textgreater\textgreater Double(8000)\\ 8000.0 \end{tabular}\\ \hline
+String()  & Int, Double to String & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater String(100)\\ "100"\\ \textgreater\textgreater String(90.1)\\ "90.1"\end{tabular}                                          \\ \hline
+Array()   & String to Array  & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Array(200)\\ {[}2,0,0{]}\\ \textgreater\textgreater Array("ocamllex")\\ {[}"o","c","a","m","l","l","e","x"{]}\end{tabular} \\ \hline
+\end{tabular}
+\caption{Built-in Type Conversion Functions}
+\label{tab:my-label}
+\end{table}
 %\section{Library Functions}
 %\subsection{map}
 %\subsection{foldleft}
@@ -570,12 +637,6 @@ Type conversions are built-in functions
 %\subsection{ReadClip}
 %\subsection{log}
 
-And those built-in functions like readclip,log..\\ 
-each one as a subsection.
-
-
-\section{Sample Program}
-paste a sample program with well-written comments here\\
 
 
 %1. Support scoping

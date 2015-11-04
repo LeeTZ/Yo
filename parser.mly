@@ -1,9 +1,15 @@
 %{ open Ast %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN
+%token INDENT NEWLINE
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
+%token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE FOR WHILE INT
+%token RETURN IF ELSE FOR WHILE IN CONTINUE BREAK
+%token INT DOUBLE BOOL STRING ARRAY
+%token LAMBDA FUNCTION GLOBAL TYPE EVAL
+%token FRAME CLIP
+%token RIGHTARROW LEFTARROW CASCADE
+%token LOG READFRAME WRITEFRAME
 %token <int> LITERALINT
 %token <float> LITERALDOUBLE
 %token <string> ID
@@ -13,9 +19,15 @@
 %nonassoc ELSE
 %right ASSIGN
 %left EQ NEQ
+%left CASCADE
+%left AMPERSAND
+%left OR
+%left AND
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MOD
+%left UMINUS
+%left DOT
 
 %start program
 %type <Ast.program> program
@@ -31,7 +43,7 @@ decls:
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   FUNCTION ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { fname = $1;
 	 formals = $3;
 	 locals = List.rev $6;
@@ -71,7 +83,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+    LITERALINT          { LiteralInt($1) }
   | ID               { Id($1) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }

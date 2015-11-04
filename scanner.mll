@@ -1,7 +1,12 @@
 { open Parser }
 
+let Integer_cons = '-'? ['0'-'9']+
+let Double_cons = '-'? ['0'-'9']+ '.' ['0'-'9']+
+let String_cons = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
+
 rule token = parse
-  [' ' '\r' ('\' [' ' '\t']* '\n' [' ' '\t']*)] { token lexbuf } (* Whitespace *)
+  [' ' '\r'] { token lexbuf } (* Whitespace *)
+| '\'      { continue lexbuf }
 | "#{"     { comment lexbuf }           (* Comments *)
 | '#'      { oneLineComment lexbuf}
 | '\t'     { INDENT }
@@ -44,7 +49,7 @@ rule token = parse
 | "Frame"  { FRAME }
 | "Clip"   { CLIP }
 
-| ">-"     { RIGHTARROW }
+| "->"     { RIGHTARROW }
 | "<-"     { LEFTARROW }
 | "^@"     { CASCADE }
 
@@ -62,15 +67,12 @@ rule token = parse
 | "global" { GLOBAL }
 | "type"   { TYPE }
 
-(* in the future, those Built-in function may be eliminated from the scanner *)
 | "log"    { LOG }
-| "readFrame" { READFRAME }
-| "writeFrame" { WRITEFRAME }
+| "eval"   { EVAL }
 
-
-| '-'? ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) }
-| '-'? ['0'-'9']+ '.' ['0'-'9']+ as lxm { LITERALDOUBLE(float_of_string lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| Integer_cons as lxm { LITERALINT(int_of_string lxm) }
+| Double_cons as lxm { LITERALDOUBLE(float_of_string lxm) }
+| String_cons as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
@@ -81,3 +83,7 @@ and comment = parse
 and oneLineComment = parse
   '\n' { token lexbuf }
 | _    { oneLineComment lexbuf }
+
+and continue = parse
+  [' ' '\t' '\r' '\n'] {continue lexbuf}
+| [^ ' ' '\t' '\r' '\n'] {token lexbuf}

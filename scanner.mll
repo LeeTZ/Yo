@@ -2,7 +2,8 @@
 
 let Integer_cons = '-'? ['0'-'9']+
 let Double_cons = '-'? ['0'-'9']+ '.' ['0'-'9']+
-let String_cons = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let Id_cons = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let String_cons = [^ '"' ]* (* Is that correct? *)
 
 rule token = parse
   [' ' '\r'] { token lexbuf } (* Whitespace *)
@@ -72,9 +73,10 @@ rule token = parse
 | "log"    { LOG }
 | "eval"   { EVAL }
 
-| Integer_cons as lxm { LITERALINT(int_of_string lxm) }
-| Double_cons as lxm { LITERALDOUBLE(float_of_string lxm) }
-| String_cons as lxm { ID(lxm) }
+| Integer_cons as lxm { IntLITERAL(int_of_string lxm) }
+| Double_cons as lxm { DoubleLITERAL(float_of_string lxm) }
+| '"' String_cons '"' as lxm { StringLITERAL(lxm) }
+| Id_cons as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

@@ -34,6 +34,15 @@
 
 %%
 
+primary_expr
+   
+
+
+
+
+
+
+
 program:
   decls EOF { $1 }
 

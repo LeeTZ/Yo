@@ -2,12 +2,12 @@
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE ELIF FOR WHILE IN CONTINUE BREAK
+%token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
 %token LAMBDA FUNCTION GLOBAL TYPE EVAL
 %token FRAME CLIP
 %token RIGHTARROW LEFTARROW CASCADE
-%token LOG READFRAME WRITEFRAME
+%token LOG
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
 %token <string> StringLITERAL
@@ -29,8 +29,8 @@
 %left UMINUS
 %left DOT
 
-%start primary_expr
-%type <int> primary_expr
+%start statement_opt
+%type <int> statement_opt
 
 %%
 
@@ -39,6 +39,10 @@ constant:
   | DoubleLITERAL                           { DoubleCon $1 }
   | StringLITERAL                           { StrCon $1 } 
   | BoolLITERAL                             { BoolCon $1 }
+  | array_literal                           { Array $1  }
+
+array_literal:
+  LBRACKET arg_expr_opt RBRACKET            { $2 }
 
 primary_expr:
     ID                                       { Id $1 }  
@@ -69,3 +73,42 @@ arg_expr_opt:
 arg_expr_list:
     expr                                     { [$1] }
   | arg_expr_list COMMA expr                 { $3 :: $1 }
+
+statement:
+  | expr NEWLINE                                                                { Stmt(Some($1)) }
+  /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
+  | LOG expr NEWLINE                                                            { Log($2) }
+  | IF if_statement elif_opt       { If($2, $3)}
+  | IF if_statement elif_opt ELSE if_statement    { If($2, $3, $5) }
+  | WHILE expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                                              { While($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                                      { For_in($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE                           { For_eq($4, $6, $10)  }
+  | CONTINUE NEWLINE                                                            { CONTINUE }
+  | BREAK NEWLINE                                                               { BREAK }
+  | RETURN NEWLINE                                                              { RETURN }
+  | RETURN expr NEWLINE                                                         { Return($2) }
+
+for_in_expr:
+  | ID            {$1}
+  | array_literal {$1}
+
+statement_opt:
+    /* nothing */ { [] }
+    | statement_list { List.rev $1 }
+
+statement_list:
+  |  NEWLINE     { [] }
+  | statement { Stmt(Some($1)) }
+  | statement_list statement { $2 :: $1 }
+
+elif_opt:
+  /* nothing */ { [] }
+  | elif_list { List.rev $1 }
+
+if_statement:
+  expr COLON LBRACE NEWLINE statement RBRACE NEWLINE { IfStmt($1,$5) }
+
+elif_list:
+  | ELIF if_statement {$2}
+  | elif_list ELIF if_statement { $3 :: $1 }

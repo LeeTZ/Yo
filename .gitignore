@@ -1,4 +1,5 @@
 .texpadtmp
+*.output
 *.cmo
 *.cmi
 *.out

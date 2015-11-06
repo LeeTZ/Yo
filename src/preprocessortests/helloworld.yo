@@ -1,0 +1,12 @@
+#{ This is a simple test for yo preprocessor}#
+
+func int function():
+    d = 1
+    c = (42 + 3) * 8
+    int i = 0
+    while (i<3):
+       int d = 5
+       i = i+1
+    return d
+
+log "hello world"

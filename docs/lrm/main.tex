@@ -1,0 +1,874 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}     
+
+\usepackage{fancyvrb, courier}
+\newcommand\terminal[1]{\textbf{#1}}
+\usepackage{amsmath}         % Les maths de base
+\usepackage[svgnames]{xcolor}% Pour les besoins de PythonTeX
+\usepackage[top=2.4cm,bottom=2.4cm,left=2.4cm,right=2.4cm]{geometry}
+\usepackage{graphicx}        % Gestion des inclusions graphiques
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{subcaption} 
+\usepackage{floatrow}
+\usepackage{float}
+\usepackage{color}
+\usepackage{xcolor}
+\DeclareCaptionFont{black}{\ttfamily\color{black}}
+\usepackage{hhline}
+\usepackage{mdframed}
+%\definecolor{lightgray}{gray}{0.90}
+%\usepackage[font=black]{caption}
+%\DeclareCaptionFormat{listing}{\colorbox{gray!22}{\parbox{\textwidth}{#1#2#3}}}
+%\captionsetup[lstlisting]{format=listing,labelfont=black,textfont=black,skip=-2pt}
+\definecolor{darkgray}{RGB}{70,30,30}
+
+\lstset{
+	%language={yoLang},
+    xleftmargin=2.5pt,
+    xrightmargin =2.5pt,
+    %aboveskip= 2pt,
+    basicstyle=\ttfamily\small,
+    commentstyle=\mdseries\color{gray},
+    frame=tlbr,
+    tabsize=4,
+    keywordstyle=\bfseries\color{blue},
+    %escapeinside={(*@}{@*)},
+    %rulecolor=\color{darkgray},
+ 	comment=[l]{\#},
+    %morecomment=[s]{#\{}{#\}},
+    commentstyle=\ttfamily\color{darkgray},
+    emph={
+        if, elif, else, log, continue, break, downto, func, return, type, Int, Double, String, Bool, Array, Clip, Frame, eval, for, while, in
+    },
+    emphstyle={\bfseries\color{blue}}
+ }
+ 
+
+\usepackage{enumitem}
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\renewcommand{\lstlistingname}{Example}
+
+\newenvironment{syndef}
+{\VerbatimEnvironment \begin{mdframed}[backgroundcolor=lightgray,hidealllines=true]\begin{Verbatim}[commandchars=\\\{\}]}{\end{Verbatim}\end{mdframed}}
+
+%\newenvironment{example}{\begin{lstlisting}}{\end{lstlisting}}
+
+\title{\textit{Yo}: Language Reference Manual}
+\author{Mengqing Wang, Munan Cheng, Tiezheng Li, Yufei Ou}
+\date{\{mw3061,mc4081,tl2693,yo2265\}@columbia.edu}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{Introduction}
+
+\textit{Yo} is a user-friendly programming language for movie production. We offer the fastest and most efficient non-linear video editing. Users can produce videos from varieties of sources such as images or existing video clips and apply system- or user-defined functions to perform seamless video editing such as clip construction, duration adjustment, subtitle burning. In this light, \textit{Yo}'s objective is to facilitate editing on videos and less human effort needs to be involved.
+
+
+\section{Syntax Notations}
+In this document, we define types or identifiers in regular expression. the following notations are used to decide lexical/syntactic convention. \\
+\begin{itemize}
+\item Brackets \texttt{[ ]} enclose optional items.
+\item Parenthesis \texttt{( )} enclose alternate item choices, which are separated from each other by vertical bars \texttt{|}.
+\item Asterisks \texttt{*} indicate items to be repeated zero or more times.
+\item Dash \texttt{-} is a shorthand for writing continuous elements. 
+\item Double colon with an equal sign \texttt{::=} is used for definition.
+\item Braces \{n\}	matches when the preceding character, or character range, occurs n times exactly.
+\item \texttt{\{n,m\}} matches when the preceding character occurs at least n times but not more than m times, for example, \texttt{ba\{2,3\}b} will find \texttt{baab} and \texttt{baaab} but not \texttt{bab} or \texttt{baaaab}. Values are enclosed in braces.
+\end{itemize}
+
+Below we will write \textit{Yo}'s  formal syntax definition in gray-background box. The terminals are marked in bold while non-terminals are in regular font.
+\begin{syndef}
+c ::= a | \terminal{b}
+\end{syndef}
+
+We will also give examples in the white box. 
+\begin{lstlisting}
+This is an example
+\end{lstlisting}
+
+
+
+\section{Lexical Conventions}
+This chapter presents the lexical conventions of \textit{Yo}. This section describes which tokens are valid, including the naming convention of identifiers, reserved keywords, operators, separators and whitespaces.\\
+\subsection{Comments} %YO
+Single line comment is made with a leading \texttt{\#} in the line:
+\begin{lstlisting}
+# This is a single line comment
+\end{lstlisting}
+Multi-line comment starts with \texttt{\#\{} and ended with \texttt{\}\#}
+\begin{lstlisting}
+#{ This is a multiline
+comment #}
+\end{lstlisting}
+Nested comments are not allowed in \textit{Yo}.
+
+\subsection{Identifiers} %YO
+\label{subsec:identifiers}
+An identifier of \textit{Yo} is a case-sensitive string different from any Keyword (see next subsection). It starts with a letter or an underscore, optionally followed by a series of characters (letter, underscore, number). The length varies from 1 to 256.
+
+Formally, an identifier can be any non-Keyword expressed in regular expression as
+
+\begin{syndef}
+Identifier ::= [\terminal{a}-\terminal{zA}-\terminal{Z_}][\terminal{a}-\terminal{zA}-\terminal{Z0}-\terminal{9_}]\{0,255\}
+\end{syndef}
+
+Legal examples: 
+\begin{lstlisting}
+_number _number1 number2 number_3 Number
+\end{lstlisting}
+
+Illegal examples: 
+\begin{lstlisting}
+2num num $2 Int Double Bool
+\end{lstlisting}
+
+Note that \texttt{Int, Double, Bool} are illegal because they are keywords. A list of keyword can be found in next subsection.
+
+\subsection{Keywords} %YO
+This is a list of reserved keywords in \textit{Yo}. Since they are used by the language, these keywords are not available for naming variable or functions.\\
+\begin{table}[htb!]
+\centering
+\caption{List of keywords in \textit{Yo}}
+\begin{tabular}{lll}
+break   & func   & log  \\
+continue & global & return  \\
+else  & if     & struct \\
+eval   & in     & while  \\
+for  & &
+\end{tabular}
+\end{table}
+
+\subsection{Operators} %YO
+An operator is a special token that performs an operation, such as addition or subtraction, on either one, two, or three operands. A full coverage of operators can be found in a later chapter, See chapter \textbf{6 Expression and Operators}.
+
+\subsection{Separators} %YO
+A separator separates tokens. White space (see next section) is a separator, but it is not a token. The other separators are all single-character tokens themselves: \\
+\texttt{( ) [ ] ,} \\
+
+\subsection{New Line}
+A physical line ends with an explicit \texttt{\textbackslash n} input from the user while a logical line contains a complete statement. A logical line can be consist of multiple physical lines, all except the last one ending with an explicit \texttt{\textbackslash}.
+\begin{lstlisting}
+line 1 \
+  line 1 continued \
+ line 1 last line
+\end{lstlisting}
+
+
+\subsection{Whitespace} %YO
+Whitespace characters such as tab and space are generally used to separate tokens. But \textit{Yo} is not a free-format language, which means in some cases, the position and number of whitespaces matters to the code interpretation. Leading tab whitespace is used to denote code blocks and to compute the code hierarchy (similar to curly brackets in C-family languages). Briefly, an extra leading tab lowers the level of this line in the code hierarchy.% In addition to the indentation, the parent also has a colon following it.
+
+In contrast to \textit{Python}, \textit{Yo} only accepts \texttt{\textbackslash}t for leading indent, and space is not allowed. In other words, space should not appear at the beginning of any line (except for a continuing physical line where all the leading whitespaces are ignored).\\
+\begin{lstlisting}
+im_a_parent
+	im_a_child
+		im_a_grandchild
+	im_another_child
+		im_a_grandchild
+\end{lstlisting}
+
+Usually, \texttt{for,while,if,else if,else} and function definition may start a new code block. The code block ends with an un-indent. In the above example \texttt{im\_a\_child} and \texttt{im\_another\_child} are at the same code indention level.
+
+
+\section{Types}
+\textit{Yo} is a statically and strongly typed programming language, which means the type for each variable, expression or function is determined at compile time and remain unchanged throughout the program.
+
+\textit{Yo} has an object-oriented model in which every value is an object and each operation is a method call. We have a pure and uniform object model in the sense that the traditional primitive values (integers, double-precision floating numbers) and functions are incorporated into the object model.
+
+%we will show the definition of type and list the built-in types which can be used as building blocks for the user-defined types. \textit{Type} in \textit{Yo} is a blueprint for objects, which resembles the \textit{class} concept in other languages such as C++, Java and Python. 
+The concept of type in \textit{Yo} resembles the \textit{class} in other languages such as C++, Java and Python, which serves as the blueprint for objects. There are three kinds of types: value types, function types and the \textit{None} type. For the sake of definition, we will mention function in this section, but the details will be covered in later sections.
+
+In this section, we first list some built-in types as an introduction to our type system. Then we give the formal definition of type and show how users define types in their program.
+
+\subsection{Built-in Types}
+Below we list the built-in types in \textit{Yo}. As they are used as the building blocks for the program, \textit{Yo} provides \textit{literals} to initialize them conveniently in users' source code. The operators on this types are covered in Section \ref{sec:exp-op}.
+
+\begin{itemize}
+\item 
+\texttt{Int} 32-bit signed integral number, ranging from $-(2^{31})$ to $2^{31}-1$. The literal has to be represented in decimal:
+\begin{syndef}
+IntLiteral ::= [\terminal{+}\terminal{-}]?[\terminal{1}-\terminal{9}][\terminal{0}-\terminal{9}]*
+\end{syndef}
+The leading plus sign is optional when representing a positive integer. But leading zeros is not legal. For example:
+\begin{lstlisting}
+86 -320 +300
+\end{lstlisting}
+A compile error will be generated if the \texttt{Int} literal exceeds range defined above.
+
+\item \texttt{Double} 64-bit double-precision floating number. The literal is represented as follows:
+\begin{syndef}
+DoubleLiteral ::= [\terminal{+}\terminal{-}]?[\terminal{1}-\terminal{9}][\terminal{0}-\terminal{9}]*\terminal{.}[\terminal{0}-\terminal{9}]+
+\end{syndef}
+Note that the dot and the fractional number is compulsory (otherwise it can be identified as \texttt{Int}). Examples:
+\begin{lstlisting}
+32.45 -12.0
+\end{lstlisting}
+
+\item \texttt{Bool} Binary value of either \texttt{True} or \texttt{False}.
+\begin{syndef}
+BoolLiteral ::= \terminal{True} | \terminal{False}
+\end{syndef}
+
+\item \texttt{String} A contiguous set of characters. The literal has zero or more characters enclosed in double quotes. A character can be a regular character or an escape sequence. Escape sequences are listed in Table \ref{tab:escape-characters}.
+\begin{syndef}
+StringLiteral  ::= \terminal{"}StringCharacter\terminal{"}
+
+StringCharacter ::= (^\terminal{"} \terminal{\textbackslash} \terminal{'}) StringCharacter
+		| EscapeSequence StringCharacter
+\end{syndef}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l|l}
+EscapeSequence                & Meaning         \\ \hline
+\texttt{\textbackslash b}              & Backspace       \\
+\texttt{\textbackslash t}              & Horizontal tab  \\
+\texttt{\textbackslash n}              & New line        \\
+\texttt{\textbackslash r}              & Carriage return \\
+\texttt{\textbackslash "}              & Double quote    \\
+\texttt{\textbackslash '}              & Single quote    \\
+\texttt{\textbackslash \textbackslash} & Backslash      
+\end{tabular}
+\caption{Escape Characters}
+\label{tab:escape-characters}
+\end{table}
+
+Examples:
+\begin{lstlisting}
+"abc" "9j32 f0kca0" "Hello\nYo!"
+\end{lstlisting}
+
+
+\item \texttt{None} One value type that represents ``not exists''. 
+\begin{syndef}
+NoneLiteral ::= \terminal{None}
+\end{syndef}
+
+\item \texttt{Array} Container holding a sequence of (zero or more) elements. The \texttt{Array} literal is represented using a pair of square brackets. Each elements is followed by a comma, and the trailing comma can be omitted.
+\begin{syndef}
+ArrayLiteral ::= \terminal{[} ArrayElementList \terminal{]}
+ArrayElementList ::= \terminal{empty}
+		| (Literal | Identifier) \terminal{,} ArrayElementList
+\end{syndef}
+where
+\begin{syndef}
+Literal ::= IntLiteral 
+        | DoubleLiteral
+        | BoolLiteral
+        | StringLiteral 
+        | NoneLiteral 
+        | ArrayLiteral
+\end{syndef}
+From the above definition, we can note that the array can be nested. All \texttt{Array}s are considered of the same type (regardless the type of elements it holds). To enumerate a couple of legal examples:
+\begin{lstlisting}
+[1, 2, 3, "a"] [] ["ab", "ae"] [3.4, 43.0] [None, None] 
+[[3,2,4], ["ab", "ae"], None]
+\end{lstlisting}
+
+\textit{Yo} allows users to create an empty \texttt{Array} having uniform-typed elements. Adding elements of different types can thus cause a compile error. This can be done by specifying the type name before the pair of square brackets. As an example,
+\begin{lstlisting}
+Double []
+\end{lstlisting}
+returns a empty \texttt{Array} exclusively for \texttt{Double}s.
+
+\end{itemize}
+
+
+\subsection{Value Type Definition} %MC
+A value type can be defined at the most top level of the program or be nested in another type. The definition starts with the keyword \texttt{type} and the type identifier followed by a colon. Conventionally, we use capitalized identifiers for type names. 
+\begin{syndef}
+type_def ::= \terminal{type} type_name \terminal{:} \terminal{NEWLINE} \terminal{INDENT} type_element_list \terminal{DEDENT}
+type_name ::= identifier
+\end{syndef}
+
+Then follows the declaration of zero or more members of value types or function types. 
+
+\begin{syndef}
+type_element_list ::=  \terminal{empty}
+	 | (value_element_decl | function_element_decl) \terminal{NEWLINE} 
+     	type_element_list
+\end{syndef}
+
+A value-typed member is declared by writing the member identifier and its type name or type definition.
+\begin{syndef}
+value_element_decl ::= identifier \terminal{:} type_name
+\end{syndef}
+
+For example,
+\begin{lstlisting}
+zindex: Double
+clips: Clip []
+\end{lstlisting}
+
+The type for the member has to be defined in its referencing scope, or a compile error occurs.
+
+\begin{lstlisting}
+type A:
+	var1: Double
+	var2: Int
+    var3: A
+
+type B:
+	type C:
+    	var1: Int[]
+    var1: A
+	var2: Int
+    var3: C
+\end{lstlisting}
+
+In the example above, \texttt{A} has a member \texttt{var3} of its own type \texttt{A}. In type \texttt{B}, member \texttt{var1} is of \texttt{A} type (defined on the same level as B) and the type of \texttt{var3} is defined inside \texttt{B} (\texttt{C} is called an \textit{inner type} of \texttt{B}). To reference an inner type, users have to use the member operator (see Section \ref{sec:mem-access}), e.g. \texttt{B.C}
+
+The function member defines the executable code that can be invoked about an instance of this type. Details about function definition is covered in Section \ref{sec:function}.
+
+% MW: 
+% Clip operations: move/trim/cascade a clip
+
+\subsection{Type Constructor and Object Instantiation}
+The work of creating an object (or instance) of the type is done in the \texttt{eval} function, which is required for every value type. Although the details about function will be elaborated in Section \ref{sec:function}, we emphasize here that the \texttt{eval} function for a value type has to return an object of this type.
+
+\begin{lstlisting}
+type ClipColorMode
+	mode: String
+	degree: Int
+	eval (colorMode: String, colorDegree: Int)
+		mode = colorMode
+		degree = colorDegree
+		return
+\end{lstlisting}
+
+We can instantiate an object of a type in an expression of type name followed by a list of parameters in parenthesis. Formally,
+\begin{syndef}
+type_name \terminal{(} ParamList \terminal{)}
+Paramlist      ::=  parameter (\terminal{:} parameter)* [\terminal{,}]
+parameter      ::=  \terminal{(}identifier \terminal{,} type \terminal{)} | \terminal{(} paramlist \terminal{)}
+\end{syndef}
+
+Here is an example of object instantiation:
+\begin{lstlisting}
+ccMode = ClipColorMode("RGB", 4)
+\end{lstlisting}
+
+
+\subsection{Frame and Clip}
+There are two other built-in types: \texttt{Frame} and \texttt{Clip}. The concepts of \textit{frame}, \textit{clip} and \textit{layer} are as illustrated in Figure \ref{fig:layer}. A \textit{Clip} is a section of video production. \textit{Clip} is a sequence A \textit{Frame} is seen as one of a sequence still images which compose a \textit{Clip}. It can be constructed directly from an image stored on the hard disk or an extract from an existing \textit{Clip}. Once a \textit{Clip} is assembled from a series of frames at a certain frame rate (usually 24 frames per second), it can be exported as the final product, or to be layered with other \textit{Clip}s to form a new \textit{Clip}.
+
+The constructor of the \texttt{Frame} type takes the file name (absolute location) of a picture on the disk. The program fails when there is an error opening the file (e.g. file does not exists).
+
+\begin{lstlisting}
+frame = Frame("~/images/pic001.png")
+\end{lstlisting}
+
+The structure of Clip is outlined as below
+\begin{lstlisting}
+type Clip
+    allClips: Clip[]
+    startTime: Int 			# start time relative to the parent Clip
+    length : Double 		# Clip original length in seconds
+    playTime: Double 		# actual play time in seconds
+    src: String 			# file path if applicable
+    func getFrame(frameIndex: Int) 	# returns the (frameIndex)^th Frame
+    func eval(videoName: String) 	# construct from a movie file
+    func eval(frameList: Frame[]) 	# construct from an array of Frames
+\end{lstlisting}
+
+The Clips can be constructed from an existing video on the disk or from a list of Frames. Users can extract a Frame from a clip by specifying the index of the frame. The play speed can be altered by setting the \texttt{playTime} and the speedup will be calculated from  \texttt{length}/\texttt{playTime}.
+
+\begin{lstlisting}
+# set 2.5x play speed
+clip.playTime = clip.length / 2.5
+\end{lstlisting}
+
+Common operations on \texttt{Frame} and \texttt{Clip} and be found in section \ref{subsec:clip frame ops}.
+%\begin{table}[h!]
+%  \begin{center}
+%    \begin{tabular}{c|l}
+%      \text{Frames} & \begin{tabular}[x]{@{}l@{}}Contruct a frame from an image \\ Extract frames from clips 
+%      %\\ Modify a frame (e.g. adjust image color)
+%      \end{tabular}\\
+%      \hline
+%      \text{Clips} &\begin{tabular}[x]{@{}l@{}} Construct a clip from frames \\ Trim, concatenate clips  \\ Adjust playing speed \\ Layer multiple clips and form a new one \\ Arrange inner-clips on the time line \end{tabular}
+%    \end{tabular}
+%    \caption{Operations for frames, layers and clips}
+%    \label{tab:table1}
+%  \end{center}
+%\end{table}
+
+
+%\subsection{Type Inference} %TL
+%we have many data types, see below\\
+%but we do not have to explicitly declare the type of a variable\\
+
+
+%layer acts as a member of clip 
+
+
+\section{Expressions and Operators} %TL
+\label{sec:exp-op}
+This section describes the expression in \textit{Yo}. 
+
+\subsection{Expressions} %TL
+An expression consists of at least one operand and zero or more operators. Operands are typed objects such as literals, variables, and function calls that return values. 
+\begin{syndef}
+ExpressionStmt ::= Expression
+Expression ::= ConditionalExpression
+	| ArithmeticExpression 
+	| FunctionalExpression
+\end{syndef}
+
+For details of the definition of function calls, see Section \ref{sec:func-call}.
+
+\begin{lstlisting}
+42                  # constant
+3 * a + 5           # calculation on variables
+gcd(20,25)          # a function call
+\end{lstlisting}
+
+Subexpressions can be grouped by parentheses.
+
+\begin{lstlisting}
+(1 + 2) * (3 - 4)   # parentheses grouped expressions
+\end{lstlisting}
+
+\subsection{Arithmetic operators} %TL
+\textit{Yo} provides operators for standard arithmetic operations: addition, subtraction, multiplication, and division, along with modular division and negation. Here are some examples:
+The two operand must be of same type.
+\begin{lstlisting}
+x = 4 + 2              # addition         x = 6
+y = x - 5              # substraction     y = 1
+z = x * y              # multiplication   z = 6
+x = 4 + 2.2            # error! 4 is Int but 2.2 is Double
+d = -x                 # negation, unary  d = -6
+\end{lstlisting}
+
+For division, if both operands are integers, the result will give the integer part of the quotient. If both operands are doubles, it will return respective mathematical result. 
+\begin{lstlisting}
+w = 7 / 2              # division of integers   w = 3
+v = 7.0 / 2.0          # division of doubles    v = 3.5
+\end{lstlisting}
+
+Module operator gives the remainder of a division of two values.
+\begin{lstlisting}
+d = 10 % 3             # modular divison  d = 1
+\end{lstlisting}
+
+\subsection{Array Access operators}
+The \texttt{Array} is indexed and can be accessed using integral subscript starting from zero.
+\begin{lstlisting}
+a[0]
+\end{lstlisting}
+
+\subsection{Comparison operators} %TL
+Comparison operators are used to determine how the value of two operands relate to each other: are they equal to each other, is one larger than the other, is one smaller than the other, and so on. The comparison result is either true or false, respectively.
+The result of such an expression is either true or false.
+\begin{lstlisting}
+a > b   # a is greater than b
+a >= b  # a is greater than or equal to b
+a == b  # a is equal to b
+a < b   # a is less than b
+a <= b  # a is less than or equal to b
+a != b  # a is not equal to b
+\end{lstlisting}
+
+\subsection{Logical operators} %TL
+Logical operators test the truth value of a pair of operands. Any nonzero expression is considered true, while an expression that evaluates to zero is considered false.
+\begin{lstlisting}
+a && b  # and
+a || b  # or
+!a      # not
+\end{lstlisting}
+
+\subsection{Assignment operators} %TL
+Assignment operators store values in variables. This operator associate from right to left. In the example below, \texttt{b} is firstly assigned and then \texttt{a} is assigned. After the statement is executed, both \texttt{a} and \texttt{b} are equal to $42$.
+\begin{lstlisting}
+a = b = 42
+\end{lstlisting}
+
+Formally, an assignment is defined as:
+\begin{syndef}
+AssignmentStmt ::=  (TargetList \terminal{=})+ (ExpressionList | YieldExpression)
+TargetList     ::=  Target (\terminal{,} Target)* \terminal{,}
+Target         ::=  Identifier
+                   | \terminal{(} TargetList \terminal{)}
+                   | \terminal{[} TargetList \terminal{]}
+                   | Attributeref
+                   | Subscription
+AttributeRef ::=  Primary \terminal{.} Identifier
+Subscription ::=  Primary \terminal{[} ExpressionList \terminal{]}
+Primary ::=  Atom | AttributeRef | Subscription | \terminal{eval}
+\end{syndef}
+
+
+\subsection{Clip and Frame operators}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{concepts.pdf}
+	\caption{Layering operation}
+	\label{fig:layer}
+\end{figure}
+
+\label{subsec:clip frame ops}
+\textit{Yo} allows two clips to be concatenated easily.
+\begin{lstlisting}
+# concatenate a clip2 to the end of clip1 and form a new Clip
+clip3 = clip1 & clip2
+\end{lstlisting}
+
+\textit{Yo} also subscripts the Clip so that users can extract a range of clip. If the start/end time is not specified, the begin/finish time is used.
+\begin{lstlisting}
+# get 2.4s - 8.0s of the clip (returns a clip)
+clip2 = clip[2.4:8.0]
+
+# get the first 3.2s of a clip
+clip2 = clip[:3.2]
+
+# get 2.4s till the end of a clip
+clip2 = clip[2.4:]
+\end{lstlisting}
+
+The clip can be layered on the top of another clip to form a new clip. We use a ternary operator, cascade operator, \textit{a $\hat{ }$ b@c} to denote putting $a$ on top of $b$, with time offset of $c$ seconds.
+\begin{lstlisting}
+# put clip2 on top of clip1, with time offset of 2.4s
+clip1 ^ clip2 @ 2.4
+\end{lstlisting}
+
+\subsection{Member Access operators} %TL
+\label{sec:mem-access}
+The member access operator \texttt{.} is used to access the members of an object: object name followed by the member name
+\begin{lstlisting}
+# Get a member variable in object myObject
+a = myObject.myVariable      
+# Call a member function defined in object myObject
+b = myObject.myFunction(0)    
+\end{lstlisting}
+
+\subsection{Operator Precedence and Associative Property} %TL
+When an expression contains multiple operators, such as \texttt{a + b * f()}, the operators are grouped based on rules of precedence. For instance, the meaning of that expression is to call the function f with no arguments, multiply the result by b, then add that result to a. 
+The following is a list of types of expressions, presented in order of highest precedence first. Sometimes two or more operators have equal precedence; all those operators are applied from left to right unless stated otherwise.
+\begin{enumerate}
+\item Function calls and membership access operator expressions.
+\item Unary operators.
+\item Multiplication, division, and modular division expressions. 
+\item  Addition and subtraction expressions. 
+\item Greater-than, less-than, greater-than-or-equal-to, and less-than-or-equal-to expressions.
+\item Equal-to and not-equal-to expressions.
+\item Logical AND expressions.
+\item Logical OR expressions.
+\item Clip concatenation. 
+\item Clip cascading.
+\item All assignment expressions.
+\end{enumerate}
+
+%
+\section{Statements}
+\subsection{overview}
+A statement could be either a simple statement (using stmt in short) or a compound statement (using compound\_stmt in short), formally speaking, they could be defined as:\\
+\begin{syndef}
+stmt ::= expression_stmt 
+	| assignment_stmt
+	| log_stmt
+	| return_stmt
+	| continue_stmt
+	| break_stmt
+compound_stmt ::= if_stmt 
+	| while_stmt
+	| for_stmt
+suite ::= stmt \terminal{NEWLINE} | \terminal{NEWLINE INDENT} statement+ \terminal{DEDENT}
+statement ::= stmt \terminal{NEWLINE} | compound_stmt
+\end{syndef}
+
+\subsection{log} %YO
+
+\begin{syndef}
+log_stmt ::= \terminal{log} expression
+\end{syndef}
+
+\texttt{log} evaluates the \texttt{expression} and writes the resulting object to standard output as a string.
+\begin{lstlisting}
+log "A string"
+# Output: A string
+
+a = 1
+log a
+# Output: 1
+
+b = 1.01
+log b
+# Output: 1.01
+\end{lstlisting}
+
+\subsection{if} %YO
+The \texttt{if} statement is used for conditional execution:
+\begin{syndef}
+if_stmt ::=  \terminal{if} conditional\_expression \terminal{:} suite
+             (\terminal{elif} conditional\_expression \terminal{:} suite)*
+             [\terminal{else} \terminal{:} suite]
+\end{syndef}
+
+It selects exactly one of the \texttt{suite} by evaluating the \texttt{conditional\_expression} one by one (start from the conditional\_expression next to the \texttt{if}, and conditional\_expression next to the \texttt{elif} sequentially) until one is found to be true; then the \texttt{suite} corresponding to this \texttt{conditional\_expression} is executed, and no other part of the \texttt{if} statement is executed or evaluated. If all conditional\_expressions are false, the \texttt{suite} of the \texttt{else} clause, if present, is executed.
+\begin{lstlisting}
+a = 1
+if a:
+	log a
+    log " is true"
+# Output: : 1 is true
+
+a = False
+if a:
+	log a
+    log " is true"
+elif !a:
+	log a
+	log " is not true"
+else:
+	log "Else clause is executed"
+
+# Output: False is not true
+\end{lstlisting}
+
+\subsection{while} %YO
+The \texttt{while} statement is used for repeated execution as long as the \texttt{conditional\_expression} is true:
+\begin{syndef}
+while_stmt ::=  \terminal{while} conditional\_expression \terminal{:} suite
+\end{syndef}
+
+This repeatedly tests the \texttt{conditional\_expression} and, if it is true, executes the \texttt{suite}; if the \texttt{conditional\_expression} is false (which may be the first time it is tested) the loop terminates.\\
+
+\begin{lstlisting}
+a = 0;
+while a < 3 :
+	a = a + 1;
+	log a;
+	log " ";
+# Output: 1 2 3 
+\end{lstlisting}
+
+\subsection{for} %YO
+The \texttt{for} statement is used to iterate over the elements of an \texttt{array} or continuous integers from \texttt{a} to \texttt{b}:
+\begin{syndef}
+for_stmt ::=  \terminal{for} target [\terminal{=} a \terminal{to} b | \terminal{in} array] \terminal{:} suite
+\end{syndef}
+
+An iterator is created for the result of the expression [= a to b | in array]. The \texttt{suite} is then executed once for each item provided by the iterator, in the order of ascending indices. Each item in turn is assigned to the target list using the standard rules for assignments, and then the \texttt{suite} is executed. When the items are exhausted (which is immediately when the sequence is empty), the loop terminates.
+
+\begin{lstlisting}
+for i = 1 to 3: 
+	log i
+	log " "
+# Output: 1 2 3
+
+arr = [1,2,4,6]
+for i in arr:
+	log i
+	log " "
+# Output: 1 2 4 6
+
+arr2 = ["1","b","4","c"]
+for i in arr2:
+	log i
+	log " "
+# Output: 1 b 4 c
+\end{lstlisting}
+
+
+\subsection{continue} %YO
+\begin{syndef}
+continue_stmt ::= \terminal{continue}
+\end{syndef}
+
+\texttt{continue} may only occur syntactically nested in a \texttt{for} loop or \texttt{while} loop, but not nested in a function or class definition within that loop. It continues with the next cycle of the nearest enclosing loop.\\
+\begin{lstlisting}
+arr2 = ["1","b","4","c"]
+for i in arr2:
+    if i=='b': continue
+    log i
+	log " "
+# Output: 1 4 c 
+\end{lstlisting}
+
+\subsection{break} %YO
+\begin{syndef}
+break_stmt ::=  \terminal{break}
+\end{syndef}
+
+\texttt{break} may only occur syntactically nested in a \texttt{for} or \texttt{while} loop, but not nested in a function or class definition within that loop. It terminates the nearest enclosing loop.\\
+
+If a \texttt{for} loop is terminated by \texttt{break}, since the loop iterator is a local variable, its current value can not be used after the break.\\
+
+\begin{lstlisting}
+arr2 = ["1","b","4","c"]
+for i in arr2:
+	log i
+	log " "
+    if i=="b": break
+# Output :1 b 
+\end{lstlisting}
+
+\subsection{return} %YO
+\begin{syndef}
+return_stmt ::=  \terminal{return} expression
+\end{syndef}
+
+\texttt{return} may only occur syntactically nested in a function definition, not within a nested class definition.\\
+
+\texttt{return} leaves the current function call with the \texttt{expression} as return value.\\
+\begin{lstlisting}
+func foo(a: Int, b: Int):
+	return a+b
+\end{lstlisting}
+
+\section{Functions} %MW
+\label{sec:function}
+This section discusses the use of functions, which are types in \textit{Yo} and provides the detail for how to declare and define functions, specify parameters and return types and call functions. 
+
+\subsection{Function definition} %MW
+A function definition will create a user-defined function object and provide the information below
+\begin{itemize}
+	\item the types and values of parameters
+	\item the types and values returned by the function
+	\item the logic composed of a collection of statements that are executed when the function is called
+\end{itemize}
+
+The syntax for a function definition is shown below:
+\begin{syndef}
+function       ::=  \terminal{func} func_name parameter
+func_name       ::=  identifier
+\terminal{:} \terminal{NEWLINE} \terminal{INDENT} suite \terminal{DEDENT} 
+paramlist        ::=  parameter (\terminal{:} parameter)* [\terminal{,}]
+parameter      ::=  \terminal{(}identifier \terminal{,} type \terminal{)} | \terminal{(} paramlist \terminal{)}
+
+
+\end{syndef}
+
+An example which shows how the function is defined is
+\begin{lstlisting}
+func FUNCNAME (param1: paramtype1, param2: paramtype2):
+	# Function logic goes here
+\end{lstlisting}
+
+In the example, \textit{func} is a keyword which indicates that a function type is defined. Parameters are statically typed with two components: parameter name as an identifier and parameter type as a type. The function type is generated as:
+
+\begin{lstlisting}
+type FUNCNAME:
+	eval (param1: paramtype1, param2: paramtype2):
+    	#Function logic goes here
+\end{lstlisting}
+
+The function definition is an executable statement which binds the function name of the local namespaces (defined in Section \ref{sec:namespace}) to the function objects. The function objects create a method \texttt{eval}. The shorthand for \texttt{eval} is to name the instance and follow it with parentheses containing the arguments to the call.
+
+The function definition does not execute the function body until the function object is called, where we define the function call in Section \ref{sec:functioncall}.
+
+\subsection{Parameters and arguments}
+\label{sec:paramarg}
+Parameters are named entities in a function definition that specify arguments that functions can accept. Arguments are values passed to a function object when calling the function, which is defined in the following section. There are two types of arguments defined as follows:
+\begin{syndef}
+positional_arguments ::=  expression (\terminal{,} expression)*
+keyword_arguments    ::=  keyword_item (\terminal{,} keyword_item)*
+keyword_item         ::=  identifier \terminal{:} type \terminal{=} expression
+\end{syndef}
+\begin{itemize}
+\item keyword arguments: an argument preceded by an identifier (e.g. name=) in a function call, for example
+\begin{lstlisting}
+foo(param1 = 3, param2 = "abc")
+\end{lstlisting}
+
+\item positional arguments: an argument which is not keyword argument, for example
+\begin{lstlisting}
+foo(3, "abc")
+\end{lstlisting}
+\end{itemize}
+
+\subsection{Function calls}
+\label{sec:functioncall}
+A function call is defined as:
+\label{sec:func-call}
+\begin{syndef}
+function call        ::=  eval \terminal{(} argument_list [\terminal{,}] \terminal{)}
+argument_list        ::=  positional_arguments [\terminal{,} keyword_arguments]
+                          | keyword_arguments [\terminal{,} expression]
+\end{syndef}
+
+All argument expressions are evaluated before the call is attempted. If keyword arguments are present, they are first converted to positional arguments. First, a list of unfilled slots is created for the formal parameters. If there are N positional arguments, they are placed in the first N slots. Next, for each keyword argument, the identifier is used to determine the corresponding slot. If the slot is already filled, a run-time error will be prompted.
+
+\subsection{Function Return Types}
+A function returns an object as the execution result. The built-in type inference mechanism can allow the omit of certain types. The compiler will deduce the return type based on the body of the function object. 
+
+\subsection{Recursion} 
+Recursitivity is a property that a function can be called by themselves. The following example shows recursitivity is useful in the calculating an integer's factorial:
+\begin{lstlisting}
+func factorial (n: Int):
+	if n==1
+		return 1
+	else
+		return factorial(n-1)*n
+\end{lstlisting}
+\subsection{Built-in functions}
+There are built-in type conversions defined in the following Table \ref{tab:type-conversion}.
+
+\begin{table}[H]
+\centering
+\caption{Built-in type conversion functions}
+\label{tab:type-conversion}
+\begin{tabular}{|l|l|l|}
+\hline
+Functions & Conversion rule       & Example                                                                                                                               \\ \hline
+Int()     & String, Double to Int & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Int("9001")\\ 9001\\ \textgreater\textgreater Int(8000.0)\\ 8000\end{tabular}     \\ \hline
+Double()  & String, Int to Double & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Double("200")\\ 200.0\\ \textgreater\textgreater Double(10)\\ 10.0\end{tabular}   \\ \hline
+String()  & Int, Double to String & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater String(100)\\ "100"\\ \textgreater\textgreater String(90.1)\\ "90.1"\end{tabular} \\ \hline
+Array()   & String to Array       & \begin{tabular}[c]{@{}l@{}}\textgreater\textgreater Array("ocamllex")\\ {[}"o","c","a","m","l","l","e","x"{]}\end{tabular}            \\ \hline
+\end{tabular}
+\end{table}
+
+
+\section{Program Structure and Scope} %MC
+
+\subsection{Program Structure} %MC
+\textit{Yo} program must exist entirely in a single source file, with a ".yo" extension. It consists of a number of function/type declarations or statements. 
+
+\begin{syndef}
+program ::= decls \terminal{EOF}
+
+decls ::= \terminal{empty}
+	| func_def decls
+	| stmt decls
+	| type_def decls
+\end{syndef}
+
+The position of function/type declarations in the source code does not matter. This means a function can call another defined later and that the member of a user-defined type can use another type defined on the bottom of the source code.
+
+\subsection{Namespaces}
+\label{sec:namespace}
+A namespace \textit{Yo} is a mapping from names to objects. Namespaces include: the set of built-in types (containing functions such as Int()); the global types including built-in types and user-defined types; and the local types in a function invocation. In a sense the set of attributes of an object also form a namespace.
+
+\subsection{Scope} 
+\label{sec:scope}
+A scope is a textual region of a program where a namespace is directly accessible. "Directly accessible" here means that an unqualified reference to a name attempts to find the name in the namespace. There are four hierarchies of namespaces in \textit{Yo}:
+
+\begin{itemize}
+\item Local: the innermost scope, which is searched first, contains the local names
+\item Enclosed: the scopes of any enclosing functions, which are searched starting with the nearest enclosing scope, contains non-local, but also non-global names
+\item Global: the next-to-last scope contains the current program's global names
+\item Built-in: the outermost scope (searched last) is the namespace containing built-in names
+\end{itemize}
+
+\textit{Yo} follows the rule of Local $\rightarrow$ Enclosed $\rightarrow$ Global $\rightarrow$ Built-in, where the right arrow  denotes the namespace-hierarchy search order.
+
+An example shown here gives how different scopes of variable are accessed:
+\begin{lstlisting}
+p1 = "global variable"
+
+func a_func(p1: String):
+	log p1
+
+a_func("local variable")
+#p1: local variable 
+log p1
+#p1: global variable
+\end{lstlisting}
+
+\end{document}

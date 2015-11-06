@@ -4,14 +4,15 @@
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE FOR WHILE IN CONTINUE BREAK
+%token RETURN IF ELSE ELIF FOR WHILE IN CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
 %token LAMBDA FUNCTION GLOBAL TYPE EVAL
 %token FRAME CLIP
 %token RIGHTARROW LEFTARROW CASCADE
 %token LOG READFRAME WRITEFRAME
-%token <int> LITERALINT
-%token <float> LITERALDOUBLE
+%token <int> IntLITERAL 
+%token <float> DoubleLITERAL
+%token <string> StringLITERAL
 %token <string> ID
 %token EOF
 
@@ -33,14 +34,70 @@
 %type <Ast.program> program
 
 %%
+constant:
+    IntLITERAL                       { IntCon $1 }
+  | DoubleLITERAL                    { DoubleCon $1 }
+  | StringLITERAL                    { StrCon $1 } 
+  | BoolLITERAL                      { BoolCon $1 }
 
-primary_expr
-   
+primary_expr:
+    ID                                               { Id $1 }
+  | constant                                         { $1 }
+  | LPAREN primary_expr RPAREN                       { Paren_Expr $2 }
+  | primary_expr LPAREN arg_expr_list RPAREN         { Func_Call($1 , Some($3)) }
+  | primary_expr LPAREN RPAREN                       { Func_Call($1, None) }
+  | array_expr
+  | primary_expr DOT ID                              { Dot_Expr($1,$3) }
 
+array_expr:
+  primary_expr LBRACKET array_expr_list RBRACKET     { Array($1,$3) }
 
+arg_expr_list:
+  expr                      { [$1] }
+  | arg_expr_list COM expr  { $3 :: $1 }
 
+array_expr_list:
+  ?
 
+expr:
+    primary_expr                             { $1 }
+  | expr PLUS   expr                         { Binop($1, Add,   $3) }
+  | expr MINUS  expr                         { Binop($1, Sub,   $3) }
+  | expr TIMES  expr                         { Binop($1, Mult,  $3) }
+  | expr DIVIDE expr                         { Binop($1, Div,   $3) }
+  | expr EQ     expr                         { Binop($1, Equal, $3) }
+  | expr NEQ    expr                         { Binop($1, Neq,   $3) }
+  | expr LT     expr                         { Binop($1, Less,  $3) }
+  | expr LEQ    expr                         { Binop($1, Leq,   $3) }
+  | expr GT     expr                         { Binop($1, Greater,  $3) }
+  | expr GEQ    expr                         { Binop($1, Geq,   $3) }
+  | primary_expr ASSIGN expr                 { Assign($1, $3) }
+  | ID LPAREN actuals_opt RPAREN             { Call($1, $3) }
+  | LPAREN expr RPAREN                       { $2 }
 
+statement:
+    NEWLINE                                                                     { Stmt(None) }
+  | expr NEWLINE                                                                { Stmt(Some($1)) }
+  | LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }
+  | LBRACE statement_list RBRACE                                                { Brace_Stmt(Some(List.rev $2)) }
+  | LOG expr NEWLINE                                                            { Log($1) }
+  | IF expr NEWLINE statement elif_statement                                    { If($2, $4, $5)}
+  | IF expr NEWLINE statement elif_statement ELSE statement                     { If_else($2, $4, $5, $7) }
+  | WHILE expr NEWLINE statement                                                { While($2, $4) }
+  | FOR ID IN array_expr NEWLINE statement                                      { For_in($4, $6) }
+  | FOR ID EQ expr TO expr NEWLINE statement                                    { For_eq($4, $6, $8)  }
+  | CONTINUE NEWLINE                                                            { CONTINUE }
+  | BREAK NEWLINE                                                               { BREAK }
+  | RETURN NEWLINE                                                              { RETURN }
+  | RETURN expr NEWLINE                                                         { Return($2) }
+
+statement_list:
+    /* nothing */
+  | statement_list statement 
+
+elif_statement:
+    /* nothing */
+  | ELIF statement elif_statement NEWLINE { Elif($2,$3) }
 
 
 program:
@@ -91,22 +148,7 @@ expr_opt:
     /* nothing */ { Noexpr }
   | expr          { $1 }
 
-expr:
-    LITERALINT          { LiteralInt($1) }
-  | ID               { Id($1) }
-  | expr PLUS   expr { Binop($1, Add,   $3) }
-  | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr TIMES  expr { Binop($1, Mult,  $3) }
-  | expr DIVIDE expr { Binop($1, Div,   $3) }
-  | expr EQ     expr { Binop($1, Equal, $3) }
-  | expr NEQ    expr { Binop($1, Neq,   $3) }
-  | expr LT     expr { Binop($1, Less,  $3) }
-  | expr LEQ    expr { Binop($1, Leq,   $3) }
-  | expr GT     expr { Binop($1, Greater,  $3) }
-  | expr GEQ    expr { Binop($1, Geq,   $3) }
-  | ID ASSIGN expr   { Assign($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-  | LPAREN expr RPAREN { $2 }
+
 
 actuals_opt:
     /* nothing */ { [] }

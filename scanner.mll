@@ -58,6 +58,7 @@ rule token = parse
 
 | "if"     { IF }
 | "else"   { ELSE }
+| "elif"   { ELIF }
 | "in"     { IN }
 | "for"    { FOR }
 | "while"  { WHILE }

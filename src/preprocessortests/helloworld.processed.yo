@@ -7,8 +7,13 @@ func int hey(args):{
        yo = i+1
        if munan == girl:{
            log "impossible     hey        jude            don't be afraid"
-}       else:{
+}
+       else:{
            for i in 1..20:{
                Callsomefunction(A[3].frame)
-}}}    return d
-}log "hello world"
+}
+}
+}
+    return d
+}
+log "hello world"

@@ -57,7 +57,7 @@ def process(input_file):
 
             # If the indentation level is less than the current level, return to a previous indentation block. Throw an error if you return to an indentation level that doesn't exist
             while(wcount < stack[-1]):
-              lineout = "}" + lineout
+              lineout = "}\n" + lineout
               stack.pop()
 
             if wcount != stack[-1]:
@@ -79,7 +79,7 @@ def process(input_file):
         output.write(lineout)
 
   while 0 < stack[-1]:
-    output.write("}")
+    output.write("}\n")
     stack.pop()
 
   return output

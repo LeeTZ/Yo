@@ -16,7 +16,6 @@ def process(input_file):
   newindent = False
   commented = False
   linejoin  = False
-  debug     = False
 
   for i, line in enumerate(input_file):
     lineout = remove_inline(line)
@@ -51,15 +50,7 @@ def process(input_file):
               error("IndentationError on line {}".format(i))
 
           # If the indentation level is greater than expected, throw an error
-          if wcount > stack[-1]:
-
-            if debug:
-              print "=== ERROR 1 ==="
-              print "proc. line: '{}'".format(lineout)
-              print "wcount:     {}".format(wcount)
-              print "stack[-1]:  {}".format(stack[-1])
-              print "newindent:  {}".format(wcount)          
-
+          if wcount > stack[-1]:     
             error("IndentationError on line {}".format(i))
 
           else:
@@ -70,14 +61,6 @@ def process(input_file):
               stack.pop()
 
             if wcount != stack[-1]:
-
-              if debug:
-                print "=== ERROR 2 ==="
-                print "proc. line: '{}'".format(lineout)                
-                print "wcount:    {}".format(wcount)
-                print "stack[-1]: {}".format(stack[-1])
-                print "newindent: {}".format(wcount)  
-
               error("IndentationError on line {}".format(i))
 
         # Given that the indentation level is correct, check for the start of a new code block (where a line ends with a ':') and insert a '{'. At the end of a line, add a semicolon ';' unless if there is a linejoin character '\'.
@@ -98,9 +81,6 @@ def process(input_file):
   while 0 < stack[-1]:
     output.write("}")
     stack.pop()
-
-  if debug:
-    print output.getvalue()
 
   return output
 

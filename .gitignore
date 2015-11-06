@@ -3,4 +3,8 @@
 *.cmi
 *.out
 *.diff
+*.pdf
+*.toc
+*.log
+*.aux
 .DS_Store

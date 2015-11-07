@@ -41,6 +41,7 @@ constant:
   | BoolLITERAL                             { BoolConConst $1 }
   | array_literal                           { ArrayConst $1  }
 
+
 array_literal:
   LBRACKET arg_expr_opt RBRACKET            { $2 }
 
@@ -75,15 +76,15 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Stmt(Some($1)) }
+  | expr NEWLINE                                                                { Expr $1) }
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { BraceStmt(Some(List.rev $3)) }
+
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { BraceStmt(List.rev $3) }
   | LOG expr NEWLINE                                                            { Log($2) }
-  | IF if_statement elif_opt       { If($2, $3)}
-  | IF if_statement elif_opt ELSE if_statement    { If($2, $3, $5) }
-  | WHILE expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE        { ForIn($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE      { ForEq($4, $6, $10)  }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { ForIn($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { ForEq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN NEWLINE                                                              { RETURN }
@@ -95,23 +96,20 @@ for_in_expr:
 
 statement_opt:
     /* nothing */ { [] }
-    | statement_list { List.rev $1 }
+  | statement_list { List.rev $1 }
 
 statement_list:
   |  NEWLINE     { [] }
   | statement { Stmt(Some($1)) }
   | statement_list statement { $2 :: $1 }
 
-elif_opt:
-  /* nothing */ { [] }
-  | elif_list { List.rev $1 }
+elif_statement_list:
+  | /* nothing */ { [] }
+  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
 
-if_statement:
-  expr COLON LBRACE NEWLINE statement RBRACE NEWLINE { IfStmt($1,$5) }
-
-elif_list:
-  | ELIF if_statement {$2}
-  | elif_list ELIF if_statement { $3 :: $1 }
+else_statement:
+  | /* nothing */ { [] }
+  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { $5 }
 
 type_def:
   TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}

@@ -75,12 +75,12 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Expr(Some($1)) }
+  | expr NEWLINE                                                                { Stmt(Some($1)) }
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
   | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
   | LOG expr NEWLINE                                                            { Log($2) }
-  | IF if_statement elif_opt                                                    { If($2, $3, Block([]))}
-  | IF if_statement elif_opt ELSE if_statement                                  { If($2, $3, $5) }
+  | IF if_statement elif_opt       { If($2, $3)}
+  | IF if_statement elif_opt ELSE if_statement    { If($2, $3, $5) }
   | WHILE expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                   { While($2, $6) }
   | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE        { For_in($4, $8) }
   | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE      { For_eq($4, $6, $10)  }

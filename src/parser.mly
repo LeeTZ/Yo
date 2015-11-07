@@ -79,11 +79,10 @@ statement:
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
   | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
   | LOG expr NEWLINE                                                            { Log($2) }
-  | IF if_statement elif_opt       { If($2, $3)}
-  | IF if_statement elif_opt ELSE if_statement    { If($2, $3, $5) }
-  | WHILE expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE        { For_in($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE      { For_eq($4, $6, $10)  }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_in($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_eq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN NEWLINE                                                              { RETURN }
@@ -102,13 +101,10 @@ statement_list:
   | statement { Stmt(Some($1)) }
   | statement_list statement { $2 :: $1 }
 
-elif_opt:
-  /* nothing */ { [] }
-  | elif_list { List.rev $1 }
+elif_statement_list:
+  | /* nothing */ { [] }
+  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ Cond_Exec($2, $6) ] }
 
-if_statement:
-  expr COLON LBRACE NEWLINE statement RBRACE NEWLINE { IfStmt($1,$5) }
-
-elif_list:
-  | ELIF if_statement {$2}
-  | elif_list ELIF if_statement { $3 :: $1 }
+else_statement:
+  | /* nothing */ { [] }
+  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { $5 }

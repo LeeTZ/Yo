@@ -4,7 +4,7 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
-%token LAMBDA FUNCTION GLOBAL TYPE EVAL
+%token LAMBDA FUNC GLOBAL TYPE EVAL
 %token FRAME CLIP
 %token RIGHTARROW LEFTARROW CASCADE
 %token LOG
@@ -29,17 +29,18 @@
 %left UMINUS
 %left DOT
 
-%start statement_opt
-%type <int> statement_opt
+%start type_def
+%type <int> type_def
 
 %%
 
 constant:
-    IntLITERAL                              { Int_Con $1 }
-  | DoubleLITERAL                           { Double_Con $1 }
-  | StringLITERAL                           { Str_Con $1 } 
-  | BoolLITERAL                             { Bool_Con $1 }
-  | array_literal                           { Array_Con $1  }
+    IntLITERAL                              { IntConst $1 }
+  | DoubleLITERAL                           { DoubleConst $1 }
+  | StringLITERAL                           { StrConConst $1 } 
+  | BoolLITERAL                             { BoolConConst $1 }
+  | array_literal                           { ArrayConst $1  }
+
 
 array_literal:
   LBRACKET arg_expr_opt RBRACKET            { $2 }
@@ -47,7 +48,7 @@ array_literal:
 primary_expr:
     ID                                       { Id $1 }  
   | primary_expr LBRACKET expr RBRACKET      { Array($1,$3) }
-  | primary_expr DOT ID                      { Dot_Expr($1,$3) }
+  | primary_expr DOT ID                      { DotExpr($1,$3) }
 
 expr:
     primary_expr                             { $1 }
@@ -80,7 +81,6 @@ arg_expr_list:
 
 statement:
   | expr NEWLINE                                                                { Expr $1) }
-  /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
   | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
   | LOG expr NEWLINE                                                            { Log_Stmt($2) }
   | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
@@ -106,8 +106,21 @@ statement_list:
 
 elif_statement_list:
   | /* nothing */ { [] }
-  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ Cond_Exec($2, $6) ] }
+  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
 
 else_statement:
-  | /* nothing */ { }
   | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }
+
+type_def:
+  TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
+
+type_name:
+  ID    {Id $1}
+
+type_element_list:
+  /*  nothing */  { [] }
+  | value_decl NEWLINE type_element_list  {TypeEleList($1, $3)}
+  /*| func_decl NEWLINE type_element_list {TypeEleList($1, $3)}*/
+
+value_decl:
+  ID COLON type_name  {ValueDecl($1, $3)}

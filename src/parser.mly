@@ -66,6 +66,10 @@ expr:
   | ID LPAREN arg_expr_opt RPAREN            { Call($1, $3) }
   | LPAREN expr RPAREN                       { $2 }
 
+expr_opt:
+    /* nothing */ { Noexpr }
+  | expr          { $1 }
+
 arg_expr_opt:
   /* nothing */                              { [] }
   | arg_expr_list                            { List.rev $1 }
@@ -78,15 +82,14 @@ statement:
   | expr NEWLINE                                                                { Expr $1) }
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
   | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
-  | LOG expr NEWLINE                                                            { Log($2) }
-  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
-  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
+  | LOG expr NEWLINE                                                            { Log_Stmt($2) }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While_Stmt($2, $6) }
   | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($4, $8) }
   | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
-  | RETURN NEWLINE                                                              { RETURN }
-  | RETURN expr NEWLINE                                                         { Return($2) }
+  | RETURN expr_opt NEWLINE                                                     { Return($2) }
 
 for_in_expr:
   | ID            {$1}
@@ -106,5 +109,5 @@ elif_statement_list:
   | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ Cond_Exec($2, $6) ] }
 
 else_statement:
-  | /* nothing */ { [] }
-  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { $5 }
+  | /* nothing */ { }
+  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }

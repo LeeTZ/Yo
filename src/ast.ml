@@ -1,11 +1,11 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
 type expr =
-    IntCon of int
-  | DoubleCon of float
-  | BoolCon of bool
-  | StrCon of string
-  | ArrayCon of  
+    Int_Con of int
+  | Double_Con of float
+  | Bool_Con of bool
+  | Str_Con of string
+  | ArrayCon of expr list
   | Id of string
   | Array of expr * expr
   | Dot_Expr of expr * string
@@ -17,14 +17,13 @@ type expr =
 type stmt =
     Brace_Stmt of stmt list
   | Expr of expr
-  | Log of expr
-  | If of expr * stmt * stmt
-  | For_in of expr * stmt
-  | For_eq of expr * expr * stmt
-  | While of expr * stmt
-  | CONTINUE of none
-  | BREAK of none
-  | RETURN of none
+  | Log_Stmt of expr
+  | If_Stmt of elif_stmt * else_stmt * expr * stmt list
+  | For_In of expr * stmt
+  | For_Eq of expr * expr * stmt
+  | While_Stmt of expr * stmt
+  | CONTINUE 
+  | BREAK 
   | Return of expr
 
 type func_decl = {

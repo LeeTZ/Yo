@@ -4,7 +4,7 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
-%token LAMBDA FUNCTION GLOBAL TYPE EVAL
+%token LAMBDA FUNC GLOBAL TYPE EVAL
 %token FRAME CLIP
 %token RIGHTARROW LEFTARROW CASCADE
 %token LOG
@@ -29,17 +29,17 @@
 %left UMINUS
 %left DOT
 
-%start statement_opt
-%type <int> statement_opt
+%start type_def
+%type <int> type_def
 
 %%
 
 constant:
-    IntLITERAL                              { IntCon $1 }
-  | DoubleLITERAL                           { DoubleCon $1 }
-  | StringLITERAL                           { StrCon $1 } 
-  | BoolLITERAL                             { BoolCon $1 }
-  | array_literal                           { Array $1  }
+    IntLITERAL                              { IntConst $1 }
+  | DoubleLITERAL                           { DoubleConst $1 }
+  | StringLITERAL                           { StrConConst $1 } 
+  | BoolLITERAL                             { BoolConConst $1 }
+  | array_literal                           { ArrayConst $1  }
 
 array_literal:
   LBRACKET arg_expr_opt RBRACKET            { $2 }
@@ -47,7 +47,7 @@ array_literal:
 primary_expr:
     ID                                       { Id $1 }  
   | primary_expr LBRACKET expr RBRACKET      { Array($1,$3) }
-  | primary_expr DOT ID                      { Dot_Expr($1,$3) }
+  | primary_expr DOT ID                      { DotExpr($1,$3) }
 
 expr:
     primary_expr                             { $1 }
@@ -77,13 +77,13 @@ arg_expr_list:
 statement:
   | expr NEWLINE                                                                { Stmt(Some($1)) }
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { BraceStmt(Some(List.rev $3)) }
   | LOG expr NEWLINE                                                            { Log($2) }
   | IF if_statement elif_opt       { If($2, $3)}
   | IF if_statement elif_opt ELSE if_statement    { If($2, $3, $5) }
   | WHILE expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE        { For_in($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE      { For_eq($4, $6, $10)  }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement  RBRACE NEWLINE        { ForIn($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement  RBRACE NEWLINE      { ForEq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN NEWLINE                                                              { RETURN }
@@ -112,3 +112,21 @@ if_statement:
 elif_list:
   | ELIF if_statement {$2}
   | elif_list ELIF if_statement { $3 :: $1 }
+
+type_def:
+  TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
+
+type_name:
+  ID    {Id $1}
+
+type_element_list:
+  /*  nothing */  { [] }
+  | value_decl NEWLINE type_element_list  {TypeEleList($1, $3)}
+  /*| func_decl NEWLINE type_element_list {TypeEleList($1, $3)}*/
+
+value_decl:
+  ID COLON type_name  {ValueDecl($1, $3)}
+
+  
+
+

@@ -35,11 +35,11 @@
 %%
 
 constant:
-    IntLITERAL                              { IntCon $1 }
-  | DoubleLITERAL                           { DoubleCon $1 }
-  | StringLITERAL                           { StrCon $1 } 
-  | BoolLITERAL                             { BoolCon $1 }
-  | array_literal                           { ArrayCon $1  }
+    IntLITERAL                              { Int_Con $1 }
+  | DoubleLITERAL                           { Double_Con $1 }
+  | StringLITERAL                           { Str_Con $1 } 
+  | BoolLITERAL                             { Bool_Con $1 }
+  | array_literal                           { Array_Con $1  }
 
 array_literal:
   LBRACKET arg_expr_opt RBRACKET            { $2 }
@@ -75,14 +75,14 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Stmt(Some($1)) }
+  | expr NEWLINE                                                                { Expr $1) }
   /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
   | LOG expr NEWLINE                                                            { Log($2) }
   | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
   | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_in($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_eq($4, $6, $10)  }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN NEWLINE                                                              { RETURN }

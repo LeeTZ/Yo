@@ -4,9 +4,9 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
-%token LAMBDA FUNCTION GLOBAL TYPE EVAL
+%token (*LAMBDA*) FUNC GLOBAL TYPE EVAL
 %token FRAME CLIP
-%token RIGHTARROW LEFTARROW CASCADE
+%token RIGHTARROW LEFTARROW HAT AT
 %token LOG
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
@@ -19,7 +19,7 @@
 %nonassoc ELSE
 %right ASSIGN
 %left EQ NEQ
-%left CASCADE
+%left HAT AT
 %left AMPERSAND
 %left OR
 %left AND
@@ -62,7 +62,6 @@ expr:
   | expr LEQ    expr                         { Binop($1, Leq,   $3) }
   | expr GT     expr                         { Binop($1, Greater,  $3) }
   | expr GEQ    expr                         { Binop($1, Geq,   $3) }
-  | primary_expr ASSIGN expr                 { Assign($1, $3) }
   | ID LPAREN arg_expr_opt RPAREN            { Call($1, $3) }
   | LPAREN expr RPAREN                       { $2 }
 
@@ -75,14 +74,14 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Stmt(Some($1)) }
-  /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(Some(List.rev $3)) }
-  | LOG expr NEWLINE                                                            { Log($2) }
-  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
-  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_in($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_eq($4, $6, $10)  }
+  | expr NEWLINE                                                                { Expr $1 }
+  | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
+  | LOG expr NEWLINE                                                            { Log_Stmt $2 }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While_Stmt($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN NEWLINE                                                              { RETURN }

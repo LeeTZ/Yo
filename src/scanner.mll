@@ -8,7 +8,7 @@ let String_cons = [^ '"' ]* (* Is that correct? *)
 rule token = parse
   [' ' '\r'] { token lexbuf } (* Whitespace *)
 | '\'      { continue lexbuf }
-| "#{"     { comment lexbuf }           (* Comments *)
+| "#("     { comment lexbuf }           (* Comments *)
 | '#'      { oneLineComment lexbuf}
 | '\t'     { INDENT }
 | '\n'     { NEWLINE }
@@ -52,9 +52,10 @@ rule token = parse
 | "Frame"  { FRAME }
 | "Clip"   { CLIP }
 
-| "->"     { RIGHTARROW }
-| "<-"     { LEFTARROW }
-| "^@"     { CASCADE }
+(*| "->"     { RIGHTARROW }
+| "<-"     { LEFTARROW }*)
+| "^"      { HAT }
+| "@"		{ AT }
 
 | "if"     { IF }
 | "else"   { ELSE }
@@ -66,9 +67,9 @@ rule token = parse
 | "continue" { CONTINUE }
 | "break"  { BREAK }
 
-| "lambda" { LAMBDA }
+(*| "lambda" { LAMBDA }*)
 | "func"   { FUNCTION }
-| "global" { GLOBAL }
+(* | "global" { GLOBAL } *)
 | "type"   { TYPE }
 
 | "log"    { LOG }
@@ -82,7 +83,7 @@ rule token = parse
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
-  "#}" { token lexbuf }
+  "#)" { token lexbuf }
 | _    { comment lexbuf }
 
 and oneLineComment = parse

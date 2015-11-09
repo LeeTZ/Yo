@@ -1,3 +1,7 @@
+.paths
+.project
+.settings/
+_build/
 .texpadtmp
 *.output
 *.cmo

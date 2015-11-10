@@ -4,9 +4,9 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
 %token INT DOUBLE BOOL STRING ARRAY
-%token LAMBDA FUNC GLOBAL TYPE EVAL
+%token FUNC GLOBAL TYPE EVAL
 %token FRAME CLIP
-%token RIGHTARROW LEFTARROW CASCADE
+%token RIGHTARROW LEFTARROW HAT AT
 %token LOG
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
@@ -19,7 +19,7 @@
 %nonassoc ELSE
 %right ASSIGN
 %left EQ NEQ
-%left CASCADE
+%left HAT AT
 %left AMPERSAND
 %left OR
 %left AND
@@ -63,9 +63,12 @@ expr:
   | expr LEQ    expr                         { Binop($1, Leq,   $3) }
   | expr GT     expr                         { Binop($1, Greater,  $3) }
   | expr GEQ    expr                         { Binop($1, Geq,   $3) }
-  | primary_expr ASSIGN expr                 { Assign($1, $3) }
   | ID LPAREN arg_expr_opt RPAREN            { Call($1, $3) }
   | LPAREN expr RPAREN                       { $2 }
+
+expr_opt:
+    /* nothing */ { Noexpr }
+  | expr          { $1 }
 
 arg_expr_opt:
   /* nothing */                              { [] }
@@ -76,19 +79,17 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Expr $1) }
-  /*| LBRACE RBRACE NEWLINE                                                       { Brace_Stmt(None) }*/
-
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { BraceStmt(List.rev $3) }
-  | LOG expr NEWLINE                                                            { Log($2) }
-  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ ($9 @ [ Cond_Exec($2, $6) ]))) }
-  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { ForIn($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { ForEq($4, $6, $10)  }
+  | expr NEWLINE                                                                { Expr $1 }
+  | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
+  | LOG expr NEWLINE                                                            { Log_Stmt $2 }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While_Stmt($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
-  | RETURN NEWLINE                                                              { RETURN }
-  | RETURN expr NEWLINE                                                         { Return($2) }
+  | RETURN expr_opt NEWLINE                                                     { Return($2) }
 
 for_in_expr:
   | ID            {$1}
@@ -108,8 +109,7 @@ elif_statement_list:
   | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
 
 else_statement:
-  | /* nothing */ { [] }
-  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { $5 }
+  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }
 
 type_def:
   TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
@@ -125,6 +125,7 @@ type_element_list:
 value_decl:
   ID COLON type_name  {ValueDecl($1, $3)}
 
+
 func_decl:
   | FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
   | FUNC func_name LBRACE func_arg_list RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $4, $9)}
@@ -135,7 +136,5 @@ func_name:
 func_arg_list:
   | ID COLON type_name    { FuncArgList($1, $3) }
   | func_arg_list COMMA ID COLON type_name    { $1 :: FuncArgList($3, $5)}
-
-
 
 

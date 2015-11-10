@@ -46,9 +46,9 @@ array_literal:
   LBRACKET arg_expr_opt RBRACKET            { $2 }
 
 primary_expr:
-    ID                                       { Id $1 }  
-  | primary_expr LBRACKET expr RBRACKET      { Array($1,$3) }
-  | primary_expr DOT ID                      { DotExpr($1,$3) }
+    ID                                               { Id $1 }  
+  | primary_expr LBRACKET primary_expr RBRACKET      { Array($1,$3) }
+  | primary_expr DOT ID                              { DotExpr($1,$3) }
   
 
 expr:

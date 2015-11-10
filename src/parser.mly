@@ -29,8 +29,8 @@
 %left UMINUS
 %left DOT
 
-%start type_def
-%type <int> type_def
+%start func_decl
+%type <int> func_decl
 
 %%
 
@@ -49,6 +49,7 @@ primary_expr:
     ID                                       { Id $1 }  
   | primary_expr LBRACKET expr RBRACKET      { Array($1,$3) }
   | primary_expr DOT ID                      { DotExpr($1,$3) }
+  
 
 expr:
     primary_expr                             { $1 }
@@ -79,20 +80,20 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 statement:
-  | expr NEWLINE                                                                { Expr $1 }
+   expr NEWLINE                                                                { Expr $1 }
   | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
   | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
   | LOG expr NEWLINE                                                            { Log_Stmt $2 }
   | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
   | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While_Stmt($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($4, $6, $10)  }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($2, $4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($2, $4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN expr_opt NEWLINE                                                     { Return($2) }
 
 for_in_expr:
-  | ID            {$1}
+   ID            {$1}
   | array_literal {$1}
 
 statement_opt:
@@ -100,16 +101,16 @@ statement_opt:
   | statement_list { List.rev $1 }
 
 statement_list:
-  |  NEWLINE     { [] }
+    NEWLINE     { [] }
   | statement { Stmt(Some($1)) }
   | statement_list statement { $2 :: $1 }
 
 elif_statement_list:
-  | /* nothing */ { [] }
+   /* nothing */ { [] }
   | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
 
 else_statement:
-  | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }
+   ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }
 
 type_def:
   TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
@@ -121,20 +122,20 @@ type_element_list:
   /*  nothing */  { [] }
   | value_decl NEWLINE type_element_list  {TypeEleList($1, $3)}
   | func_decl NEWLINE type_element_list {TypeEleList($1, $3)}
+  | type_def NEWLINE type_element_list {TypeEleList($1, $3)}
 
 value_decl:
   ID COLON type_name  {ValueDecl($1, $3)}
 
-
 func_decl:
-  | FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
+   FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
   | FUNC func_name LBRACE func_arg_list RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $4, $9)}
 
 func_name:
   ID        {Id $1}
 
 func_arg_list:
-  | ID COLON type_name    { FuncArgList($1, $3) }
+   ID COLON type_name    { FuncArgList($1, $3) }
   | func_arg_list COMMA ID COLON type_name    { $1 :: FuncArgList($3, $5)}
 
 

@@ -82,12 +82,12 @@ arg_expr_list:
 statement:
    expr NEWLINE                                                                { Expr $1 }
   | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
-  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { Brace_Stmt(List.rev $3) }
-  | LOG expr NEWLINE                                                            { Log_Stmt $2 }
-  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { If_Stmt(List.rev ($10 :: ($9 @ [ Cond_Exec($2, $6) ]))) }
-  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { While_Stmt($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { For_In($2, $4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { For_Eq($2, $4, $6, $10)  }
+  | LBRACE NEWLINE statement_list RBRACE NEWLINE                                { BraceStmt(List.rev $3) }
+  | LOG expr NEWLINE                                                            { LogStmt $2 }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 :: ($9 @ [ CondExec($2, $6) ]))) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { WhileStmt($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { ForIn($2, $4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { ForEq($2, $4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN expr_opt NEWLINE                                                     { Return($2) }

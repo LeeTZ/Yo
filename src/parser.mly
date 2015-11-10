@@ -128,7 +128,7 @@ value_decl:
   ID COLON type_name  {ValueDecl($1, $3)}
 
 func_decl:
-   FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
+    FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
   | FUNC func_name LBRACE func_arg_list RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $4, $9)}
 
 func_name:

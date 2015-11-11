@@ -74,6 +74,8 @@ rule token = parse
 
 | "log"    { LOG }
 | "eval"   { EVAL }
+| "true"	as lxm	{ BoolLITERAL(bool_of_string lxm) }
+| "false"	as lxm	{ BoolLITERAL(bool_of_string lxm) }
 
 | Integer_cons as lxm { IntLITERAL(int_of_string lxm) }
 | Double_cons as lxm { DoubleLITERAL(float_of_string lxm) }

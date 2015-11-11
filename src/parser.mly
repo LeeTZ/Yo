@@ -8,6 +8,7 @@
 %token FRAME CLIP
 %token RIGHTARROW LEFTARROW HAT AT
 %token LOG
+%token TRUE FALSE
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
 %token <string> StringLITERAL
@@ -34,7 +35,6 @@
 
 %%
 
-constant:
     IntLITERAL                              { IntConst $1 }
   | DoubleLITERAL                           { DoubleConst $1 }
   | StringLITERAL                           { StrConst $1 } 
@@ -50,6 +50,7 @@ primary_expr:
   | primary_expr LBRACKET expr RBRACKET              { ArrayExpr($1, $3) }
   | primary_expr DOT ID                              { DotExpr($1, $3) }
   
+
 
 expr:
     primary_expr                             { PrimaryExpr($1) }
@@ -88,6 +89,7 @@ statement:
   | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE                   { WhileStmt($2, $6) }
   | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE        { ForIn($2, $4, $8) }
   | FOR ID EQ expr TO expr COLON LBRACE NEWLINE  statement_opt  RBRACE NEWLINE      { ForEq($2, $4, $6, $10)  }
+
   | CONTINUE NEWLINE                                                            { CONTINUE }
   | BREAK NEWLINE                                                               { BREAK }
   | RETURN expr_opt NEWLINE                                                     { Return($2) }

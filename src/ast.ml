@@ -23,6 +23,7 @@ type args =
 
 type stmt =
     BraceStmt of stmt list
+  | Assign of primary_expr * expr
   | Expr of expr
   | LogStmt of expr
   | IfStmt of else_stmt * elif_stmt * cond_exec

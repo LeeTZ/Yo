@@ -42,7 +42,7 @@ let compile context program =
 	let rec resolve_type ctx = function
 		| Id x -> (look_up_var x ctx.vsymtab).type_def
 		| DotExpr (expr, x) -> (try NameMap.find x (resolve_type ctx expr).members
-			with Not_found -> raise (VariableNotDefined (	(string_of_expr expr) ^ x)))
+			with Not_found -> raise (VariableNotDefined (	x ^ " in " (string_of_expr expr))))
 		in
 	resolve_type context program
 	

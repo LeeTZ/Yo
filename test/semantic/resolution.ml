@@ -6,12 +6,33 @@ type expr =                                 (* Expressions*)
   | BoolConst of bool                       (* True *)
   | StrConst of string                      (* "ocaml" *)
   | ArrayConst of expr list                 (* [12,23,34,56] *)
-  | Id of string                            (* foo *)  
-  | Array of expr * expr
-  | DotExpr of expr * string
-  | Binop of expr * op * expr
-  | Log of string
+  | ArrayExpr of expr * expr                (* A[B[3]]*)
+	| Id of string                            (* foo *)  
+  | DotExpr of expr * string                (* A.B *)
+  | Binop of expr * op * expr               (* 3+4 *)
+  | Assign of expr * expr           (* a = 3 *)
   | Noexpr
+
+let rec string_of_expr = function
+    IntConst(l) -> string_of_int l
+  | DoubleConst(d) -> string_of_float d 
+  | BoolConst(b) -> string_of_bool b
+  | StrConst(s) -> s
+  | Id(s) -> s
+  | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
+	| ArrayConst(e) -> "[ " ^ List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)  ^ "]"
+  | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
+  | Binop(e1, o, e2) ->
+      (string_of_expr e1) ^ " " ^
+      (match o with
+	       Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
+      | Equal -> "==" | Neq -> "!="
+      | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") ^ " " ^
+      (string_of_expr e2)
+  | Assign(v, e) -> (string_of_expr v) ^ " = " ^ (string_of_expr e)
+  | Noexpr -> ""
+
+
 	
 exception VariableNotDefined of string
 exception TypeNotDefined of string
@@ -55,7 +76,7 @@ let compile context program =
 	let rec resolve_type ctx = function
 		| Id x -> (look_up_var x ctx.vsymtab).type_def
 		| DotExpr (expr, x) -> (try NameMap.find x (resolve_type ctx expr).members
-			with Not_found -> raise (VariableNotDefined (	"abc" ^ x)))
+			with Not_found -> raise (VariableNotDefined (	x ^ " in " (string_of_expr expr))))
 		in
 	resolve_type context program
 

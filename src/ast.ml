@@ -6,22 +6,15 @@ type expr =                                 (* Expressions*)
   | BoolConst of bool                       (* True *)
   | StrConst of string                      (* "ocaml" *)
   | ArrayConst of expr list                 (* [12,23,34,56] *)
-  | Id of string                            (* foo *)  
-  | Array of expr * expr
-  | DotExpr of expr * string
-  | Binop of expr * op * expr
-  | Call of string * fargs list
-  | Log of string
-  | PrimaryExpr of primary_expr             (* A.B, A[3] *)
+  | ArrayExpr of expr * expr                (* A[B[3]]*)
+	| Id of string                            (* foo *)  
+  | DotExpr of expr * string                (* A.B *)
   | Binop of expr * op * expr               (* 3+4 *)
   | Assign of primary_expr * expr           (* a = 3 *)
   | Call of string * args list              (* foo(a, b) *)
   | LogStmt of expr                         (* log a+b *)
   | Noexpr
 
-type primary_expr = 
-    ArrayExpr of expr * expr                (* A[B[3]]*)
-  | DotExpr of expr * string                (* A.B *)
 
 type args = 
   args of expr * expr
@@ -62,19 +55,15 @@ type func_decl = {
 
 type program = string list * func_decl list
   
-
-let rec string_of_primary_expr = function
-    Id(s) -> s
-  | ArrayExpr(a, b) -> (string_of_primary_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
-  | DotExpr(a, b) -> (string_of_primary_expr a) ^ "." ^ b
-
 let rec string_of_expr = function
     IntConst(l) -> string_of_int l
   | DoubleConst(d) -> string_of_double d 
   | BoolConst(b) -> string_of_bool b
   | StrConst(s) -> s
   | Id(s) -> s
-  | PrimaryExpr(a) -> string_of_primary_expr a
+  | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
+	| ArrayConst(e) -> "[ " ^ List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)  ^ "]"
+  | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^
       (match o with

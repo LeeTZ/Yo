@@ -29,16 +29,16 @@
 %left UMINUS
 %left DOT
 
-%start func_decl
-%type <int> func_decl
+%start expr
+%type <int> expr
 
 %%
 
 constant:
     IntLITERAL                              { IntConst $1 }
   | DoubleLITERAL                           { DoubleConst $1 }
-  | StringLITERAL                           { StrConConst $1 } 
-  | BoolLITERAL                             { BoolConConst $1 }
+  | StringLITERAL                           { StrConst $1 } 
+  | BoolLITERAL                             { BoolConst $1 }
   | array_literal                           { ArrayConst $1  }
 
 
@@ -47,12 +47,12 @@ array_literal:
 
 primary_expr:
     ID                                               { Id $1 }  
-  | primary_expr LBRACKET primary_expr RBRACKET      { Array($1,$3) }
-  | primary_expr DOT ID                              { DotExpr($1,$3) }
+  | primary_expr LBRACKET expr RBRACKET              { ArrayExpr($1, $3) }
+  | primary_expr DOT ID                              { DotExpr($1, $3) }
   
 
 expr:
-    primary_expr                             { $1 }
+    primary_expr                             { PrimaryExpr($1) }
   | constant                                 { $1 }
   | expr PLUS   expr                         { Binop($1, Add,   $3) }
   | expr MINUS  expr                         { Binop($1, Sub,   $3) }
@@ -77,7 +77,7 @@ arg_expr_opt:
 
 arg_expr_list:
     expr                                     { [$1] }
-  | arg_expr_list COMMA expr                 { $3 :: $1 }
+  | arg_expr_list COMMA expr                 { Args($3 :: $1) }
 
 statement:
    expr NEWLINE                                                                { Expr $1 }
@@ -107,10 +107,10 @@ statement_list:
 
 elif_statement_list:
    /* nothing */ { [] }
-  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
+  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { ElifStmt($9 @ [ CondExec($2, $6) ]) }
 
 else_statement:
-   ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { Cond_Exec_Fallback($5) }
+   ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { ElseStmt(CondExecFallback($5))}
 
 type_def:
   TYPE type_name COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
@@ -137,5 +137,4 @@ func_name:
 func_arg_list:
    ID COLON type_name    { FuncArgList($1, $3) }
   | func_arg_list COMMA ID COLON type_name    { $1 :: FuncArgList($3, $5)}
-
 

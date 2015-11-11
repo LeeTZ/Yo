@@ -34,7 +34,7 @@
 %type <int> func_decl
 
 %%
-
+literal:
     IntLITERAL                              { IntConst $1 }
   | DoubleLITERAL                           { DoubleConst $1 }
   | StringLITERAL                           { StrConst $1 } 
@@ -52,7 +52,7 @@ primary_expr:
 
 expr:
     primary_expr                             { $1 }
-  | constant                                 { $1 }
+  | literal                                 { $1 }
   | expr PLUS   expr                         { Binop($1, Add,   $3) }
   | expr MINUS  expr                         { Binop($1, Sub,   $3) }
   | expr TIMES  expr                         { Binop($1, Mult,  $3) }

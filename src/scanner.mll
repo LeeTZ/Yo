@@ -7,7 +7,7 @@ let String_cons = [^ '"' ]* (* Is that correct? *)
 
 rule token = parse
   [' ' '\r'] { token lexbuf } (* Whitespace *)
-| '\'      { continue lexbuf }
+(*| '\'      { continue lexbuf }*)
 | "#("     { comment lexbuf }           (* Comments *)
 | '#'      { oneLineComment lexbuf}
 | '\t'     { INDENT }
@@ -92,6 +92,6 @@ and oneLineComment = parse
   '\n' { token lexbuf }
 | _    { oneLineComment lexbuf }
 
-and continue = parse
+(*and continue = parse
   [' ' '\t' '\r' '\n'] {continue lexbuf}
-| [^ ' ' '\t' '\r' '\n'] {token lexbuf}
+| [^ ' ' '\t' '\r' '\n'] {token lexbuf}*)

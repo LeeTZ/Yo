@@ -1,17 +1,53 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
-type expr =
-    IntConst of int
-  | DoubleConst of float
-  | BoolConst of bool
-  | StringConstId of string
-  | ArrayConst of expr list
-  | Id of string
+type expr =                                 (* Expressions*)
+    IntConst of int                         (* 35 *)
+  | DoubleConst of float                    (* 21.4 *)
+  | BoolConst of bool                       (* True *)
+  | StrConst of string                      (* "ocaml" *)
+  | ArrayConst of expr list                 (* [12,23,34,56] *)
+  | Id of string                            (* foo *)  
   | Array of expr * expr
-  | DotExpr of expr * string
+  | Dot_Expr of expr * string
   | Binop of expr * op * expr
-  | Call of string * expr list
+  | Call of string * fargs list
+  | Log of string
   | Noexpr
+
+and dec =                                   (* Declarations *)
+    Tysig of string * types list            (* f :: Int -> [Note] -> Bool *)
+    | Funcdec of func_decl                  (* f x y = x + y *)
+    | Vardef of string * expr               (* x = (2 + 5) : [1,2,3] *)
+    | Main of expr                          (* main (f x) + (g x) *)
+
+and func_decl = {                      (* Function Declaration *)
+    fname : string;                         (* Function name *)
+    args : pattern list;                    (* Pattern arguments *)
+    value : expr;                           (* Expression bound to function *)
+}
+
+and pattern =                          (* Patterns *)
+    Patconst of int                         (* integer *)
+    | Patbool of bool                       (* boolean *)
+    | Patvar of string                      (* identifier*)
+    | Patwild                               (* wildcard *)
+    | Patcomma of pattern list              (* [pattern, pattern, pattern, ... ] or [] *)
+    | Patcons of pattern * pattern          (* pattern : pattern *)
+
+and fargs =                                 (* Function Arguments *)
+      Arglit of int                         (* 42 *)
+    | Argbool of bool                       (* True *)
+    | Argvar of string                      (* bar *)
+    | Argbeat of expr * int                 (* 2. *)
+    | Argnote of  expr * expr * expr        (* (11, 2)^4. *)
+    | Argchord of expr list                 (* [(11,3)$4., (5,2)$4.] *)
+    | Argsystem of expr list                (* [ [(11,3)$4.,(5,2)$4.], [(-1,0)$2] ] *)
+    | Arglist of expr list                  (* [farg, farg, farg, ... ] or [] *)
+    | Argparens of expr                     (* parenthesized expressions *)
+
+type program = dec list                     (* A program is a list of declarations *)
+
+
 
 type stmt =
     Brace_Stmt of stmt list
@@ -32,6 +68,7 @@ type func_decl = {
     locals : string list;
     body : stmt list;
   }
+
 
 type program = string list * func_decl list
 

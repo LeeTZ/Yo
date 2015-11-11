@@ -8,8 +8,8 @@ except:
   from StringIO import StringIO
 
 def process(input_file):
-  invalidchar = ('\t')
-  blockcomment = ['#{','}#']
+  invalidchar = ('\t','{','}')
+  blockcomment = ['#(',')#']
 
   stack = [0]
   output = StringIO()

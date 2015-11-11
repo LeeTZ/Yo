@@ -30,20 +30,5 @@ let compile venv tenv program =
 		| DotExpr (expr, x) -> (try StringMap.find x (resolve expr).m 
 			with Not_found -> raise (VariableNotDefined (	(string_of_expr expr) ^ x)))
 		in
-	match program with 
-		| DotExpr (expr, x) -> resolve (expr, x)
-	let rec expr env = function
-		| Int_Const x -> [string_of_int x]
-		| Double_Const x -> [string_of_float x]
-		| Bool_Const x -> [string_of_bool x]
-		| String_Const x -> ["\"" ^ x ^ "\""]
-		| Id x -> [x] 
-		in
-	let rec stmt env = function
-		| Assign (lvalue, rvalue) -> 
-			(match lvalue with
-			| Id x -> lookup x env
-			| Array (arr, idx) -> )
-	in match program with
-	| ID -> 
-
+	resolve programs
+	

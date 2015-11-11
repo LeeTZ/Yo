@@ -8,7 +8,7 @@ type expr =                                 (* Expressions*)
   | ArrayConst of expr list                 (* [12,23,34,56] *)
   | Id of string                            (* foo *)  
   | Array of expr * expr
-  | Dot_Expr of expr * string
+  | DotExpr of expr * string
   | Binop of expr * op * expr
   | Call of string * fargs list
   | Log of string

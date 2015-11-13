@@ -43,7 +43,7 @@ literal:
 
 
 array_literal:
-  LBRACKET arg_expr_opt RBRACKET            { $2 }
+  LBRACKET arg_expr_opt RBRACKET            { ArrayLit $2 }
 
 primary_expr:
     ID                                               { Id $1 }  
@@ -51,20 +51,25 @@ primary_expr:
   | primary_expr DOT ID                              { DotExpr($1, $3) }
 
 expr:
-    primary_expr                             { PrimaryExpr($1) }
-  | literal                                 { $1 }
-  | expr PLUS   expr                         { Binop($1, Add,   $3) }
-  | expr MINUS  expr                         { Binop($1, Sub,   $3) }
-  | expr TIMES  expr                         { Binop($1, Mult,  $3) }
-  | expr DIVIDE expr                         { Binop($1, Div,   $3) }
-  | expr EQ     expr                         { Binop($1, Equal, $3) }
-  | expr NEQ    expr                         { Binop($1, Neq,   $3) }
-  | expr LT     expr                         { Binop($1, Less,  $3) }
-  | expr LEQ    expr                         { Binop($1, Leq,   $3) }
-  | expr GT     expr                         { Binop($1, Greater,  $3) }
-  | expr GEQ    expr                         { Binop($1, Geq,   $3) }
+    primary_expr                             { PrimaryExpr $1 }
+  | literal                                  { $1 }
+  | expr op expr                             { Call($1, $3, $2) } /* It is not $1 $2 $3 because we want to unify Call with FuncCall in the future*/
   | ID LPAREN arg_expr_opt RPAREN            { Call($1, $3) }
-  | LPAREN expr RPAREN                       { $2 }
+  | LPAREN expr RPAREN                       { ParenExpr $2 }
+
+op:
+  | PLUS             { Add     }
+  | MINUS            { Sub     }
+  | TIMES            { Mult    }
+  | DIVIDE           { Div     }
+  | EQ               { Equal   }
+  | NEQ              { Neq     }
+  | LT               { Less    }
+  | LEQ              { Leq     }
+  | GT               { Greater }
+  | GEQ              { Geq     }
+  | AND              { And     }
+  | OR               { Or      }
 
 expr_opt:
     /* nothing */ { Noexpr }

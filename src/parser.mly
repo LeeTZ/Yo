@@ -30,8 +30,8 @@
 %left UMINUS
 %left DOT
 
-%start expr
-%type <int> expr
+%start func_decl
+%type <int> func_decl
 
 %%
 literal:
@@ -120,15 +120,16 @@ type_name:
 
 type_element_list:
   /*  nothing */  { [] }
-  | value_decl NEWLINE type_element_list  {TypeEleList($1, $3)}
+  | var_decl NEWLINE type_element_list  {TypeEleList($1, $3)}
   | func_decl NEWLINE type_element_list {TypeEleList($1, $3)}
   | type_def NEWLINE type_element_list {TypeEleList($1, $3)}
 
-value_decl:
-  ID COLON type_name  {ValueDecl($1, $3)}
+var_decl:
+  ID COLON type_name  {VarDecl($1, $3)}
+
 
 func_decl:
-    FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $8)}
+    FUNC func_name LBRACE RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, [] ,$8)}
   | FUNC func_name LBRACE func_arg_list RBRACE COLON NEWLINE LBRACKET statement_list RBRACKET       {FuncDecl($2, $4, $9)}
 
 func_name:

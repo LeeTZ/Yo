@@ -1,5 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
+type types = Int | Double | Bool | String | Array of types
+
 type expr =                                 (* Expressions*)
     IntConst of int                         (* 35 *)
   | DoubleConst of float                    (* 21.4 *)
@@ -43,15 +45,11 @@ type cond_exec =
 
 type cond_exec_fallback = 
    CondExecFallback of stmt list
-   
 
-type func_decl = {
-    fname : string;
-    formals : string list;
-    locals : string list;
-    body : stmt list;
-  }
-
+type decl = 
+    TypeDef of string * types list
+    FuncDecl of string * args list * stmt list
+    ValDecl of string * string
 
 type program = string list * func_decl list
   

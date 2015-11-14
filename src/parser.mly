@@ -28,6 +28,7 @@
 %left UMINUS
 %left DOT
 
+
 %start global
 %type <int> global
 
@@ -113,7 +114,7 @@ else_statement:
   | ELSE COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE { [CondExec(None, $5)] }
 
 var_decl:
-  ID COLON ID  	{ ValueDecl($1, $3) }
+  ID COLON ID  	{ VarDecl($1, $3) }
 	
 func_decl:
 	FUNCTION ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}

@@ -1,5 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
+type types = Int | Double | Bool | String | Array of types
+
 type expr =                                 (* Expressions*)
     IntConst of int                         (* 35 *)
   | DoubleConst of float                    (* 21.4 *)
@@ -51,3 +53,4 @@ let rec string_of_expr = function
 			^ " " ^ string_of_expr e2
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
+

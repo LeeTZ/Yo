@@ -29,8 +29,8 @@
 %left UMINUS
 %left DOT
 
-%start play
-%type <int> play
+%start global
+%type <int> global
 
 %%
 literal:
@@ -52,24 +52,26 @@ array_literal:
   LBRACKET arg_expr_opt RBRACKET            { ArrayConst $2 }
 
 primary_expr:
-    ID                                               { Id $1 }  
+    ID                                               { Var $1 }  
   | primary_expr LBRACKET expr RBRACKET              { ArrayExpr($1, $3) }
   | primary_expr DOT ID                              { DotExpr($1, $3) }
+
 
 expr:
     primary_expr                             { $1 }
   | literal                                  { $1 }
-  | expr PLUS   expr                         { Binop(Add, $1, $3) }
-  | expr MINUS  expr                         { Binop(Sub, $1, $3) }
-  | expr TIMES  expr                         { Binop(Mult, $1, $3) }
-  | expr DIVIDE expr                         { Binop(Div, $1, $3) }
-  | expr EQ     expr                         { Binop(Equal, $1, $3) }
-  | expr NEQ    expr                         { Binop(Neq, $1, $3) }
-  | expr LT     expr                         { Binop(Less, $1, $3) }
-  | expr LEQ    expr                         { Binop(Leq, $1, $3) }
-  | expr GT     expr                         { Binop(Greater, $1, $3) }
-  | expr GEQ    expr                         { Binop(Geq, $1, $3) }
-  | ID LPAREN arg_expr_opt RPAREN          	 { Call($1, $3) }
+  | expr PLUS   expr                         { Binop($1, Add,   $3) }
+  | expr MINUS  expr                         { Binop($1, Sub,   $3) }
+  | expr TIMES  expr                         { Binop($1, Mult,  $3) }
+  | expr DIVIDE expr                         { Binop($1, Div,   $3) }
+  | expr EQ     expr                         { Binop($1, Equal, $3) }
+  | expr NEQ    expr                         { Binop($1, Neq,   $3) }
+  | expr LT     expr                         { Binop($1, Less,  $3) }
+  | expr LEQ    expr                         { Binop($1, Leq,   $3) }
+  | expr GT     expr                         { Binop($1, Greater,  $3) }
+  | expr GEQ    expr                         { Binop($1, Geq,   $3) }
+  | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call($1, $3, $5) }
+	| ID LPAREN arg_expr_opt RPAREN          	 { Call(None, $1, $3) }
   | LPAREN expr RPAREN                       { $2 }
 
 expr_opt:
@@ -77,7 +79,7 @@ expr_opt:
   | expr          { $1 }
 
 statement:
-   expr NEWLINE                                                                 { Expr $1 }
+   expr NEWLINE                                                                 { Assign(None, $1) }
   | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
   /*| LBRACE NEWLINE statement_list RBRACE NEWLINE                                { $3 }*/
   | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ $9 @ [ CondExec($2, $6) ])) }
@@ -89,7 +91,7 @@ statement:
   | RETURN expr_opt NEWLINE                                                     { Return $2 }
 
 for_in_expr:
-   ID            {Id $1}
+   ID            {Var $1}
   | array_literal {$1}
 
 statement_opt:
@@ -132,15 +134,15 @@ type_element_list:
 type_decl:
   TYPE ID COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
 	
-player:
+global_ele:
 	| func_decl	{ $1 }
 	| type_decl	{ $1 }
 	| statement	{ $1 }
 
-player_list:
-	| player 						{ [$1] }
-	| player_list NEWLINE player	{ $3 :: $1 }
+global_ele_list:
+	| global_ele 						{ [$1] }
+	| global_ele_list NEWLINE global_ele	{ $3 :: $1 }
 
-play:
-	player_list	{ List.rev $1 }
+global:
+	global_ele_list	{ List.rev $1 }
 	

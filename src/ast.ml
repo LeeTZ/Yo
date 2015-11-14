@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
 type expr =                                 (* Expressions*)
     IntConst of int                         (* 35 *)
@@ -11,7 +11,6 @@ type expr =                                 (* Expressions*)
   | DotExpr of expr * string        (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
-  | Noexpr
 
 type stmt =
   | Assign of expr option * expr
@@ -22,10 +21,10 @@ type stmt =
   | Continue 
   | Break 
   | Return of expr option
-
-type cond_exec = 
+and cond_exec = 
    CondExec of expr option * stmt list
-
+	
+	
 type var_decl = 
 	| VarDecl of string * string
 
@@ -38,21 +37,17 @@ type program =
 	| Program of type_mem_decl list
 	 
 let rec string_of_expr = function
-    IntConst(l) -> string_of_int l
-  | DoubleConst(d) -> string_of_float d 
-  | BoolConst(b) -> string_of_bool b
-  | StrConst(s) -> s
-  | Var(s) -> s
+  | IntConst l -> string_of_int l
+  | DoubleConst d -> string_of_float d 
+  | BoolConst b -> string_of_bool b
+  | StrConst s -> s
+  | Var v -> v
   | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
 	| ArrayConst(e) -> "[ " ^ (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
-  | Binop(o, e1, e2) -> string_of_expr e1 ^ " " ^
+  | Binop(e1, o, e2) -> string_of_expr e1 ^ " " ^
       (match o with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") 
+      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&" | Or -> "||") 
 			^ " " ^ string_of_expr e2
-  | Call(f, el) -> f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
-  | Noexpr -> ""
-
-
-
-
+  | Call(obj, f, el) -> (match obj with 
+					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"

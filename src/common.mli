@@ -8,15 +8,13 @@ type eval_entry = {
 	mutable args: var_entry list;
 	mutable ret: type_entry option
 	}
-
-type type_entry =  { 
+and type_entry =  { 
   name: string; (* type name used in yo *)
   actual: string; (* actual name used in target language *)
 	mutable evals: eval_entry list; (* a list of eval functions *)
   mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
   }
-  
-type var_entry = {
+and var_entry = {
   name: string; (* type name used in yo *)
   actual: string; (* actual name used in target language *)
   type_def: type_entry (* type definition *)

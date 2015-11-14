@@ -16,7 +16,7 @@ type s_expr =                                 (* Expressions*)
 	| SVar of string * sem             (* foo *)  
   | SDotExpr of s_expr * string * sem        (* A.B *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
-  | SCall of expr option * string * s_expr list * sem      (* foo(a, b) *)
+  | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
 
 let extract_semantic = function
 	| SLiteral (_, s) -> s
@@ -36,16 +36,15 @@ type s_stmt =
   | SContinue 
   | SBreak 
   | SReturn of s_expr option
-
-type s_cond_exec = 
-   SCondExec of s_expr option * s_stmt
+and s_cond_exec = 
+   SCondExec of s_expr option * s_stmt list
 
 type s_var_decl = 
 	| SVarDecl of string * string
 
 type s_type_mem_decl = 
 	| SVarDecl of string * string
-	| SFuncDecl of string * s_val_decl list * s_stmt list
+	| SFuncDecl of string * s_var_decl list * s_stmt list
 	|	STypeDecl of string * s_type_mem_decl list
  
 type s_program = 

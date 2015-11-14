@@ -24,14 +24,14 @@ type stmt =
   | Return of expr option
 
 type cond_exec = 
-   CondExec of expr option * stmt
+   CondExec of expr option * stmt list
 
-type val_decl = 
-	| ValueDecl of string * string
+type var_decl = 
+	| VarDecl of string * string
 
 type type_mem_decl = 
-	| ValueDecl of string * string
-	| FuncDecl of string * val_decl list * stmt list
+	| VarDecl of string * string
+	| FuncDecl of string * var_decl list * stmt list
 	|	TypeDecl of string * type_mem_decl list
  
 type program = 

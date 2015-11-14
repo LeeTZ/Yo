@@ -35,16 +35,16 @@ type s_stmt =
   | SWhileStmt of s_expr * s_stmt list
   | SContinue 
   | SBreak 
-  | SReturn of s_expr
+  | SReturn of s_expr option
 
 type s_cond_exec = 
    SCondExec of s_expr option * s_stmt
 
-type s_val_decl = 
-	| SValueDecl of string * string
+type s_var_decl = 
+	| SVarDecl of string * string
 
 type s_type_mem_decl = 
-	| SValueDecl of string * string
+	| SVarDecl of string * string
 	| SFuncDecl of string * s_val_decl list * s_stmt list
 	|	STypeDecl of string * s_type_mem_decl list
  

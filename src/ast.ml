@@ -29,23 +29,15 @@ and cond_exec =
 	
 and var_decl = 
 	| VarDecl of string * string
-(* 
+
 and type_mem_decl = 
-	| VarDecl of string * string
+	| MemVarDecl of string * string 
 	| FuncDecl of string * var_decl list * stmt list
 	|	TypeDecl of string * type_mem_decl list
- 
-* The old version of code here have the problem of declare VarDecl multiple times.
-* Refine the code as a struct 
- *)
-
-and type_mem_decl = {
-  
-}
-
 
 type program = 
 	| Program of type_mem_decl list
+
 
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
@@ -86,10 +78,11 @@ and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
 
 and string_of_type_mem_decl = function
-  | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
+  | MemVarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
   | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
     ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
 
-and string_of_program type_mem_decls =
-  String.concat "" (List.map string_of_type_mem_decl type_mem_decls)
+and string_of_program program =
+  List.iter
+  

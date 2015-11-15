@@ -30,7 +30,7 @@
 
 
 %start global
-%type <int> global
+%type <Ast.program> global
 
 %%
 literal:

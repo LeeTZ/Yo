@@ -37,7 +37,7 @@ let rec type_nested typetab id = function
                 then raise (Multiple_type_error id)
             else
                 let args_list = 
-                entry = {name=String.uppercase id; actual=String.uppercase id; evals=List.Map (fun id -> args_check args_list id) arglist; members=NameMap.empty} in
+                    entry = {name=String.uppercase id; actual=String.uppercase id; evals=None; members=NameMap.empty} in
                 let typetab = NameMap.add entry.name entry typetab
                     in typetab
 
@@ -57,11 +57,24 @@ let rec walk_decl_1 typetab = function
                 let entry = {name=String.uppercase id; actual=String.uppercase id; evals=List.empty; members=NameMap.empty} in
                 let typetab = NameMap.add entry.name entry typetab
 
+let rec args_add arglist typetab = function
+      Ast.VarDecl(name, typename) ->
+        let NameMap.add typetab.evals name typename in 
+            typetab
+
 (* Second pass to scan all members and evals *)
-let rec walk_decl_2 memberList = function
-      Ast.TypeDecl(id, type_element) -> 
-            let ele = {List.Map }
-
+let rec walk_decl_2 memberList typetab = function
     | Ast.FuncDecl(id, arglist, stmtlist) ->  
+        if (exists_type arglist) = false
+            then raise (Type_not_defined arglist)
+        else
+            let typetab = args_add arglist typetab
+                in typetab 
 
-    | Ast.VarDecl(name, typename) ->    
+    | Ast.VarDecl(name, typename) ->  
+        if (exists_types typename) = false  
+            then raise (Type_not_defined typename)
+
+
+
+

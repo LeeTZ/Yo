@@ -9,70 +9,50 @@ type expr =                                 (* Expressions*)
   | StrConst of string                      (* "ocaml" *)
   | ArrayConst of expr list                 (* [12,23,34,56] *)
   | ArrayExpr of expr * expr                (* A[B[3]]*)
-	| Id of string                            (* foo *)  
-  | DotExpr of expr * string                (* A.B *)
-  | Binop of expr * op * expr               (* 3+4 *)
-  | Assign of primary_expr * expr           (* a = 3 *)
-  | Call of string * args list              (* foo(a, b) *)
-  | LogStmt of expr                         (* log a+b *)
+	| Var of string              (* foo *)  
+  | DotExpr of expr * string        (* A.B *)
+  | Call of expr option * string * expr list       (* foo(a, b) *)
+	| Binop of expr * op * expr
   | Noexpr
 
-
-type args = 
-  args of expr * expr
-
 type stmt =
-    BraceStmt of stmt list
-  | Assign of primary_expr * expr
-  | Expr of expr
-  | LogStmt of expr
-  | IfStmt of else_stmt * elif_stmt * cond_exec
-  | ForIn of expr * stmt
-  | ForEq of expr * expr * stmt
-  | WhileStmt of expr * stmt
-  | CONTINUE 
-  | BREAK 
-  | Return of expr
-
-type elif_stmt = 
-   ElifStmt of elif_stmt * cond_exec
-
-type else_stmt = 
-   ElseStmt of cond_exec_fallback
+  | Assign of expr option * expr
+  | IfStmt of cond_exec list
+  | ForIn of expr * stmt list
+  | ForEq of expr * expr * stmt list
+  | WhileStmt of expr * stmt list
+  | Continue 
+  | Break 
+  | Return of expr option
 
 type cond_exec = 
-   CondExec of stmt * stmt list
+   CondExec of expr option * stmt list
 
-type cond_exec_fallback = 
-   CondExecFallback of stmt list
+type var_decl = 
+	| VarDecl of string * string
 
-type decl = 
-    TypeDef of string * types list
-    FuncDecl of string * args list * stmt list
-    ValDecl of string * string
-
-type program = string list * func_decl list
+type type_mem_decl = 
+	| VarDecl of string * string
+	| FuncDecl of string * var_decl list * stmt list
+	|	TypeDecl of string * type_mem_decl list
+ 
+type program = 
+	| Program of type_mem_decl list
   
 let rec string_of_expr = function
     IntConst(l) -> string_of_int l
-  | DoubleConst(d) -> string_of_double d 
+  | DoubleConst(d) -> string_of_float d 
   | BoolConst(b) -> string_of_bool b
   | StrConst(s) -> s
-  | Id(s) -> s
+  | Var(s) -> s
   | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
-	| ArrayConst(e) -> "[ " ^ List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)  ^ "]"
+	| ArrayConst(e) -> "[ " ^ (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
-  | Binop(e1, o, e2) ->
-      string_of_expr e1 ^ " " ^
-      (match o with
-	       Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!="
-      | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") ^ " " ^
-      string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | Log(e) -> "log " ^ (string_of_expr e)
+  | Binop(o, e1, e2) -> string_of_expr e1 ^ " " ^
+      (match o with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
+      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") 
+			^ " " ^ string_of_expr e2
+  | Call(f, el) -> f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | Noexpr -> ""
 
 

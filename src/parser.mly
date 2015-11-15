@@ -121,12 +121,16 @@ var_decl:
   ID COLON ID  	{ VarDecl($1, $3) }
 
 mem_var_decl:
-  ID COLON ID   { MemVarDecl($1, $3) }
-  
+  var_decl   { MemVarDecl($1) }
 
 func_decl:
 	FUNCTION ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}
 
+mem_func_decl:
+  func_decl { MemFuncDecl($1) }
+
+global_func_decl:
+  func_decl { GlobalFunc($1) }
 
 func_arg_opt:
    /* nothing */    	{ [] }
@@ -136,19 +140,28 @@ func_arg_list:
 	| var_decl												{ [$1] }
   | func_arg_list COMMA var_decl    { $3 :: $1 }
 	
-type_element_list:
-  /*  nothing */  { [] }
-  | mem_var_decl 		NEWLINE type_element_list { $1 :: $3 }
-  | func_decl 	NEWLINE type_element_list { $1 :: $3 }
-  | type_decl 	NEWLINE type_element_list { $1 :: $3 }
-
 type_decl:
   TYPE ID COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDecl($2, $6)}
-	
+
+mem_type_decl:
+  type_decl  {MemTypeDecl($1)}
+
+global_type_decl:
+  type_decl { GlobalType($1) }
+
+global_statement:
+  statement  { GlobalStmt($1) }
+
+type_element_list:
+  /*  nothing */  { [] }
+  | mem_var_decl    NEWLINE type_element_list { $1 :: $3 }
+  | mem_func_decl   NEWLINE type_element_list { $1 :: $3 }
+  | mem_type_decl   NEWLINE type_element_list { $1 :: $3 }
+
 global_ele:
-	| func_decl	{ $1 }
-	| type_decl	{ $1 }
-	| statement	{ $1 }
+	| global_func_decl	{ $1 }
+	| global_type_decl	{ $1 }
+	| global_statement	{ $1 }
 
 global_ele_list:
 	| global_ele 						{ [$1] }

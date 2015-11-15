@@ -27,17 +27,27 @@ type stmt =
 
 and cond_exec = 
    CondExec of expr option * stmt list
-	
+
 and var_decl = 
-	| VarDecl of string * string
+  | VarDecl of string * string
+
+and func_decl = 
+  | FuncDecl of string * var_decl list * stmt list
+
+and type_decl = 
+  | TypeDecl of string * type_mem_decl list
 
 and type_mem_decl = 
-	| MemVarDecl of string * string 
-	| FuncDecl of string * var_decl list * stmt list
-	|	TypeDecl of string * type_mem_decl list
+  | MemVarDecl of var_decl
+  | MemFuncDecl of func_decl
+  | MemTypeDecl of type_decl
 
-type program = stmt list
+and global_ele_decl = 
+  | GlobalStmt of stmt
+  | GlobalFunc of func_decl
+  | GlobalType of type_decl
 
+type program = global_ele_decl list
 
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
@@ -77,17 +87,30 @@ and string_of_cond_exec = function
 and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
 
-and string_of_type_mem_decl = function
-  | MemVarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
+and string_of_func_decl = function
   | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
     ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
+
+and string_of_type_decl = function
   | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
 
+and string_of_type_mem_decl = function
+  | MemVarDecl o -> string_of_var_decl o
+  | MemFuncDecl o -> string_of_func_decl o 
+  | MemTypeDecl o -> string_of_type_decl o
+
+and string_of_global_ele_decl = function
+  | GlobalStmt o -> string_of_stmt o
+  | GlobalFunc o -> string_of_func_decl o
+  | GlobalType o -> string_of_type_decl o
+
 and string_of_program program =
-  String.concat "" (List.map string_of_stmt program)
+  String.concat "\n " (List.map string_of_global_ele_decl program) 
+
   (*List.iter 
   fun global_ele -> match global_ele with
   | FuncDecl 
   | TypeDecl
   | Stmt
   program*) 
+

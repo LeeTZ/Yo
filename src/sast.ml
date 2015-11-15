@@ -31,12 +31,14 @@ type s_stmt =
   | SAssign of s_expr option * s_expr
   | SIfStmt of s_cond_exec list
   | SForIn of s_expr * s_stmt list
-  | ForEq of s_expr * s_expr * s_stmt list
+  | SForEq of s_expr * s_expr * s_stmt list
   | SWhileStmt of s_expr * s_stmt list
   | SContinue 
   | SBreak 
   | SReturn of s_expr option
-and s_cond_exec = 
+
+
+type s_cond_exec = 
    SCondExec of s_expr option * s_stmt list
 
 type s_var_decl = 

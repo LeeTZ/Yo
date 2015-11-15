@@ -119,6 +119,7 @@ var_decl:
 func_decl:
 	FUNCTION ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}
 
+
 func_arg_opt:
    /* nothing */    	{ [] }
 	| func_arg_list 		{ List.rev $1 }

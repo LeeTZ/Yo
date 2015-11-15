@@ -23,7 +23,8 @@ type stmt =
   | Continue 
   | Break 
   | Return of expr option
-and cond_exec = 
+
+type cond_exec = 
    CondExec of expr option * stmt list
 	
 	
@@ -37,7 +38,7 @@ type type_mem_decl =
  
 type program = 
 	| Program of type_mem_decl list
-	 
+
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
   | DoubleConst d -> string_of_float d 

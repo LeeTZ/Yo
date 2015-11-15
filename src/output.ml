@@ -12,7 +12,9 @@ let rec string_of_expr senv expr = (*senv or sast is the environment with the se
 	| DoubleConst(d) -> string_of_float d
 	| BoolConst(b) -> string_of_bool b
 	| StrCon(s) -> "\"" ^ s ^ "\"" 
-	| Array(a) -> (* bu hui xie *)
+	| ArrayConst(a) -> (* bu hui xie *)
+	| ArrayExpr(s,e) -> string_of_expr senv s ^ "_" ^ "[" ^ string_of_expr senv e ^ "]"
+
 	| Dot_Expr(e,s) -> string_of_expr senv e ^ "." ^ s ^ "_"
 	| Uminus(e) -> "-" ^ string_of_expr senv e (* This is not a function *)
 	| Not_Unary(e) -> "!" ^ string_of_expr senv e

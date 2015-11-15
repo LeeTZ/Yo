@@ -63,7 +63,7 @@ let rec args_add arglist typetab = function
             typetab
 
 (* Second pass to scan all members and evals *)
-let rec walk_decl_2 memberList typetab = function
+let rec walk_decl_2 typetab = function
     | Ast.FuncDecl(id, arglist, stmtlist) ->  
         if (exists_type arglist) = false
             then raise (Type_not_defined arglist)
@@ -74,7 +74,10 @@ let rec walk_decl_2 memberList typetab = function
     | Ast.VarDecl(name, typename) ->  
         if (exists_types typename) = false  
             then raise (Type_not_defined typename)
+        in typetab
 
+    | Ast.TypeDef(id, type_element) ->
+        List.map (fun type_element -> walk_decl_2 typetab type_element) type_element
 
 
 

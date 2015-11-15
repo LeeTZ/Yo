@@ -24,18 +24,26 @@ type stmt =
   | Break 
   | Return of expr option
 
-type cond_exec = 
+and cond_exec = 
    CondExec of expr option * stmt list
 	
-	
-type var_decl = 
+and var_decl = 
 	| VarDecl of string * string
-
-type type_mem_decl = 
+(* 
+and type_mem_decl = 
 	| VarDecl of string * string
 	| FuncDecl of string * var_decl list * stmt list
 	|	TypeDecl of string * type_mem_decl list
  
+* The old version of code here have the problem of declare VarDecl multiple times.
+* Refine the code as a struct 
+ *)
+
+and type_mem_decl = {
+  
+}
+
+
 type program = 
 	| Program of type_mem_decl list
 
@@ -55,30 +63,33 @@ let rec string_of_expr = function
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
 
-let string_of_stmt = function
-  | Assign(lvalue, rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
+and string_of_stmt = function
+  | Assign(None,rvalue) -> string_of_expr rvalue
+  | Assign(Some(lvalue), rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
   | IfStmt(conds) -> (String.concat "\n " (List.map string_of_cond_exec conds))
   | ForIn(var, expr, stmts) -> "for " ^ (string_of_expr var) ^ " in " ^ (string_of_expr var) 
     ^ ":\n " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
-  | ForEq(var, exprst, expred, stmts) -> "for " ^ (string_of_expr var) ^ " = " (string_of_expr exprst) 
+  | ForEq(var, exprst, expred, stmts) -> "for " ^ (string_of_expr var) ^ " = " ^ (string_of_expr exprst) 
     ^ " to " ^ (string_of_expr expred) ^ ":\n " ^(String.concat ";\n " (List.map string_of_stmt stmts))
   | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n " 
     ^ (String.concat ";\n " (List.map string_of_stmt stmts))
   | Continue -> "continue\n"
   | Break -> "break\n"
-  | Return(expr) -> "return " ^ (string_of_expr expr)
+  | Return(None) -> "return"
+  | Return(Some(expr)) -> "return " ^ (string_of_expr expr)
 
-let string_of_cond_exec = function
-  | CondExec(expr, stmts) -> " if " (string_of_expr) expr ^ " " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+and string_of_cond_exec = function
+  | CondExec(None, stmts) -> " if true " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | CondExec(Some(expr), stmts) -> " if " ^ (string_of_expr expr) ^ " " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
 
-let string_of_var_decl = function
+and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
 
-let string_of_type_mem_decl = function
+and string_of_type_mem_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
   | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
     ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
 
-let string_of_program type_mem_decls =
+and string_of_program type_mem_decls =
   String.concat "" (List.map string_of_type_mem_decl type_mem_decls)

@@ -2,23 +2,23 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | An
 
 type types = Int | Double | Bool | String | Array of types
 
-type expr =                                 (* Expressions*)
-    IntConst of int                         (* 35 *)
-  | DoubleConst of float                    (* 21.4 *)
-  | BoolConst of bool                       (* True *)
-  | StrConst of string                      (* "ocaml" *)
-  | ArrayConst of expr list                 (* [12,23,34,56] *)
-  | ArrayExpr of expr * expr                (* A[B[3]]*)
-	| Var of string              (* foo *)  
-  | DotExpr of expr * string        (* A.B *)
+type expr =                                        (* Expressions*)
+    IntConst of int                                (* 35 *)
+  | DoubleConst of float                           (* 21.4 *)
+  | BoolConst of bool                              (* True *)
+  | StrConst of string                             (* "ocaml" *)
+  | ArrayConst of expr list                        (* [12,23,34,56] *)
+  | ArrayExpr of expr * expr                       (* A[B[3]]*)
+	| Var of string                                  (* foo *)  
+  | DotExpr of expr * string                       (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
 
 type stmt =
   | Assign of expr option * expr
   | IfStmt of cond_exec list
-  | ForIn of expr * stmt list
-  | ForEq of expr * expr * stmt list
+  | ForIn of expr * expr * stmt list
+  | ForEq of expr * expr * expr * stmt list
   | WhileStmt of expr * stmt list
   | Continue 
   | Break 
@@ -55,10 +55,29 @@ let rec string_of_expr = function
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
 
+let string_of_stmt = function
+  | Assign(lvalue, rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
+  | IfStmt(conds) -> (String.concat "\n " (List.map string_of_cond_exec conds))
+  | ForIn(var, expr, stmts) -> "for " ^ (string_of_expr var) ^ " in " ^ (string_of_expr var) 
+    ^ ":\n " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | ForEq(var, exprst, expred, stmts) -> "for " ^ (string_of_expr var) ^ " = " (string_of_expr exprst) 
+    ^ " to " ^ (string_of_expr expred) ^ ":\n " ^(String.concat ";\n " (List.map string_of_stmt stmts))
+  | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n " 
+    ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | Continue -> "continue\n"
+  | Break -> "break\n"
+  | Return(expr) -> "return " ^ (string_of_expr expr)
+
+let string_of_cond_exec = function
+  | CondExec(expr, stmts) -> " if " (string_of_expr) expr ^ " " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+
+let string_of_var_decl = function
+  | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
 
 let string_of_type_mem_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
-  | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
+  | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
+    ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
 
 let string_of_program type_mem_decls =

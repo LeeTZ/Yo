@@ -13,12 +13,13 @@ type expr =                                        (* Expressions*)
   | DotExpr of expr * string                       (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
+  | Noexpr
 
 type stmt =
   | Assign of expr option * expr
   | IfStmt of cond_exec list
-  | ForIn of expr * expr * stmt list
-  | ForEq of expr * expr * expr * stmt list
+  | ForIn of string * expr * stmt list
+  | ForEq of string * expr * expr * stmt list
   | WhileStmt of expr * stmt list
   | Continue 
   | Break 
@@ -35,8 +36,7 @@ and type_mem_decl =
 	| FuncDecl of string * var_decl list * stmt list
 	|	TypeDecl of string * type_mem_decl list
 
-type program = 
-	| Program of type_mem_decl list
+type program = stmt list
 
 
 let rec string_of_expr = function
@@ -54,14 +54,14 @@ let rec string_of_expr = function
 			^ " " ^ string_of_expr e2
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
-
+  | Noexpr -> ""
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
   | Assign(Some(lvalue), rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
   | IfStmt(conds) -> (String.concat "\n " (List.map string_of_cond_exec conds))
-  | ForIn(var, expr, stmts) -> "for " ^ (string_of_expr var) ^ " in " ^ (string_of_expr var) 
+  | ForIn(var, expr, stmts) -> "for " ^ var ^ " in " ^ (string_of_expr expr) 
     ^ ":\n " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
-  | ForEq(var, exprst, expred, stmts) -> "for " ^ (string_of_expr var) ^ " = " ^ (string_of_expr exprst) 
+  | ForEq(var, exprst, expred, stmts) -> "for " ^ var ^ " = " ^ (string_of_expr exprst) 
     ^ " to " ^ (string_of_expr expred) ^ ":\n " ^(String.concat ";\n " (List.map string_of_stmt stmts))
   | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n " 
     ^ (String.concat ";\n " (List.map string_of_stmt stmts))
@@ -84,5 +84,10 @@ and string_of_type_mem_decl = function
   | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
 
 and string_of_program program =
-  List.iter
-  
+  String.concat "" (List.map string_of_stmt program)
+  (*List.iter 
+  fun global_ele -> match global_ele with
+  | FuncDecl 
+  | TypeDecl
+  | Stmt
+  program*) 

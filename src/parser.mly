@@ -1,3 +1,7 @@
+%{ open Ast
+%}
+
+
 %token INDENT NEWLINE
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
@@ -72,25 +76,25 @@ expr:
   | expr GEQ    expr                         { Binop($1, Geq,   $3) }
 	| expr AND		expr												 { Binop($1, And,   $3) }
 	| expr OR			expr												 { Binop($1, Or,   $3) }
-  | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call($1, $3, $5) }
-	| ID LPAREN arg_expr_opt RPAREN          	 { Call(None, $1, $3) }
+  | ID LPAREN arg_expr_opt RPAREN            { Call(None, $1, $3) }
+  | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
   | LPAREN expr RPAREN                       { $2 }
 
 expr_opt:
-    /* nothing */ { }
+    /* nothing */ { Noexpr }
   | expr          { $1 }
 
 statement:
    expr NEWLINE                                                                 { Assign(None, $1) }
-  | primary_expr ASSIGN expr NEWLINE                                            { Assign($1, $3) }
+  | primary_expr ASSIGN expr NEWLINE                                            { Assign(Some($1), $3) }
   /*| LBRACE NEWLINE statement_list RBRACE NEWLINE                                { $3 }*/
-  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ $9 @ [ CondExec($2, $6) ])) }
+  | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ $9 @ [ CondExec(Some($2), $6) ])) }
   | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE               { WhileStmt($2, $6) }
   | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE    { ForIn($2, $4, $8) }
   | FOR ID EQ expr TO expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE  { ForEq($2, $4, $6, $10)  }
   | CONTINUE NEWLINE                                                            { Continue }
   | BREAK NEWLINE                                                               { Break }
-  | RETURN expr_opt NEWLINE                                                     { Return $2 }
+  | RETURN expr_opt NEWLINE                                                     { Return (Some($2)) }
 
 for_in_expr:
    ID            {Var $1}
@@ -107,7 +111,7 @@ statement_list:
 
 elif_statement_list:
    /* nothing */ { [] }
-  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec($2, $6) ] }
+  | ELIF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list { $9 @ [ CondExec(Some($2), $6) ] }
 
 else_statement:
 	/* nothing */ { [] }
@@ -115,7 +119,11 @@ else_statement:
 
 var_decl:
   ID COLON ID  	{ VarDecl($1, $3) }
-	
+
+mem_var_decl:
+  ID COLON ID   { MemVarDecl($1, $3) }
+  
+
 func_decl:
 	FUNCTION ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}
 
@@ -130,12 +138,12 @@ func_arg_list:
 	
 type_element_list:
   /*  nothing */  { [] }
-  | var_decl 		NEWLINE type_element_list { $1 :: $3 }
+  | mem_var_decl 		NEWLINE type_element_list { $1 :: $3 }
   | func_decl 	NEWLINE type_element_list { $1 :: $3 }
   | type_decl 	NEWLINE type_element_list { $1 :: $3 }
 
 type_decl:
-  TYPE ID COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDef($2, $6)}
+  TYPE ID COLON NEWLINE LBRACE type_element_list RBRACE    {TypeDecl($2, $6)}
 	
 global_ele:
 	| func_decl	{ $1 }

@@ -54,3 +54,11 @@ let rec string_of_expr = function
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
 
+
+let string_of_type_mem_decl = function
+  | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
+  | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
+  | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
+
+let string_of_program type_mem_decls =
+  String.concat "" (List.map string_of_type_mem_decl type_mem_decls)

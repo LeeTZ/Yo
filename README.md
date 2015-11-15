@@ -5,7 +5,7 @@ Yo is a user-friendly programming language for movie production. We offer the fa
 
 
 
-## Language Features
+## Features
 
 
 

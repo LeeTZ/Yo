@@ -42,7 +42,7 @@ rule token = parse
 | '&'      { AMPERSAND }
 | "||"     { OR }
 | '!'	   { EXCLAMATION }
-
+(*
 | "Int"    { INT }
 | "Double" { DOUBLE }
 | "Bool"   { BOOL }
@@ -51,7 +51,7 @@ rule token = parse
 
 | "Frame"  { FRAME }
 | "Clip"   { CLIP }
-
+*)
 (*| "->"     { RIGHTARROW }
 | "<-"     { LEFTARROW }*)
 | "^"      { HAT }
@@ -72,8 +72,7 @@ rule token = parse
 (* | "global" { GLOBAL } *)
 | "type"   { TYPE }
 
-| "log"    { LOG }
-| "eval"   { EVAL }
+(*| "eval"   { EVAL }*)
 | "true"	as lxm	{ BoolLITERAL(bool_of_string lxm) }
 | "false"	as lxm	{ BoolLITERAL(bool_of_string lxm) }
 

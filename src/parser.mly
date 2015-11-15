@@ -3,10 +3,9 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
-%token INT DOUBLE BOOL STRING ARRAY
-%token FUNC GLOBAL TYPE EVAL
-%token FRAME CLIP
-%token RIGHTARROW LEFTARROW HAT AT
+/*%token INT DOUBLE BOOL STRING ARRAY FRAME CLIP*/
+%token FUNCTION TYPE /*EVAL*/
+%token /*RIGHTARROW LEFTARROW*/ HAT AT
 %token TRUE FALSE
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
@@ -71,12 +70,14 @@ expr:
   | expr LEQ    expr                         { Binop($1, Leq,   $3) }
   | expr GT     expr                         { Binop($1, Greater,  $3) }
   | expr GEQ    expr                         { Binop($1, Geq,   $3) }
+	| expr AND		expr												 { Binop($1, And,   $3) }
+	| expr OR			expr												 { Binop($1, Or,   $3) }
   | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call($1, $3, $5) }
 	| ID LPAREN arg_expr_opt RPAREN          	 { Call(None, $1, $3) }
   | LPAREN expr RPAREN                       { $2 }
 
 expr_opt:
-    /* nothing */ { Noexpr }
+    /* nothing */ { }
   | expr          { $1 }
 
 statement:
@@ -116,7 +117,8 @@ var_decl:
   ID COLON ID  	{ VarDecl($1, $3) }
 	
 func_decl:
-	FUNC ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}
+	FUNCTION ID LBRACE func_arg_opt RBRACE COLON NEWLINE LBRACKET statement_opt RBRACKET       {FuncDecl($2, $4, $9)}
+
 
 func_arg_opt:
    /* nothing */    	{ [] }

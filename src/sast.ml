@@ -37,9 +37,8 @@ type s_stmt =
   | SContinue 
   | SBreak 
   | SReturn of s_expr option
-
-
-type s_cond_exec = 
+and
+  s_cond_exec = 
    SCondExec of s_expr option * s_stmt list
 
 type s_var_decl = 

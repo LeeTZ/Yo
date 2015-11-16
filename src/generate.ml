@@ -1,65 +1,67 @@
-let rec generate = function
+let rec generate_expr = function
   SLiteral (x, s) -> 
-	if s.type_def.name = "String" then "\"" ^ x "\"" 
+	if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
 	else x
-| SArrayLiteral -> "" (* defined later *)
+| SArrayLiteral (x, s)-> "" (* defined later *)
 | SVar (x, s) -> x
-| SArrayExpr (x, y, s) -> generate x ^ "[" ^ generate y ^ "]"
-| SDotExpr (x, y, s) -> generate x ^ "." ^ y 
-| SBinop (x, op, y, s) -> generate x ^ s.type_def.actual ^ generate y
+| SArrayExpr (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
+| SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
+| SBinop (x, op, y, s) -> generate_expr x ^ s.type_def.actual ^ generate_expr y
 | SCall (x, y, z, s) -> 
-	let rec generate_list = function
+	let rec generate_expr_list = function
 	  [] -> ""
-	| hd -> generate hd
-    | hd::tl -> generate hd ^ ", " ^ generate_list tl
+    | hd::tl -> if tl = [] then generate_expr hd
+    			else generate_expr hd ^ ", " ^ generate_expr_list tl
 	in
 	(match x with
-	| None -> y ^ "(DUMMY_SELF, " ^ generate_list z ^ ")"
-	| Some(x1) -> s.type_def.actual ^ "::" ^ y ^ "(" ^ generate x1 ^ ", " ^ generate_list z ^ ")" 
+	| None -> y ^ "(DUMMY_SELF, " ^ generate_expr_list z ^ ")"
+	| Some (expr) -> s.type_def.actual ^ "::" ^ y ^ "(" ^ generate_expr expr ^ ", " ^ generate_expr_list z ^ ")" )
 
-| SAssign (x, s) -> 
-	(match x with
-	| None -> generate s
-	| Some(x1) -> 
-	(try List.find NewVar x1.actions; 
-		(match x1.type_def.name with 
-		| "Int" -> "int " ^ generate x1 ^ " = " ^ generate s
-		| "Double" -> "double" ^ generate x1 ^ " = " ^ generate s
-		| "String" -> "String" ^ generate x1 ^ " = " ^ generate s
-		| "Bool" -> "bool" ^ generate x1 ^ " = " ^ generate s
-		| _ -> let type_name = x1.type_def.actual in
-			"std::shared_ptr<" ^  type_name ^ "> " ^ generate x1 ^ " = std::make_shared<" ^ type_name^ ">()"
-		)
-	with Not_found -> (generate x1) ^ " = " ^ (generate s))) ^ ";\n"
-
+let rec generate_cond = function
 | SCondExec (x, l) -> 
-	let rec generate_list = function
+	let rec generate_stmt_list = function
 	  [] -> ""
-	| hd -> generate hd
-    | hd::tl -> generate hd ^ generate_list tl
+    | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
     in
 	(match x with
-	| None -> "else if (true) {\n" ^ generate_list l ^ "}"
-	| Some(x1) -> "else if (" ^ generate x1 ^ ") {\n" ^ generate_list l ^ "}"
+	| None -> "else if (true) {\n" ^ generate_stmt_list l ^ "}"
+	| Some (expr) -> "else if (" ^ generate_expr expr ^ ") {\n" ^ generate_stmt_list l ^ "}"
 	)
+
+and generate_stmt = function
+| SAssign (x, s) -> 
+	(match x with
+	| None -> generate_expr s
+	| Some (expr) -> let sem = extract_semantic expr in
+	(try List.find (fun x ->match x with NewVar -> true | _ -> false) sem.actions; 
+		(match sem.type_def.name with 
+		| "Int" -> "int " ^ generate_expr expr ^ " = " ^ generate_expr s
+		| "Double" -> "double" ^ generate_expr expr ^ " = " ^ generate_expr s
+		| "String" -> "String" ^ generate_expr expr ^ " = " ^ generate_expr s
+		| "Bool" -> "bool" ^ generate_expr expr ^ " = " ^ generate_expr s
+		| _ -> let type_name = sem.type_def.actual in
+			"std::shared_ptr<" ^  type_name ^ "> " ^ generate_expr expr ^ " = std::make_shared<" ^ type_name^ ">()"
+		)
+	with Not_found -> (generate_expr expr) ^ " = " ^ (generate_expr s))) ^ ";\n"
+
+
 | SIfStmt (l) -> "if(false) {}\n" ^ 
-	(let rec generate_list = function
+	(let rec generate_cond_list = function
 	  [] -> ""
-	| hd -> generate hd
-    | hd::tl -> generate hd ^ generate_list tl
-    in generate_list l)
-| SForIn (x, l) -> ""
-| SForEq (x, y ,l) -> ""
-| SWhileStmt (x, l) -> "while (" ^ generate x ")" ^
-	(let rec generate_list = function
+    | hd::tl -> generate_cond hd ^ generate_cond_list tl
+    in generate_cond_list l)
+
+| SForIn (x, s, y, l) -> ""
+| SForEq (x, s, y, z, l) -> ""
+| SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^
+	(let rec generate_stmt_list = function
 	  [] -> ""
-	| hd -> generate hd
-    | hd::tl -> generate hd ^ generate_list tl
-    in generate_list l)
+    | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
+    in generate_stmt_list l)
 | SContinue -> "continue;\n"
 | SBreak -> "break;\n"
 | SReturn (x) -> "return " ^
 	(match x with
 	| None -> ""
-	| Some(x1) -> generate x1) ^ ";\n"
+	| Some (expr) -> generate_expr expr) ^ ";\n"
 

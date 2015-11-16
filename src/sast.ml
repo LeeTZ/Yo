@@ -1,5 +1,4 @@
 open Ast
-open Common
 
 type action = 
 	| NewVar
@@ -38,17 +37,24 @@ type s_stmt =
   | SBreak 
   | SReturn of s_expr option
 
-
-type s_cond_exec = 
+and s_cond_exec = 
    SCondExec of s_expr option * s_stmt list
 
 type s_var_decl = 
-	| SVarDecl of string * string
+	| SVarDecl of string * sem
 
-type s_type_mem_decl = 
-	| SMemVarDecl of string * string
-	| SFuncDecl of string * s_var_decl list * s_stmt list
-	|	STypeDecl of string * s_type_mem_decl list
- 
-type s_program = 
-	| SProgram of s_type_mem_decl list
+and s_func_decl = 
+  | SFuncDecl of string * s_var_decl list * s_stmt list * sem
+
+and s_type_decl = 
+  | STypeDecl of string * s_type_mem_decl list
+
+and s_type_mem_decl = 
+  | SMemVarDecl of s_var_decl
+  | SMemFuncDecl of s_func_decl
+  | SMemTypeDecl of s_type_decl
+
+and global_ele_decl = 
+  | SGlobalStmt of s_stmt
+  | SGlobalFunc of s_func_decl
+  | SGlobalType of s_type_decl

@@ -1,16 +1,18 @@
 # For those machine doesn't have ocamlbuild, build the project with this makefile
 
 OBJ=ast.cmo \
-	scanner.cmo \
+ 	scanner.cmo \
 	parser.cmo \
-	parser_test.cmo 
-	
+	sast.cmo \
+	semantic.cmo \
+	parser_test.cmo 	
 YO=parser_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
-	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo
+	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo \
+    ocamlc -g -o semantic_test semantic.cmo ast.cmo sast.cmo
 
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -44,3 +46,6 @@ scanner.cmo: parser.cmi
 scanner.cmx: parser.cmx
 parser_test.cmo: scanner.cmo parser.cmi ast.cmo
 parser_test.cmx: scanner.cmx parser.cmx ast.cmx
+semantic.cmo: ast.cmo
+semantic.cmx: ast.cmx
+

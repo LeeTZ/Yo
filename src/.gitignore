@@ -1,2 +1,4 @@
+scanner.ml
+*.native
 parser.ml
 parser.mli

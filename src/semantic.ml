@@ -18,8 +18,10 @@ let new_var ctx varName typeDef =
 
 let push_var_env ctx = {ctx with vsymtab = NameMap.empty :: ctx.vsymtab}
   	
-
+(* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx = function
+			(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
+			(* difference in code generation: just print the string representation! *)
   		| IntConst x -> 		SLiteral (string_of_int x, 
   																	{actions=[]; type_def=look_up_type "Int" ctx.typetab})
   		| DoubleConst x -> 	SLiteral (string_of_float x, 
@@ -31,7 +33,7 @@ let rec build_expr_semantic ctx = function
   		
   		| ArrayConst x -> 	SArrayLiteral ((List.map (build_expr_semantic ctx) x), 
   																	{actions=[]; type_def=look_up_type "Array" ctx.typetab})
-  		
+  		(* try to find the variable in the symbol table; may throw exception when it is not found *)
   		| Var x -> 					SVar (x, 
   																	{actions=[]; type_def = (look_up_var x ctx.vsymtab).type_def})
   		
@@ -66,35 +68,46 @@ let rec build_expr_semantic ctx = function
   															| Some x -> x)}))
 
 let rec build_stmt_semantic ctx = function
+			
   		| Assign (e1, e2) -> 
   			(let r_expr_sem = (build_expr_semantic ctx e2) in
   			match e1 with
+					(* When there is no l-value, set the semantic of the stmt to that of r-value *)
   				| None -> SAssign (None, r_expr_sem)
   				| Some e -> try let l_expr_sem = build_expr_semantic ctx e in
+								(* When the l-value is defined, check its type against that of r-value *)
   							let ltype = (extract_semantic l_expr_sem).type_def and rtype = (extract_semantic r_expr_sem).type_def in
   							if  ltype = rtype then SAssign (Some(l_expr_sem), r_expr_sem) else raise (SemanticError ("Invalid assignment: expecting " ^ ltype.name ^ ", but having " ^ rtype.name ))
-  					with VariableNotDefined s -> match e with 
+  					(* create a new variable with the type of r-value *)
+						with VariableNotDefined s -> match e with 
   					| Var x -> let l_expr_sem = new_var ctx x (extract_semantic r_expr_sem).type_def in SAssign (Some(l_expr_sem), r_expr_sem)
-  					| _ -> raise (SemanticError ("Invalid assignment: lvalue " ^ (string_of_expr e) ^ " not found")))
+  					(* make sure l-value is a var: otherwise it must be defined (processed above) *)
+						| _ -> raise (SemanticError ("Invalid assignment: lvalue " ^ (string_of_expr e) ^ " not found")))
   		| IfStmt cl -> let ctx2 = push_var_env ctx in
-						SIfStmt (List.map 
+						SIfStmt (List.map (* go through each cond_exec *)
   					(fun t -> match t with CondExec (x,y) -> let s_stmt_list = List.map (build_stmt_semantic ctx2) y in
   						match x with 
-  						| None -> SCondExec(None,  s_stmt_list)
-  						| Some cond -> let expr_sem = build_expr_semantic ctx2 cond in
+  						| None -> SCondExec(None,  s_stmt_list) (* the final else has no predicate *)
+  						| Some cond -> let expr_sem = build_expr_semantic ctx2 cond in (* make sure the predicate has type Bool *)
   											if (extract_semantic expr_sem).type_def.name = "Bool" then SCondExec(Some(expr_sem), s_stmt_list)
   											else raise (SemanticError ("Condition expression" ^ (string_of_expr cond) ^ " in the if statement should be of Bool type")) )
   					cl)
+			| WhileStmt (pred, stmts) -> let ctx2 = push_var_env ctx in
+					let s_pred = build_expr_semantic ctx2 pred in
+					if (extract_semantic s_pred).type_def.name = "Bool" then () else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) ^ " in the if statement should be of Bool type"));
+					SWhileStmt (s_pred, List.map (build_stmt_semantic ctx2) stmts)
+					
   		| Continue -> SContinue
   		| Break -> SBreak
-  		| Return exp -> match exp with 
+  		| Return exp -> (match exp with 
   			| None -> SReturn (None)
-  			| Some x -> SReturn (Some(build_expr_semantic ctx x))
+  			| Some x -> SReturn (Some(build_expr_semantic ctx x)))
+			(*| For*)
 
 let build_func_semantic ctx = function 
 	FuncDecl (funcName, argList, stmtList) -> 
-		let ctx2 = push_var_env ctx in
-		let sarglist = List.map 
+		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
+		let sarglist = List.map (*  *)
 				(fun x -> match x with VarDecl (name, typename) ->
 					let svar = new_var ctx2 name (look_up_type typename ctx.typetab) in
 					SVarDecl (name, extract_semantic svar)) argList in
@@ -117,11 +130,11 @@ let build_func_semantic ctx = function
 		try (List.find (fun x -> x <> (List.hd ret_types))  ret_types; raise (SemanticError ("All return statements should return the same type in " ^ funcName))) 
 		with Not_found -> SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=List.hd ret_types})
 
-
 let rec build_type_mem_semantic ctx = function
-			(*| MemVarDecl memvar -> match memvar with VarDecl (varname, vartype) -> SMemVarDecl (SVarDecl (varname, {actions=[]; type_def=look_up_type vartype ctx.typetab}))*)
 			| MemFuncDecl memfunc -> SMemFuncDecl (build_func_semantic ctx memfunc) 
 			| MemTypeDecl memtype -> SMemTypeDecl (build_type_semantic ctx memtype)
+			| MemVarDecl 	memvar 	-> match memvar with VarDecl (varname, vartype) -> SMemVarDecl (SVarDecl (varname, {actions=[]; type_def=look_up_type vartype ctx.typetab}))
+			
 and build_type_semantic ctx = function
 			| TypeDecl (typename, memlist) -> STypeDecl (typename, List.map (build_type_mem_semantic ctx) memlist)
 		

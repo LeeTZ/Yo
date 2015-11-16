@@ -5,7 +5,7 @@ let rec look_up_var id = function
   		| [] -> raise (VariableNotDefined id)
   		| hd :: tail -> (try NameMap.find id hd with Not_found -> look_up_var id tail)
 
-  	
+(* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
 let rec look_up_type typeName typenv = (try NameMap.find typeName typenv 
 		with Not_found -> raise (TypeNotDefined typeName))
 
@@ -99,22 +99,23 @@ let build_func_semantic ctx = function
 					let svar = new_var ctx2 name (look_up_type typename ctx.typetab) in
 					SVarDecl (name, extract_semantic svar)) argList in
 		let s_stmtlist = List.map (build_stmt_semantic ctx2) stmtList in
-		let ret_types = [](*
+		let ret_types =
 			let add_to_ret_types lst = function 
 				| SReturn expr_option -> (match expr_option with 
 															| Some ep ->  (extract_semantic ep).type_def :: lst
 															| None -> (look_up_type "Void" ctx.typetab) :: lst)																
 				| _ -> lst in					
-			let find_ret_types rlst = List.fold_left (fun x -> match x with 
+			List.fold_left (fun rlst x -> match x with 
 				| SReturn r -> add_to_ret_types rlst (SReturn r)
-				| SIfStmt ceList -> List.fold_left add_to_ret_types rlst ceList
+				| SIfStmt ceList -> List.fold_left add_to_ret_types rlst 
+								(List.flatten (List.map (fun ce -> match ce with SCondExec (_, stList) -> stList) ceList))
 				| SForIn (_, _, _, stList) -> List.fold_left add_to_ret_types rlst stList
 				| SForEq (_, _, _, _, stList) -> List.fold_left add_to_ret_types rlst stList
 				| _ -> rlst
-			) [] s_stmtlist in find_ret_types s_stmtlist *)
-		in		
-		(*List.iter (fun x -> if x=(List.hd ret_types) then () else raise (SemanticException ("All return statements should return the same type in " ^ funcName)));*)
-		SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=(extract_semantic (List.hd ret_types)).type_def})
+			) [] s_stmtlist	
+		in
+		try (List.find (fun x -> x <> (List.hd ret_types))  ret_types; raise (SemanticError ("All return statements should return the same type in " ^ funcName))) 
+		with Not_found -> SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=List.hd ret_types})
 
 
 let rec build_type_mem_semantic ctx = function
@@ -128,50 +129,10 @@ let build_program_semantic ctx = function
 			| GlobalStmt stmt -> SGlobalStmt (build_stmt_semantic ctx stmt)
 			| GlobalType type_decl -> SGlobalType (build_type_semantic ctx type_decl)
 			| GlobalFunc func_decl -> SGlobalFunc (build_func_semantic ctx func_decl)
-						
 
 
-let build_semantic context program = 
-		(* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
-  	build_program_semantic context program
-		(*
-			
-  	
-  					
-  	in
-  	  		in
-			
-			
-  	
-  	in
-		
-		let build_func_semantic ctx = function FuncDecl (funcName, argList, stmtList) -> 
-				let ctx2 = push_var_env ctx in
-				let sarglist = List.map 
-						(fun x -> match x with VarDecl (name, typename) ->
-							let svar = new_var ctx2 name (look_up_type typename ctx.typetab) in
-							SVarDecl (name, extract_semantic svar)) argList in
-				let s_stmtlist = List.map build_stmt_semantic ctx2 stmtList in
-				let ret_types = 
-					let add_to_ret_types lst = function 
-						| Return expr_option -> (match expr_option with 
-																	| Some ep ->  (extract_semantic ep).type_def :: lst
-																	| None -> None :: lst)																
-						| _ -> lst in							
-					let find_ret_types rlst = List.fold_left (fun x -> match x with 
-						| SReturn r -> add_to_ret_types rlst r
-						| SIfStmt ceList -> List.fold_left add_to_ret_types rlst ceList
-						| SForIn (_, _, stList) -> List.fold_left add_to_ret_types rlst stList
-						| SForEq (_, _, _, stList) -> List.fold_left add_to_ret_types rlst stList
-						| _ -> rlst
-					) [] s_stmtlist in
-				List.iter (fun x -> if x=(List.hd ret_types) then true else raise (SemanticException "All return statements should return the same type in " ^ funcName)); 
-				SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=(extract_semantic (List.hd ret_types)).type_def})
-		in
-		
-		
-		
-		*)
+let build_semantic context program =  build_program_semantic context program
+
 		
   	
   	

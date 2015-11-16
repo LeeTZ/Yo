@@ -35,9 +35,9 @@ and func_decl =
   | FuncDecl of string * var_decl list * stmt list
 
 and type_decl = 
-  | TypeDecl of string * type_mem_decl list
+  | TypeDecl of string * mem_type_decl list
 
-and type_mem_decl = 
+and mem_type_decl = 
   | MemVarDecl of var_decl
   | MemFuncDecl of func_decl
   | MemTypeDecl of type_decl

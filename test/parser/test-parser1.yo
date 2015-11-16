@@ -1,0 +1,13 @@
+a = 1-2;
+if (1+2):{
+    a=1;
+}elif 2>2:{
+	a = 2;
+}
+else:{
+	a=3;
+}
+continue;
+break;
+return a;
+return 3;

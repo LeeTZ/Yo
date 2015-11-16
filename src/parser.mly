@@ -1,8 +1,8 @@
-%{ open Ast
+%{ 
+  open Ast
 %}
 
-
-%token INDENT NEWLINE
+%token NEWLINE
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
@@ -85,16 +85,16 @@ expr_opt:
   | expr          { $1 }
 
 statement:
-   expr NEWLINE                                                                 { Assign(None, $1) }
-  | primary_expr ASSIGN expr NEWLINE                                            { Assign(Some($1), $3) }
+   expr                                                                  { Assign(None, $1) }
+  | primary_expr ASSIGN expr                                             { Assign(Some($1), $3) }
   /*| LBRACE NEWLINE statement_list RBRACE NEWLINE                                { $3 }*/
   | IF expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE elif_statement_list else_statement { IfStmt(List.rev ($10 @ $9 @ [ CondExec(Some($2), $6) ])) }
-  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE               { WhileStmt($2, $6) }
-  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE NEWLINE    { ForIn($2, $4, $8) }
-  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE statement_opt RBRACE NEWLINE  { ForEq($2, $4, $6, $10)  }
-  | CONTINUE NEWLINE                                                            { Continue }
-  | BREAK NEWLINE                                                               { Break }
-  | RETURN expr_opt NEWLINE                                                     { Return (Some($2)) }
+  | WHILE expr COLON LBRACE NEWLINE statement_opt  RBRACE                { WhileStmt($2, $6) }
+  | FOR ID IN for_in_expr COLON LBRACE NEWLINE statement_opt  RBRACE     { ForIn($2, $4, $8) }
+  | FOR ID EQ expr TO expr COLON LBRACE NEWLINE statement_opt RBRACE   { ForEq($2, $4, $6, $10)  }
+  | CONTINUE                                                             { Continue }
+  | BREAK                                                                { Break }
+  | RETURN expr_opt                                                      { Return (Some($2)) }
 
 for_in_expr:
    ID            {Var $1}

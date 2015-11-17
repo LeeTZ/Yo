@@ -1,6 +1,6 @@
 #!/bin/sh
 
-YO="./parser_test"
+YO="./parser_test.native"
 binaryoutput="./a.out"
 
 # Set time limit for all operations

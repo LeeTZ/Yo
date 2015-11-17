@@ -6,14 +6,15 @@ type action =
 let string_of_action = function
   | NewVar -> "new"
 
+
 type sem = {
   mutable actions: action list;
   type_def: type_entry
 }
 
-
 let string_of_sem s = "$" ^ "type: " ^ (string_of_type_def s.type_def) ^ " " 
-                      ^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
+											^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
+
 
 type s_expr =                                 (* Expressions*)
   | SLiteral of string * sem      (* int, double, bool, string *)
@@ -38,6 +39,7 @@ let rec string_of_s_expr = function
   | SCall (obj, f, el, s) -> (match obj with 
           | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
   | SNoExpr -> ""
+
 
 let extract_semantic = function
   | SLiteral (_, s) -> s

@@ -10,9 +10,6 @@ rule token = parse
 (*| '\'      { continue lexbuf }*)
 | "#("     { comment lexbuf }           (* Comments *)
 | '#'      { oneLineComment lexbuf}
-(*| '\t'     { INDENT }
-| '\n'     { NEWLINE }
-*)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '['	   { LBRACKET }

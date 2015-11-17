@@ -142,6 +142,6 @@ let walk_dec program =
 in let t = NameMap.empty in let t = first_pass t program in let t = second_pass t program in
 {vsymtab=[]; typetab=t}
 
-
+(*
 let context = walk_dec
-[GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))]
+[GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))] *)

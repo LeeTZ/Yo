@@ -3,3 +3,5 @@ scanner.ml
 parser_test
 parser.ml
 parser.mli
+generate_test
+mengqing_test

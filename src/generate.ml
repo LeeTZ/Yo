@@ -1,9 +1,9 @@
 open Sast
 
 let rec generate_expr = function
-  SLiteral (x, s) -> 
-	if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
-	else x
+  SLiteral (x, s) -> x
+	(*if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
+	else x*)
 | SArrayLiteral (x, s)-> "" (* defined later *)
 | SVar (x, s) -> x
 | SArrayExpr (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
@@ -88,7 +88,7 @@ and generate_type_mem = function
 
 let rec generate_main = function
   [] -> ""
-| hd::tl -> generate_global hd ^ generate_main tl
+| hd::tl -> generate_global hd ^ (generate_main tl)
 
 let generate program = 
 	let header = ["<iostream>"] in

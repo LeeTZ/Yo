@@ -88,8 +88,8 @@ and generate_type_mem = function
 
 let rec generate_main = function
   [] -> ""
-| hd::tl -> generate_global hd ^ generate_main tl
+| hd::tl -> generate_global hd ^ (generate_main tl)
 
 let generate program = 
   let pre_defined = "#include \"header\"\nint main(){\n"
-	in pre_defined ^ generate_main program ^ "}"
+	in pre_defined ^ (generate_main program) ^ "}"

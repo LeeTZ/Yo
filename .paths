@@ -1,0 +1,10 @@
+.
+docs
+docs/lrm
+docs/proposal
+src
+src/preprocessortests
+test
+test/parser
+/usr/local/lib/ocaml
+test/semantic

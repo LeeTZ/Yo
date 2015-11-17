@@ -92,6 +92,6 @@ let rec generate_main = function
 | hd::tl -> generate_global hd ^ (generate_main tl)
 
 let generate program = 
-	let header = ["<yolib.h>"] in
+	let header = ["\"yolib.h\""] in
   let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
   String.concat "\n" pre_defined ^  "int main() {\n" ^ (generate_main program) ^ "return 0;\n}"

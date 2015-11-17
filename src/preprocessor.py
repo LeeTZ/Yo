@@ -123,5 +123,5 @@ if __name__ == "__main__":
 
   out_str = process(f_in)
 
-  f_out = open(dir_ext+fname+".processed.yo", 'w')
+  f_out = open(dir_ext+ "intermediate/" + fname+".yo", 'w')
   f_out.write(out_str.getvalue())

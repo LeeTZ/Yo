@@ -1,7 +1,8 @@
 #!/bin/sh
 
-YO="./parser_test.native"
+YO="./parser_test"
 binaryoutput="./a.out"
+preproc_path="preprocessor.py"
 
 # Set time limit for all operations
 ulimit -t 30
@@ -192,25 +193,30 @@ TestRunningProgram() {
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo -n "$basename..."
-
     echo 1>&2
     echo "###### Testing $basename" 1>&2
 
     generatedfiles=""
     tmpfiles=""
-
     # old from microc - interpreter
     # generatedfiles="$generatedfiles ${basename}.i.out" &&
     # Run "$YO" "-i" "<" $1 ">" ${basename}.i.out &&
     # Compare ${basename}.i.out ${reffile}.out ${basename}.i.diff
-
-    generatedfiles="$generatedfiles ${basename}.f.out" &&
-    tmpfiles="$tmpfiles tests/${basename}.lrx_lrxtmp.c a.out" &&
-    Run "$YO" "-b" $1 &&
-    Run "$binaryoutput" ">" ${basename}.f.out &&
+    YO="./generate_test"
+    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
+    Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
+    g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    Run "./yo.prog" ">" ${basename}.f.out &&
     Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
+
+
+    #generatedfiles="$generatedfiles ${basename}.f.out" &&
+    #tmpfiles="$tmpfiles tests/${basename}.lrx_lrxtmp.c a.out" &&
+    #Run "$YO" "-b" $1 &&
+    #Run "$binaryoutput" ">" ${basename}.f.out &&
+    #Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
     
-    rm -f $tmpfiles
+    #rm -f $tmpfiles
 
     # Report the status and clean up the generated files
 
@@ -256,6 +262,9 @@ do
         CheckSemanticAnalysis $file 2>> $globallog
         ;;
     *test-full*)
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
         TestRunningProgram $file 2>> $globallog
         ;;
     *test-fail*)

@@ -6,3 +6,9 @@ if true:{
 }
 
 log("Abc");
+
+a$Double new$ = 3.4$Double $
+if true$Bool $:
+b$Double new$ = 1.$Double $
+else:a$Double $ = 1.2$Double $
+LOG("Abc"$String $)$Void $

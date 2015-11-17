@@ -95,7 +95,7 @@ and string_of_var_decl = function
 
 and string_of_func_decl = function
   | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
-    ^ ")\n" ^ (String.concat "" (List.map string_of_stmt stmts))
+    ^ ")\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_type_decl = function
   | TypeDecl(name, args) -> "type " ^ name ^ "\n" ^ (String.concat "\n" (List.map string_of_type_mem_decl args))

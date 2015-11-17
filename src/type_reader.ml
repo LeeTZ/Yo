@@ -33,7 +33,8 @@ type compile_context = {
 
 let program = ([GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))])
 
-let exists_types typetab id =  NameMap.find id typetab
+let exists_types typetab id = (try NameMap.find typeName typenv 
+        with Not_found -> raise (TypeNotDefined typeName))
 
 let generate_scope parent_scope id = (if parent_scope="" then "" else parent_scope ^ "::") ^ (String.uppercase id) 
 

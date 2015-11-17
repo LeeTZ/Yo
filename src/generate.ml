@@ -91,5 +91,6 @@ let rec generate_main = function
 | hd::tl -> generate_global hd ^ generate_main tl
 
 let generate program = 
-  let pre_defined = "#include \"header\"\nusing namespace::std;\nint main(){\n"
-	in pre_defined ^ generate_main program ^ "return 0;\n}"
+	let header = ["<iostream>"] in
+  let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
+  String.concat "\n" pre_defined ^  "int main() {\n" ^ (generate_main program) ^ "\nreturn 0;\n}"

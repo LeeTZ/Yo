@@ -49,7 +49,10 @@ let rec build_expr_semantic ctx = function
   		
   		| Binop (x, op, y) -> let b1 = build_expr_semantic ctx x and b2 = build_expr_semantic ctx y in (* TODO: more type checking *)
   														let s1=extract_semantic b1 and s2=extract_semantic b2 in
-  														if s1.type_def = s2.type_def then SBinop (b1, op, b2, {actions=[]; type_def=s1.type_def}) 
+															let ret_type = match op with
+															| Equal | Neq | Less | Leq | Greater | Geq -> (look_up_type "Bool" ctx.typetab)
+															| _ -> s1.type_def in
+  														if s1.type_def = s2.type_def then SBinop (b1, op, b2, {actions=[]; type_def=ret_type}) 
   														else raise (SemanticError ((string_of_expr x) ^ " and " ^ (string_of_expr y) ^ " must be of the same type"))
   		
   		| Call (obj, name, args) -> (let s_call_args = List.map (fun e -> build_expr_semantic ctx e) args in (*build semantics for args*)
@@ -99,7 +102,7 @@ let rec build_stmt_semantic ctx = function
   					cl)
 			| WhileStmt (pred, stmts) -> let ctx2 = push_var_env ctx in
 					let s_pred = build_expr_semantic ctx2 pred in
-					if (extract_semantic s_pred).type_def.name = "Bool" then () else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) ^ " in the if statement should be of Bool type"));
+					if (extract_semantic s_pred).type_def.name = "Bool" then () else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) ^ " in the while statement should be of Bool type"));
 					SWhileStmt (s_pred, List.map (build_stmt_semantic ctx2) stmts)
 					
   		| Continue -> SContinue

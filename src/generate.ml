@@ -56,11 +56,11 @@ and generate_stmt = function
 
 | SForIn (x, s, y, l) -> ""
 | SForEq (x, s, y, z, l) -> ""
-| SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^
+| SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^ "{" ^
 	(let rec generate_stmt_list = function
 	  [] -> ""
     | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
-    in generate_stmt_list l)
+    in generate_stmt_list l) ^ "}"
 | SContinue -> "continue;\n"
 | SBreak -> "break;\n"
 | SReturn (x) -> "return " ^

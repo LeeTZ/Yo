@@ -91,5 +91,5 @@ let generate_main = function
 | hd::tl -> generate_global hd ^ generate tl
 
 let generate program = 
-  let pre_defined = "#include \"header\"\nint main(){\n"
-	in pre_defined ^ generate_main program ^ "}"
+  let pre_defined = "#include \"header\"\nusing namespace::std;\nint main(){\n"
+	in pre_defined ^ generate_main program ^ "return 0;\n}"

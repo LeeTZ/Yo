@@ -20,6 +20,4 @@ for i = 1 to 3:
 a = 1
 for i in a:
 a[i] = 1
-type a func a (int a
-, int b
-) a = 2, int b
+type a func a (int a , int b ) a = 2, int b 

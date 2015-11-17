@@ -1,0 +1,5 @@
+type someclass
+func foo (int a, int b)
+a = 2b = 4
+int somemember
+string anothermember

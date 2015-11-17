@@ -1,1 +1,17 @@
-a = 42 + 1
+INT_MAX = 42 + 1;
+for i = 0 to v:{
+	dist[i] = INT_MAX;
+	sptset[i] = false;
+	if (dist[i]):{
+	    continue;
+	}elif (sptset[i] != false):{
+		break;
+	}elif (dist[i] < m):{
+		return m;
+	}
+	else:{
+		while m < 3:{
+			dist[i] = i + 3;
+		}
+	}	
+}

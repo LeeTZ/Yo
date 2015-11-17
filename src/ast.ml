@@ -91,14 +91,14 @@ and string_of_cond_exec = function
   | CondExec(Some(expr), stmts) -> "elif " ^ (string_of_expr expr) ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_var_decl = function
-  | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
+  | VarDecl(ty, id) -> ty ^ " " ^ id
 
 and string_of_func_decl = function
   | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
-    ^ ") " ^ (String.concat "\n" (List.map string_of_stmt stmts))
+    ^ ")\n" ^ (String.concat "" (List.map string_of_stmt stmts))
 
 and string_of_type_decl = function
-  | TypeDecl(name, args) -> "type " ^ name ^ " " ^ (String.concat ", " (List.map string_of_type_mem_decl args))
+  | TypeDecl(name, args) -> "type " ^ name ^ "\n" ^ (String.concat "\n" (List.map string_of_type_mem_decl args))
 
 and string_of_type_mem_decl = function
   | MemVarDecl o -> string_of_var_decl o

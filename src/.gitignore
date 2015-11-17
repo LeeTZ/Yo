@@ -1,4 +1,5 @@
 scanner.ml
 *.native
+parser_test
 parser.ml
 parser.mli

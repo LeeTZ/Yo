@@ -1,4 +1,4 @@
-.paths
+.aths
 .project
 .settings/
 _build/
@@ -6,7 +6,6 @@ _build/
 *.output
 *.cmo
 *.cmi
-*.out
 *.diff
 *.pdf
 *.toc

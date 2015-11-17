@@ -90,7 +90,7 @@ and string_of_cond_exec = function
   | CondExec(None, stmts) -> "else:" ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | CondExec(Some(expr), stmts) -> "elif " ^ (string_of_expr expr) ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
-let string_of_var_decl = function
+and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id
 
 and string_of_func_decl = function

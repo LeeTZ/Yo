@@ -1,7 +1,9 @@
+open Sast
+
 let rec generate_expr = function
-  SLiteral (x, s) -> 
-	if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
-	else x
+  SLiteral (x, s) -> x
+	(*if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
+	else x*)
 | SArrayLiteral (x, s)-> "" (* defined later *)
 | SVar (x, s) -> x
 | SArrayExpr (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
@@ -65,3 +67,30 @@ and generate_stmt = function
 	| None -> ""
 	| Some (expr) -> generate_expr expr) ^ ";\n"
 
+let rec generate_global = function
+  SGlobalStmt (s) -> generate_stmt s
+| SGlobalFunc (f) -> generate_func f
+| SGlobalType (t) -> generate_type t
+
+and generate_var_decl = function
+  SVarDecl (x, s) -> ""
+
+and generate_func = function
+  SFuncDecl (s, svdl, sl, ss) -> ""
+
+and generate_type = function
+  STypeDecl (s, stml) -> ""
+
+and generate_type_mem = function
+  SMemVarDecl (svd) -> generate_var_decl svd
+| SMemFuncDecl (f) -> generate_func f
+| SMemTypeDecl (t) -> generate_type t
+
+let rec generate_main = function
+  [] -> ""
+| hd::tl -> generate_global hd ^ (generate_main tl)
+
+let generate program = 
+	let header = ["<iostream>"] in
+  let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
+  String.concat "\n" pre_defined ^  "int main() {\n" ^ (generate_main program) ^ "\nreturn 0;\n}"

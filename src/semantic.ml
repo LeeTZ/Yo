@@ -1,3 +1,8 @@
+(*TODO : break continue in if statement? 
+          in while statement?
+*)
+
+
 open Ast
 open Sast
 
@@ -25,7 +30,7 @@ let rec build_expr_semantic ctx = function
   		| IntConst x -> 		SLiteral (string_of_int x, 
   																	{actions=[]; type_def=look_up_type "Int" ctx.typetab})
   		| DoubleConst x -> 	SLiteral (string_of_float x, 
-  																	{actions=[]; type_def=look_up_type "Float" ctx.typetab})
+  																	{actions=[]; type_def=look_up_type "Double" ctx.typetab})
   		| BoolConst x -> 		SLiteral (string_of_bool x, 
   																	{actions=[]; type_def=look_up_type "Bool" ctx.typetab})
   		| StrConst x -> 		SLiteral (x, 
@@ -130,6 +135,7 @@ let build_func_semantic ctx = function
 				| _ -> rlst
 			) [] s_stmtlist	
 		in
+    if (List.length ret_types) < 1 then raise (SemanticError ("Function " ^ funcName ^ " has to have a return statement")) else ();
 		try (List.find (fun x -> x <> (List.hd ret_types))  ret_types; raise (SemanticError ("All return statements should return the same type in " ^ funcName))) 
 		with Not_found -> SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=List.hd ret_types})
 
@@ -147,8 +153,6 @@ let build_program_semantic ctx = function
 			| GlobalFunc func_decl -> SGlobalFunc (build_func_semantic ctx func_decl)
 
 
-let build_semantic context program =  build_program_semantic context program
-
+let build_semantic context program = List.map (build_program_semantic context) program
 		
-  	
-  	
+

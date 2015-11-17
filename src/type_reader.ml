@@ -1,35 +1,4 @@
-
 open Ast
-exception VariableNotDefined of string
-exception TypeNotDefined of string
-exception SemanticError of string
-exception TypeExist of string
-
-module NameMap = Map.Make(String)
-module MemberMap = Map.Make(String)
-
-type eval_entry = {
-    mutable args: var_entry list;
-    mutable ret: type_entry option
-    }
-and type_entry =  { 
-  name: string; (* type name used in yo *)
-  actual: string; (* actual name used in target language *)
-    mutable evals: eval_entry list; (* a list of eval functions *)
-  mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
-  }
-and var_entry = {
-  name: string; (* type name used in yo *)
-  actual: string; (* actual name used in target language *)
-  type_def: type_entry (* type definition *)
-  }
-
-(* compile environment: variable symbol table * type environment table *)
-type compile_context = {
-  mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
-  mutable typetab: type_entry NameMap.t (* type environment table: a map of typename => type *)
-}
-
 
 let walk_dec program = 
     let exists_types typetab id = (try NameMap.find id typetab 
@@ -99,6 +68,7 @@ let walk_dec program =
     let walk_decl_1 typetab = function
           | Ast.GlobalType(type_decl) -> typewalk_1 typetab type_decl
           | Ast.GlobalFunc(func_decl) -> funcwalk_1 typetab func_decl
+          | _ -> typetab
      in
     (*in
 
@@ -134,7 +104,7 @@ let walk_dec program =
     let rec walk_decl_2 typetab = function
         | Ast.GlobalType(type_decl) -> typewalk_2 typetab "" type_decl; typetab
         | Ast.GlobalFunc(func_decl) -> funcwalk_2 typetab "" func_decl; typetab
-
+        | _ -> typetab
     in
 
     let first_pass tt program = List.iter (fun e -> walk_decl_1 tt e;()) program; tt

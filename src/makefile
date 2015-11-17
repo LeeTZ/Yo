@@ -1,30 +1,23 @@
-SOURCES = scanner.mll \
-          parser.mly \
-          sast.ml \
-          ast.ml \
-          parser.ml \
-          scanner.ml \
-          parser_test.ml \
-          semantic.ml
-     
-OCAMLBUILD = ocamlbuild
-
-all: 
-	$(OCAMLBUILD) parser_test.native semantic.native
-# For those machine doesn't have ocamlbuild, build the project with this makefile
-
+#For those machine doesn't have ocamlbuild, build the project with this makefile
+#	
 OBJ=ast.cmo \
 	scanner.cmo \
 	parser.cmo \
 	parser_test.cmo \
-	type_reader.cmo
+	sast.cmo \
+	built_in_type.cmo \
+	semantic.cmo \
+	mengqing_test.cmo \
+	generate_test.cmo 
 	
-YO=parser_test
+YO=generate_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
-	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo type_reader.cmo
+	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
+	ocamlc -g -o mengqing_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo mengqing_test.cmo
+	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo generate.cmo generate_test.cmo
 
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -45,7 +38,7 @@ $(YO): $(OBJ)
 	ocamlyacc -v $<
 
 clean:
-	$(OCAMLBUILD) -clean
+	rm -f *.cmi *.cmo parser.ml scanner.ml *.output parser.mli parser_test mengqing_test generate_test 
 
 
 
@@ -59,5 +52,18 @@ scanner.cmo: parser.cmi
 scanner.cmx: parser.cmx
 parser_test.cmo: scanner.cmo parser.cmi ast.cmo
 parser_test.cmx: scanner.cmx parser.cmx ast.cmx
+sast.cmo: ast.cmo
+sast.cmx: ast.cmx
+built_in_type.cmo: ast.cmo
+built_in_type.cmx: ast.cmx
+semantic.cmo: sast.cmo ast.cmo
+semantic.cmx: sast.cmx ast.cmx
 type_reader.cmo: ast.cmo
 type_reader.cmx: ast.cmx
+generate.cmo: sast.cmo
+generate.cmx: sast.cmx
+mengqing_test.cmo: semantic.cmo scanner.cmo sast.cmo parser.cmi built_in_type.cmo
+mengqing_test.cmx: semantic.cmx scanner.cmx sast.cmx parser.cmx built_in_type.cmo
+generate_test.cmo: semantic.cmo scanner.cmo parser.cmi generate.cmo built_in_type.cmo
+generate_test.cmx: semantic.cmx scanner.cmx parser.cmx generate.cmx built_in_type.cmx
+

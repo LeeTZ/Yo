@@ -120,6 +120,7 @@ and string_of_program program =
   | Stmt
   program*) 
 
+
 exception VariableNotDefined of string
 exception TypeNotDefined of string
 exception SemanticError of string

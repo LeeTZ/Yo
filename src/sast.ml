@@ -6,10 +6,12 @@ type action =
 let string_of_action = function
   | NewVar -> "new"
 
+
 type sem = {
   mutable actions: action list;
   type_def: type_entry
 }
+
 
 let string_of_sem s = "$" ^ s.type_def.name ^ " " 
                       ^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
@@ -23,6 +25,7 @@ type s_expr =                                 (* Expressions*)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
 
+  
 type s_stmt =
   | SAssign of s_expr option * s_expr
   | SIfStmt of s_cond_exec list

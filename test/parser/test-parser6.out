@@ -1,6 +1,5 @@
-type someclass
-func foo (int a, int b)
-a = 2
-b = 4
-int somemember
-string anothermember
+if a > 1:
+branch = 1
+elif a == 1:
+branch = "1"
+else:branch = 1

@@ -52,6 +52,33 @@ Run() {
     }
 }
 
+CheckPreprocessor() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.yo//'`
+    reffile=`echo $1 | sed 's/.yo$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+    echo -n "$basename.................."
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+    generatedfiles=""
+
+    Compare "../test/preprocessor/intermediate/$basename.yo" ${reffile}.out ${basename}.a.diff
+
+    if [ $error -eq 0 ] ; then
+    if [ $keep -eq 0 ] ; then
+        rm -f $generatedfiles
+    fi
+    echo "\033[32m OK \033[0m"
+    echo "###### SUCCESS" 1>&2
+    else
+    echo "###### FAILED" 1>&2
+    globalerror=$error
+    fi 
+}
+
+
 CheckParser() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
@@ -64,8 +91,9 @@ CheckParser() {
 
     generatedfiles=""
 
+    YO="./parser_test"
     generatedfiles="$generatedfiles ${basename}.a.out" &&
-    Run "$YO" "<" $1 ">" ${basename}.a.out &&
+    Run "$YO" "<" "../test/parser/intermediate/$basename.yo" ">" ${basename}.a.out &&
     Compare ${basename}.a.out ${reffile}.out ${basename}.a.diff
 
     if [ $error -eq 0 ] ; then
@@ -94,8 +122,9 @@ CheckSemanticAnalysis() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.s.out" &&
-    Run "$YO" "-s" $1 ">" ${basename}.s.out &&
+    YO="./semantic_test"
+    generatedfiles="$generatedfiles ${basename}.s.out"
+    Run "$YO" "<" "../test/semantic/intermediate/$basename.yo" ">" ${basename}.s.out &&
     Compare ${basename}.s.out ${reffile}.out ${basename}.s.diff
 
     if [ $error -eq 0 ] ; then
@@ -255,13 +284,29 @@ fi
 for file in $files
 do
     case $file in
+    *test-preprocess*)
+        echo "##### Now Testing Preprocessor #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
+        CheckPreprocessor $file 2>> $globallog
+        ;;
     *test-parser*)
+        echo "##### Now Testing Parser #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
         CheckParser $file 2>> $globallog
         ;;
-    *test-sa*)
+    *test-semantic*)
+        echo "##### Now Testing Semantic Analysis #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
         CheckSemanticAnalysis $file 2>> $globallog
         ;;
     *test-full*)
+        echo "##### Now Testing FullStack #####"
         echo "preprocessing....."
         python $preproc_path $file
         echo "\033[32m OK \033[0m"

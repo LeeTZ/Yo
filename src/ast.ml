@@ -35,9 +35,9 @@ and func_decl =
   | FuncDecl of string * var_decl list * stmt list
 
 and type_decl = 
-  | TypeDecl of string * type_mem_decl list
+  | TypeDecl of string * mem_type_decl list
 
-and type_mem_decl = 
+and mem_type_decl = 
   | MemVarDecl of var_decl
   | MemFuncDecl of func_decl
   | MemTypeDecl of type_decl
@@ -75,14 +75,14 @@ and string_of_stmt = function
     ^ " to " ^ (string_of_expr expred) ^ ":\n " ^(String.concat ";\n " (List.map string_of_stmt stmts))
   | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n " 
     ^ (String.concat ";\n " (List.map string_of_stmt stmts))
-  | Continue -> "continue\n"
-  | Break -> "break\n"
+  | Continue -> "continue"
+  | Break -> "break"
   | Return(None) -> "return"
   | Return(Some(expr)) -> "return " ^ (string_of_expr expr)
 
 and string_of_cond_exec = function
-  | CondExec(None, stmts) -> " else " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
-  | CondExec(Some(expr), stmts) -> " if " ^ (string_of_expr expr) ^ " then\n" ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | CondExec(None, stmts) -> "else " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | CondExec(Some(expr), stmts) -> "if " ^ (string_of_expr expr) ^ " then\n" ^ (String.concat ";\n " (List.map string_of_stmt stmts))
 
 and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"

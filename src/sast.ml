@@ -3,10 +3,17 @@ open Ast
 type action = 
 	| NewVar
 
+let string_of_action = function
+	| NewVar -> "new"
+
 type sem = {
 	mutable actions: action list;
 	type_def: type_entry
 }
+
+
+let string_of_sem s = "$" ^ "type: " ^ (string_of_type_def s.type_def) ^ " " 
+											^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
 
 type s_expr =                                 (* Expressions*)
   | SLiteral of string * sem			(* int, double, bool, string *)
@@ -18,6 +25,13 @@ type s_expr =                                 (* Expressions*)
   | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
   | SNoExpr 
   
+let rec string_of_s_expr = function
+	| SLiteral (str, s) -> str ^ (string_of_sem s)
+	| SArrayLiteral (selist, s) -> "[" ^ (List.map string_of_s_expr selist) ^ "]" ^ (string_of_sem s)
+	| SArrayExpr (sout, sin, s) -> (string_of_s_expr sout) ^ "[" ^ (string_of_s_expr sin) ^ "]" ^ (string_of_sem s)
+	| SVar (id, s) -> id ^ (string_of_sem s)
+	| SDotExpr (sexpr, id, s) -> (string_of_s_expr sexpr) ^ "." ^ 
+	
 let extract_semantic = function
 	| SLiteral (_, s) -> s
 	| SArrayLiteral (_, s) -> s
@@ -36,8 +50,8 @@ type s_stmt =
   | SContinue 
   | SBreak 
   | SReturn of s_expr option
-and 
-  s_cond_exec = 
+
+and s_cond_exec = 
    SCondExec of s_expr option * s_stmt list
 
 type s_var_decl = 

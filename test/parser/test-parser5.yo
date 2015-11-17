@@ -1,0 +1,12 @@
+func gcd (int:a,int:b):{
+  if a==0:{
+     return b;
+  }
+  return gcd(b-a,a);
+}
+
+func fill():{
+	for i = 1 to n:{
+		a[i] = true;
+	}
+}

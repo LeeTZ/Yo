@@ -73,7 +73,7 @@ def process(input_file):
           lineout = lineout[:-1]
 
         else:
-          lineout = lineout + '\n'
+          lineout = lineout + ';\n'
           linejoin = False
         
         output.write(lineout)

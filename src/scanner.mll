@@ -1,18 +1,18 @@
 { open Parser }
 
-let Integer_cons = '-'? ['0'-'9']+
-let Double_cons = '-'? ['0'-'9']+ '.' ['0'-'9']+
+let Integer_cons = ['0'-'9']+
+let Double_cons = ['0'-'9']+ '.' ['0'-'9']+
 let Id_cons = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let String_cons = [^ '"' ]* (* Is that correct? *)
 
 rule token = parse
-  [' ' '\r'] { token lexbuf } (* Whitespace *)
+  [' ' '\r' '\t' '\n'] { token lexbuf } (* Whitespace *)
 (*| '\'      { continue lexbuf }*)
 | "#("     { comment lexbuf }           (* Comments *)
 | '#'      { oneLineComment lexbuf}
-| '\t'     { INDENT }
+(*| '\t'     { INDENT }
 | '\n'     { NEWLINE }
-
+*)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '['	   { LBRACKET }
@@ -25,7 +25,7 @@ rule token = parse
 | '~'      { TILDE }
 | '"'      { QUOTATION }
 | ':'      { COLON }
-
+| ';'      { SEMI }
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
@@ -66,6 +66,7 @@ rule token = parse
 | "return" { RETURN }
 | "continue" { CONTINUE }
 | "break"  { BREAK }
+| "to"     {TO}
 
 (*| "lambda" { LAMBDA }*)
 | "func"   { FUNCTION }

@@ -1,17 +1,22 @@
-# For those machine doesn't have ocamlbuild, build the project with this makefile
+#
+#For those machine doesn't have ocamlbuild, build the project with this makefile
 
 OBJ=ast.cmo \
 	scanner.cmo \
 	parser.cmo \
 	parser_test.cmo \
-	type_reader.cmo
+	sast.cmo \
+	semantic.cmo \
+	type_reader.cmo\
+	mengqing_test.cmo
 	
-YO=parser_test
+YO=mengqing_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
 	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo type_reader.cmo
+	ocamlc -g -o mengqing_test parser.cmo scanner.cmo ast.cmo type_reader.cmo sast.cmo semantic.cmo mengqing_test.cmo
 
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -47,3 +52,10 @@ parser_test.cmo: scanner.cmo parser.cmi ast.cmo
 parser_test.cmx: scanner.cmx parser.cmx ast.cmx
 type_reader.cmo: ast.cmo
 type_reader.cmx: ast.cmx
+sast.cmo : ast.cmo
+sast.cmx : ast.cmx
+semantic.cmo : sast.cmo ast.cmo
+semantic.cmx : sast.cmx ast.cmx
+mengqing_test.cmo : semantic.cmo scanner.cmo sast.cmo parser.cmi
+mengqing_test.cmx : semantic.cmx scanner.cmx sast.cmx parser.cmx
+

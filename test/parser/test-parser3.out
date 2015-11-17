@@ -1,0 +1,20 @@
+42
+4.1
+true
+"hello"
+foo
+bar[1]
+[0, 1, 2, 3]
+foo.bar
+a + b
+a - b
+a * b
+a / b
+a == b
+a >= b
+a <= b
+a > b
+a < b
+a != b
+a && b
+a || b

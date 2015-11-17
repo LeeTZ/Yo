@@ -1,0 +1,5 @@
+if a > 1 then
+branch = 1
+ if a == 1 then
+branch = "1"
+ else branch = 1

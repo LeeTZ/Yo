@@ -3,16 +3,23 @@ if (1+2):{
     a=1;
 }elif 2>2:{
 	a = 2;
+}elif 3==1:{
+	a = 4;
 }
 else:{
 	a=3;
 }
 continue;
 break;
-return a;
+return;
 return 3;
 while 1 > 0:{
 	a = "5";
+	b = 7;
+	for i = 1 to 3:{
+		a = 1;
+		b = 9;
+}
 }
 for i = 1 to 3:{
 	a = 1;

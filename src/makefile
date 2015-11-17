@@ -36,7 +36,7 @@ $(YO): $(OBJ)
 	ocamlyacc -v $<
 
 clean:
-	$(OCAMLBUILD) -clean
+	rm -f *.cmi *.cmo parser.ml scanner.ml *.output parser.mli parser_test mengqing_test 
 
 
 
@@ -50,14 +50,14 @@ scanner.cmo: parser.cmi
 scanner.cmx: parser.cmx
 parser_test.cmo: scanner.cmo parser.cmi ast.cmo
 parser_test.cmx: scanner.cmx parser.cmx ast.cmx
+sast.cmo: ast.cmo
+sast.cmx: ast.cmx
+built_in_type.cmo: ast.cmo
+built_in_type.cmx: ast.cmx
+semantic.cmo: sast.cmo ast.cmo
+semantic.cmx: sast.cmx ast.cmx
 type_reader.cmo: ast.cmo
 type_reader.cmx: ast.cmx
-sast.cmo : ast.cmo
-sast.cmx : ast.cmx
-built_in_type.cmo : ast.cmo
-built_in_type.cmx : ast.cmx
-semantic.cmo : sast.cmo ast.cmo
-semantic.cmx : sast.cmx ast.cmx
-mengqing_test.cmo : semantic.cmo scanner.cmo sast.cmo parser.cmi
-mengqing_test.cmx : semantic.cmx scanner.cmx sast.cmx parser.cmx
+mengqing_test.cmo: semantic.cmo scanner.cmo sast.cmo parser.cmi
+mengqing_test.cmx: semantic.cmx scanner.cmx sast.cmx parser.cmx
 

@@ -76,7 +76,7 @@ and generate_var_decl = function
   SVarDecl (x, s) -> ""
 
 and generate_func = function
-  SFuncDecl (s, svdl, sl, s) -> ""
+  SFuncDecl (s, svdl, sl, ss) -> ""
 
 and generate_type = function
   STypeDecl (s, stml) -> ""
@@ -86,9 +86,9 @@ and generate_type_mem = function
 | SMemFuncDecl (f) -> generate_func f
 | SMemTypeDecl (t) -> generate_type t
 
-let generate_main = function
+let rec generate_main = function
   [] -> ""
-| hd::tl -> generate_global hd ^ generate tl
+| hd::tl -> generate_global hd ^ generate_main tl
 
 let generate program = 
   let pre_defined = "#include \"header\"\nint main(){\n"

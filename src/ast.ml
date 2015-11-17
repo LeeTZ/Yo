@@ -56,7 +56,8 @@ let rec string_of_expr = function
   | StrConst s -> s
   | Var v -> v
   | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
-	| ArrayConst(e) -> "[ " ^ (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e))  ^ "]"
+	| ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
+  "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
   | Binop(e1, o, e2) -> string_of_expr e1 ^ " " ^
       (match o with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
@@ -68,21 +69,26 @@ let rec string_of_expr = function
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
   | Assign(Some(lvalue), rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
-  | IfStmt(conds) -> (String.concat "\n " (List.map string_of_cond_exec conds))
+  | IfStmt(conds) -> string_of_first_cond_exec (List.hd conds) ^ "\n" ^
+  (String.concat "\n" (List.map string_of_cond_exec (List.tl conds)))
   | ForIn(var, expr, stmts) -> "for " ^ var ^ " in " ^ (string_of_expr expr) 
-    ^ ":\n " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+    ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | ForEq(var, exprst, expred, stmts) -> "for " ^ var ^ " = " ^ (string_of_expr exprst) 
-    ^ " to " ^ (string_of_expr expred) ^ ":\n " ^(String.concat ";\n " (List.map string_of_stmt stmts))
-  | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n " 
-    ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+    ^ " to " ^ (string_of_expr expred) ^ ":\n" ^(String.concat "\n" (List.map string_of_stmt stmts))
+  | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n" 
+    ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | Continue -> "continue"
   | Break -> "break"
   | Return(None) -> "return"
   | Return(Some(expr)) -> "return " ^ (string_of_expr expr)
 
+and string_of_first_cond_exec = function
+  | CondExec(None, stmts) -> "else:" ^ (String.concat "\n" (List.map string_of_stmt stmts))
+  | CondExec(Some(expr), stmts) -> "if " ^ (string_of_expr expr) ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
+
 and string_of_cond_exec = function
-  | CondExec(None, stmts) -> "else " ^ (String.concat ";\n " (List.map string_of_stmt stmts))
-  | CondExec(Some(expr), stmts) -> "if " ^ (string_of_expr expr) ^ " then\n" ^ (String.concat ";\n " (List.map string_of_stmt stmts))
+  | CondExec(None, stmts) -> "else:" ^ (String.concat "\n" (List.map string_of_stmt stmts))
+  | CondExec(Some(expr), stmts) -> "elif " ^ (string_of_expr expr) ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id ^ "\n"
@@ -105,7 +111,7 @@ and string_of_global_ele_decl = function
   | GlobalType o -> string_of_type_decl o
 
 and string_of_program program =
-  String.concat "\n " (List.map string_of_global_ele_decl program) 
+  String.concat "\n" (List.map string_of_global_ele_decl program) 
 
   (*List.iter 
   fun global_ele -> match global_ele with

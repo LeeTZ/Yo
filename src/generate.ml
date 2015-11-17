@@ -1,3 +1,5 @@
+open Sast
+
 let rec generate_expr = function
   SLiteral (x, s) -> 
 	if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
@@ -65,3 +67,29 @@ and generate_stmt = function
 	| None -> ""
 	| Some (expr) -> generate_expr expr) ^ ";\n"
 
+let rec generate_global = function
+  SGlobalStmt (s) -> generate_stmt s
+| SGlobalFunc (f) -> generate_func f
+| SGlobalType (t) -> generate_type t
+
+and generate_var_decl = function
+  SVarDecl (x, s) -> ""
+
+and generate_func = function
+  SFuncDecl (s, svdl, sl) -> ""
+
+and generate_type = function
+  STypeDecl (s, stml) -> ""
+
+and generate_type_mem = function
+  SMemVarDecl (svd) -> generate_var_decl svd
+| SMemFuncDecl (f) -> generate_func f
+| SMemTypeDecl (t) -> generate_type t
+
+let generate_main = function
+  [] -> ""
+| hd::tl -> generate_global hd ^ generate tl
+
+let generate program = 
+  let pre_defined = "#include \"header\"\nint main(){\n"
+	in pre_defined ^ generate_main program ^ "}"

@@ -76,7 +76,7 @@ and generate_var_decl = function
   SVarDecl (x, s) -> ""
 
 and generate_func = function
-  SFuncDecl (s, svdl, sl) -> ""
+  SFuncDecl (s, svdl, sl, s) -> ""
 
 and generate_type = function
   STypeDecl (s, stml) -> ""

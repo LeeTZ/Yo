@@ -3,14 +3,15 @@
 OBJ=ast.cmo \
 	scanner.cmo \
 	parser.cmo \
-	parser_test.cmo 
+	parser_test.cmo \
+	type_reader.cmo
 	
 YO=parser_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
-	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo
+	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo type_reader.cmo
 
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -44,3 +45,5 @@ scanner.cmo: parser.cmi
 scanner.cmx: parser.cmx
 parser_test.cmo: scanner.cmo parser.cmi ast.cmo
 parser_test.cmx: scanner.cmx parser.cmx ast.cmx
+type_reader.cmo: ast.cmo
+type_reader.cmx: ast.cmx

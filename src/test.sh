@@ -15,7 +15,7 @@ globalerror=0
 keep=0
 
 Usage() {
-    echo "Usage: testall.sh [options] [.yo files]"
+    echo "Usage: test.sh [options] [.yo files]"
     echo "-k    Keep intermediate files"
     echo "-h    Print this help"
     exit 1

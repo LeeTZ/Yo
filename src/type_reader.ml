@@ -1,6 +1,6 @@
 open Ast
 
-let walk_dec program = 
+let walk_dec program context = 
     let exists_types typetab id = (try NameMap.find id typetab 
             with Not_found -> raise (TypeNotDefined id))
     in
@@ -24,6 +24,7 @@ let walk_dec program =
                             in NameMap.add entry.name entry typetab;
                         list_loop_1 typetab id type_element;
                         typetab
+        | _ -> typetab
 
     and func_nested_walk_1 typetab oid = function
         | Ast.FuncDecl(id, arglist, stmtlist) ->
@@ -34,6 +35,7 @@ let walk_dec program =
                     Not_found -> 
                         let entry = {name=oid ^ "::" ^ (String.uppercase id); actual=oid ^ "::" ^ (String.uppercase id); 
                         evals=[]; members=NameMap.empty} in NameMap.add entry.name entry typetab  
+        | _ -> typetab
 
     and mem_nested_1 typetab id = function
         | Ast.MemTypeDecl(typedecl) -> 
@@ -51,6 +53,7 @@ let walk_dec program =
                     Not_found -> 
                         let entry = {name=String.uppercase id; actual=String.uppercase id; evals=[]; members=NameMap.empty} in
                         NameMap.add entry.name entry typetab )
+        | _ -> typetab
         
     and typewalk_1 typetab = function
          | Ast.TypeDecl(id, type_element) -> 
@@ -63,21 +66,19 @@ let walk_dec program =
                             NameMap.add entry.name entry typetab;
                         list_loop_1 typetab id type_element;
                         typetab)
+        | _ -> typetab
         in
 
     let walk_decl_1 typetab = function
-          | Ast.GlobalType(type_decl) -> typewalk_1 typetab type_decl
-          | Ast.GlobalFunc(func_decl) -> funcwalk_1 typetab func_decl
-          | _ -> typetab
+          | Ast.GlobalType(type_decl) -> typewalk_1 typetab type_decl; 
+          | Ast.GlobalFunc(func_decl) -> funcwalk_1 typetab func_decl;
+          | _ -> typetab; 
      in
-    (*in
-
-    List.iter (fun e -> walk_decl_1 typetab e) [GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))]*)
 
 
     let varwalk_2 typetab typeEntry = function
         | Ast.VarDecl(name, typename) ->
-            (typeEntry.members <- NameMap.add name (exists_types typetab typename) typeEntry.members)
+            (typeEntry.members <- NameMap.add name (exists_types typetab typename) typeEntry.members); 
     in
 
     let funcwalk_2 typetab parent_scope = function
@@ -100,7 +101,6 @@ let walk_dec program =
             ) ele_list
     in
 
-
     let rec walk_decl_2 typetab = function
         | Ast.GlobalType(type_decl) -> typewalk_2 typetab "" type_decl; typetab
         | Ast.GlobalFunc(func_decl) -> funcwalk_2 typetab "" func_decl; typetab
@@ -109,9 +109,9 @@ let walk_dec program =
 
     let first_pass tt program = List.iter (fun e -> walk_decl_1 tt e;()) program; tt
     and second_pass tt program = List.iter (fun e -> walk_decl_2 tt e;()) program; tt
-in let t = NameMap.empty in let t = first_pass t program in let t = second_pass t program in
-{vsymtab=[]; typetab=t}
+in let t = context.typetab in let t = first_pass t program in let t = second_pass t program in
+{vsymtab=[]; typetab=t} 
 
 (*
 let context = walk_dec
-[GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))] *)
+[GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))]  *)

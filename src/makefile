@@ -9,17 +9,16 @@ OBJ=ast.cmo \
 	semantic.cmo \
 	type_reader.cmo \
 	print_typetab.cmo \
-	mengqing_test.cmo \
+	semantic_test.cmo \
 	generate_test.cmo 
 	
-YO=mengqing_test
+YO=generate_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
 	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
-	ocamlc -g -o mengqing_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo type_reader.cmo built_in_type.cmo print_typetab.cmo mengqing_test.cmo
-	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo generate.cmo generate_test.cmo
+	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo generate.cmo generate_test.cmo type_reader.cmo
 	
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -40,7 +39,7 @@ $(YO): $(OBJ)
 	ocamlyacc -v $<
 
 clean:
-	rm -f *.cmi *.cmo parser.ml scanner.ml *.output parser.mli parser_test mengqing_test generate_test 
+	rm -f *.cmi *.cmo parser.ml scanner.ml *.output parser.mli parser_test semantic_test generate_test 
 
 
 
@@ -66,8 +65,8 @@ print_typetab.cmo: ast.cmo
 print_typetab.cmx: ast.cmx
 generate.cmo: sast.cmo
 generate.cmx: sast.cmx
-mengqing_test.cmo: semantic.cmo scanner.cmo sast.cmo parser.cmi built_in_type.cmo type_reader.cmo semantic.cmo print_typetab.cmo
-mengqing_test.cmx: semantic.cmx scanner.cmx sast.cmx parser.cmx built_in_type.cmx type_reader.cmx semantic.cmx print_typetab.cmx
-generate_test.cmo: semantic.cmo scanner.cmo parser.cmi generate.cmo built_in_type.cmo
-generate_test.cmx: semantic.cmx scanner.cmx parser.cmx generate.cmx built_in_type.cmx
+semantic_test.cmo: type_reader.cmo scanner.cmo print_typetab.cmo parser.cmi built_in_type.cmo
+semantic_test.cmx: type_reader.cmx scanner.cmx print_typetab.cmx parser.cmx built_in_type.cmx
+generate_test.cmo: semantic.cmo scanner.cmo parser.cmi generate.cmo built_in_type.cmo type_reader.cmo
+generate_test.cmx: semantic.cmx scanner.cmx parser.cmx generate.cmx built_in_type.cmx type_reader.cmx
 

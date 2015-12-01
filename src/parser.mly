@@ -62,6 +62,7 @@ primary_expr:
 expr:
     primary_expr                             { $1 }
   | literal                                  { $1 }
+  | expr HAT expr AT expr                    { Layer($1, $2, $3) }
   | expr PLUS   expr                         { Binop($1, Add,   $3) }
   | expr MINUS  expr                         { Binop($1, Sub,   $3) }
   | expr TIMES  expr                         { Binop($1, Mult,  $3) }

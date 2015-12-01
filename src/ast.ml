@@ -8,12 +8,12 @@ type expr =                                        (* Expressions*)
   | BoolConst of bool                              (* True *)
   | StrConst of string                             (* "ocaml" *)
   | ArrayConst of expr list                        (* [12,23,34,56] *)
-  | ArrayExpr of expr * expr                       (* A[B[3]]*)
+  | ArrayIndex of expr * expr                      (* A[B[3]]*)
 	| Var of string                                  (* foo *)  
   | DotExpr of expr * string                       (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
-  | Noexpr
+	| NewArray of string														 (* Int[] *)
 
 type stmt =
   | Assign of expr option * expr
@@ -55,7 +55,8 @@ let rec string_of_expr = function
   | BoolConst b -> string_of_bool b
   | StrConst s -> s
   | Var v -> v
-  | ArrayExpr(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
+	| NewArray s -> "Array<" ^ s ^ ">"
+  | ArrayIndex(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
 	| ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
@@ -136,7 +137,7 @@ type eval_entry = {
 and type_entry =  { 
   name: string; (* type name used in yo *)
   actual: string; (* actual name used in target language *)
-    mutable evals: eval_entry list; (* a list of eval functions *)
+  mutable evals: eval_entry list; (* a list of eval functions *)
   mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
   }
 and var_entry = {

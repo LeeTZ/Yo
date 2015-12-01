@@ -18,7 +18,7 @@ FLAGS:=-g
 
 $(YO): $(OBJ)
 	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
-	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo generate.cmo generate_test.cmo 
+	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo generate.cmo generate_test.cmo 
 	
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo

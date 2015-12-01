@@ -52,11 +52,11 @@ arg_expr_list:
   | arg_expr_list COMMA expr                 { $3 :: $1 }
 
 array_literal:
-  LBRACKET arg_expr_opt RBRACKET            { ArrayConst $2 }
+  LBRACKET arg_expr_list RBRACKET            { ArrayConst (List.rev $2) }
 
 primary_expr:
     ID                                               { Var $1 }  
-  | primary_expr LBRACKET expr RBRACKET              { ArrayExpr($1, $3) }
+  | primary_expr LBRACKET expr RBRACKET              { ArrayIndex($1, $3) }
   | primary_expr DOT ID                              { DotExpr($1, $3) }
 
 expr:
@@ -77,6 +77,7 @@ expr:
   | ID LPAREN arg_expr_opt RPAREN            { Call(None, $1, $3) }
   | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
   | LPAREN expr RPAREN                       { $2 }
+	| ID LBRACKET RBRACKET										 { NewArray($1) }
 
 expr_opt:
     /* nothing */ { Noexpr }

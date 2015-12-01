@@ -36,7 +36,10 @@ let rec build_expr_semantic ctx = function
   		| StrConst x -> 		SLiteral (x, 
   																	{actions=[]; type_def=look_up_type "String" ctx.typetab})
   		
-  		| ArrayConst x -> 	SArrayLiteral ((List.map (build_expr_semantic ctx) x), 
+  		| ArrayConst x -> (*let arrayType = match x with
+										| [] -> raise (SemanticError ("Array literal length has to be at least 1"))
+										| hd::tl -> (build_expr_semantic ctx hd)*)
+					 SArrayLiteral ((List.map (build_expr_semantic ctx) x), 
   																	{actions=[]; type_def=look_up_type "Array" ctx.typetab})
   		(* try to find the variable in the symbol table; may throw exception when it is not found *)
   		| Var x -> 					SVar (x, 
@@ -110,7 +113,7 @@ let rec build_stmt_semantic ctx = function
   		| Return exp -> (match exp with 
   			| None -> SReturn (None)
   			| Some x -> SReturn (Some(build_expr_semantic ctx x)))
-			(*| For*)
+			| ForEq (var, exprst, expred, stmts) ->
 
 let build_func_semantic ctx = function 
 	FuncDecl (funcName, argList, stmtList) -> 

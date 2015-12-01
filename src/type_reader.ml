@@ -75,7 +75,7 @@ let walk_dec program context =
             f_type.evals <-
             {args=(List.map (fun x -> match x with 
                 VarDecl(n,t) -> {name=n; actual=n^"_"; type_def=(exists_types typetab t)})
-                arglist); ret=None} :: f_type.evals
+                arglist); ret=(NameMap.find "$" typetab)} :: f_type.evals
     in
 
     let rec typewalk_2 typetab parent_scope = function

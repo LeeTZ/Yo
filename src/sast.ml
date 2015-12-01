@@ -70,9 +70,7 @@ let rec string_of_s_expr = function
 	| SNewArray (el, s) -> "Array<" ^ (string_of_sem s) ^ ">[" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ "]"
 	| SVar (id, s) -> id ^ (string_of_sem s)
   | SDotExpr (sexpr, id, s) -> (string_of_s_expr sexpr) ^ "." ^ id ^ (string_of_sem s)
-  | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^(match op with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&" | Or -> "||") 
-    ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
+  | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
   | SCall (obj, f, el, s) -> (match obj with 
           | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
 and string_of_s_stmt = function

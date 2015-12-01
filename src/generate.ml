@@ -1,3 +1,4 @@
+open Ast
 open Sast
 
 let rec generate_expr = function
@@ -8,8 +9,7 @@ let rec generate_expr = function
 | SVar (x, s) -> x
 | SArrayIndex (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
 | SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
-| SBinop (x, op, y, s) -> generate_expr x ^ " " ^ (match op with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&" | Or -> "||") ^ " " ^ generate_expr y
+| SBinop (x, op, y, s) -> generate_expr x ^ " " ^ (string_of_op op) ^ " " ^ generate_expr y
 | SCall (x, y, z, s) -> 
 	let rec generate_expr_list = function
 	  [] -> ""

@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Or
+type op = Add | Sub | Mult | Div | Mod | Eq | Neq | Less | Leq | Gt | Geq | And | Or
 
 type types = Int | Double | Bool | String | Array of types
 
@@ -50,6 +50,11 @@ and global_ele_decl =
 
 type program = global_ele_decl list
 
+let string_of_op = function
+	| Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/" | Mod -> "%"
+  | Eq -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Gt -> ">" | Geq -> ">=" 
+	| And -> "&&" | Or -> "||"
+
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
   | DoubleConst d -> string_of_float d 
@@ -61,10 +66,7 @@ let rec string_of_expr = function
 	| ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
-  | Binop(e1, o, e2) -> string_of_expr e1 ^ " " ^
-      (match o with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&" | Or -> "||") 
-			^ " " ^ string_of_expr e2
+  | Binop(e1, o, e2) -> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | Noexpr -> ""
@@ -133,7 +135,7 @@ module MemberMap = Map.Make(String)
 
 type eval_entry = {
     mutable args: var_entry list;
-    mutable ret: type_entry option
+    mutable ret: type_entry
     }
 and type_entry =  { 
   name: string; (* type name used in yo *)
@@ -152,3 +154,18 @@ type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
   mutable typetab: type_entry NameMap.t (* type environment table: a map of typename => type *)
 }
+
+let binop_type_tab = function
+	| Add -> "$add"
+	| Sub -> "$sub"
+	| Mult -> "$mult"
+	| Div -> "$div"
+	| Mod -> "$mod"
+	| Eq -> "$equal"
+	| Neq -> "$neq"
+	| Less -> "$less"
+	| Leq -> "$leq"
+	| Gt -> "$gt"
+	| Geq -> "$geq"
+	| And -> "$and"
+	| Or -> "$or"

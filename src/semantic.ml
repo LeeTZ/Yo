@@ -23,6 +23,9 @@ let new_var ctx varName typeDef =
 
 let push_var_env ctx = {ctx with vsymtab = NameMap.empty :: ctx.vsymtab}
   	
+let find_matching_eval func_type call_arg_types = 
+	List.find (fun e -> (List.map (fun (k: var_entry) -> k.type_def) e.args) = call_arg_types) func_type.evals		
+
 (* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx = function
 			(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
@@ -36,11 +39,12 @@ let rec build_expr_semantic ctx = function
   		| StrConst x -> 		SLiteral (x, 
   																	{actions=[]; type_def=look_up_type "String" ctx.typetab})
   		
-  		| ArrayConst x -> let arrayType = match x with
-										| [] -> raise (SemanticError ("Array literal length has to be at least 1"))
-										| hd::tl -> (extract_semantic (build_expr_semantic ctx hd)).type_def in
-										let arraySem = {actions=[NewVar]; type_def=look_up_type (arrayType.name^"[]") ctx.typetab} in
-					 SArrayLiteral ((List.map (fun e -> let s = build_expr_semantic ctx e in 
+  		| ArrayConst x -> let arrayType = match x with (* determine the array type by its first element *)
+												| [] -> raise (SemanticError ("Array literal length has to be at least 1"))
+												| hd::tl -> (extract_semantic (build_expr_semantic ctx hd)).type_def in
+												let arraySem = {actions=[NewVar]; type_def=look_up_type (arrayType.name^"[]") ctx.typetab} in
+					 							SArrayLiteral (
+														(List.map (fun e -> let s = build_expr_semantic ctx e in 
 														if (extract_semantic s).type_def = arrayType then s 
 														else raise (SemanticError ("Array literal length has to be at least 1"))) x), arraySem)
   		(* try to find the variable in the symbol table; may throw exception when it is not found *)
@@ -54,12 +58,12 @@ let rec build_expr_semantic ctx = function
   		
   		| Binop (x, op, y) -> let b1 = build_expr_semantic ctx x and b2 = build_expr_semantic ctx y in (* TODO: more type checking *)
   														let s1=extract_semantic b1 and s2=extract_semantic b2 in
-															let ret_type = match op with
-															| Equal | Neq | Less | Leq | Greater | Geq -> (look_up_type "Bool" ctx.typetab)
-															| _ -> s1.type_def in
-  														if s1.type_def = s2.type_def then SBinop (b1, op, b2, {actions=[]; type_def=ret_type}) 
-  														else raise (SemanticError ((string_of_expr x) ^ " and " ^ (string_of_expr y) ^ " must be of the same type"))
-  		
+															let call_arg_types = [s1.type_def; s2.type_def] in
+															let func_eval = try find_matching_eval (look_up_type (binop_type_tab op) ctx.typetab) [s1.type_def; s2.type_def]  (* get the matching eval *)
+  																				with Not_found -> raise (SemanticError ("Operator " ^ (string_of_op op) 
+																					^ " does not take params of type " ^ s1.type_def.name ^ " and " ^ s2.type_def.name)) 
+															in SBinop (b1, op, b2, {actions=[]; type_def=func_eval.ret})
+  														  		
   		| Call (obj, name, args) -> (let s_call_args = List.map (fun e -> build_expr_semantic ctx e) args in (*build semantics for args*)
   					let upper_name = String.uppercase name in 
   					let func_name = match obj with (*should we change a name when searching for the function?*)
@@ -70,15 +74,13 @@ let rec build_expr_semantic ctx = function
   					let func_type = try NameMap.find func_name ctx.typetab (* get type_entry for this func *)
   													with Not_found -> raise (TypeNotDefined ("Function " ^ name ^ " is not defined")) in
   					let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) s_call_args in
-  					let func_eval = try List.find (fun e -> (List.map (fun (k: var_entry) -> k.type_def) e.args) = call_arg_types) func_type.evals  (* get the matching eval *)
+  					let func_eval = try find_matching_eval func_type.evals call_arg_types (* get the matching eval *)
   												with Not_found -> raise (TypeNotDefined ("Function " ^ name ^ " does not take params of type " ^ (String.concat ", " (List.map string_of_expr args)))) in
   					SCall ((match obj with 
   					 				| None -> None 
   									| Some s -> Some(build_expr_semantic ctx s)), 
   								func_name, s_call_args, 
-  								{actions=[]; type_def=(match func_eval.ret with 
-  															| None -> look_up_type "Void" ctx.typetab
-  															| Some x -> x)}))
+  								{actions=[]; type_def=func_eval.ret}))
 
 let rec build_stmt_semantic ctx = function
 			

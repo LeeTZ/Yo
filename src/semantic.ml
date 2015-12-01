@@ -26,6 +26,12 @@ let push_var_env ctx = {ctx with vsymtab = NameMap.empty :: ctx.vsymtab}
 let find_matching_eval func_type call_arg_types = 
 	List.find (fun e -> (List.map (fun (k: var_entry) -> k.type_def) e.args) = call_arg_types) func_type.evals		
 
+let extract_arr_ele_type ctx (arr_type: type_entry) = 
+	let exp_ele_tn_len = (String.length arr_type.name)-2 in
+	let arr_ele_name = if (String.sub arr_type.name exp_ele_tn_len 2) = "[]" 
+										then String.sub arr_type.name 0 exp_ele_tn_len else raise (Invalid_argument (arr_type.name ^ " is not of Array type")) in
+	look_up_type arr_ele_name ctx.typetab
+
 (* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx = function
 			(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
@@ -50,7 +56,8 @@ let rec build_expr_semantic ctx = function
   		(* try to find the variable in the symbol table; may throw exception when it is not found *)
   		| Var x -> 					SVar (x, 
   																	{actions=[]; type_def = (look_up_var x ctx.vsymtab).type_def})
-  		
+  		| NewArray s ->				SNewArray({actions=[NewArr]; type_def = look_up_type (s^"[]") ctx.typetab})
+			
   		| DotExpr (expr, x) -> let sexpr = build_expr_semantic ctx expr in
   														SDotExpr (sexpr, x,  (try 
   																	{actions=[]; type_def=NameMap.find x (extract_semantic sexpr).type_def.members} 
@@ -74,7 +81,7 @@ let rec build_expr_semantic ctx = function
   					let func_type = try NameMap.find func_name ctx.typetab (* get type_entry for this func *)
   													with Not_found -> raise (TypeNotDefined ("Function " ^ name ^ " is not defined")) in
   					let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) s_call_args in
-  					let func_eval = try find_matching_eval func_type.evals call_arg_types (* get the matching eval *)
+  					let func_eval = try find_matching_eval func_type call_arg_types (* get the matching eval *)
   												with Not_found -> raise (TypeNotDefined ("Function " ^ name ^ " does not take params of type " ^ (String.concat ", " (List.map string_of_expr args)))) in
   					SCall ((match obj with 
   					 				| None -> None 
@@ -109,7 +116,8 @@ let rec build_stmt_semantic ctx = function
   					cl)
 			| WhileStmt (pred, stmts) -> let ctx2 = push_var_env ctx in
 					let s_pred = build_expr_semantic ctx2 pred in
-					if (extract_semantic s_pred).type_def.name = "Bool" then () else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) ^ " in the while statement should be of Bool type"));
+					if (extract_semantic s_pred).type_def.name = "Bool" then () 
+					else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) ^ " in the while statement should be of Bool type"));
 					SWhileStmt (s_pred, List.map (build_stmt_semantic ctx2) stmts)
 					
   		| Continue -> SContinue
@@ -117,8 +125,16 @@ let rec build_stmt_semantic ctx = function
   		| Return exp -> (match exp with 
   			| None -> SReturn (None)
   			| Some x -> SReturn (Some(build_expr_semantic ctx x)))
+			| ForIn (var, expr, stmts) -> let s_expr = build_expr_semantic ctx expr in
+					let arr_ele_type = try extract_arr_ele_type ctx (extract_semantic s_expr).type_def 
+															with Invalid_argument _ -> raise (SemanticError ((string_of_expr expr)^" in the for loop has to be of Array type")) in
+					let nested_env = push_var_env ctx in
+					let svar = new_var nested_env var arr_ele_type in
+					let s_stmt_list = List.map (build_stmt_semantic ctx) stmts in
+					SForIn(var, (extract_semantic svar), s_expr, s_stmt_list)
+																		
 
-let build_func_semantic ctx = function 
+let build_func_semantic ctx = function (* TODO: cyclic reference *)
 	FuncDecl (funcName, argList, stmtList) -> 
 		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
 		let sarglist = List.map (*  *)

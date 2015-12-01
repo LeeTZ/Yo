@@ -14,6 +14,7 @@ type expr =                                        (* Expressions*)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
 	| NewArray of string														 (* Int[] *)
+  | Noexpr
 
 type stmt =
   | Assign of expr option * expr

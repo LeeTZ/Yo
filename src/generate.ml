@@ -6,7 +6,7 @@ let rec generate_expr = function
 	else x*)
 | SArrayLiteral (x, s)-> "" (* defined later *)
 | SVar (x, s) -> x
-| SArrayExpr (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
+| SArrayIndex (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
 | SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
 | SBinop (x, op, y, s) -> generate_expr x ^ " " ^ (match op with | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
       | Equal -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&" | Or -> "||") ^ " " ^ generate_expr y

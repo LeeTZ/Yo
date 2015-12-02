@@ -78,11 +78,11 @@ expr:
   | ID LPAREN arg_expr_opt RPAREN            { Call(None, $1, $3) }
   | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
   | LPAREN expr RPAREN                       { $2 }
-	| ID LBRACKET RBRACKET										 { NewArray($1) }
+	| LBRACKET RBRACKET ID								 		 { NewArray($3) }
 
 expr_opt:
-    /* nothing */ { Noexpr }
-  | expr          { $1 }
+    /* nothing */ { None }
+  | expr          { Some($1) }
 
 statement:
    expr SEMI                                                             { Assign(None, $1) }
@@ -94,7 +94,7 @@ statement:
 	| FOR ID ASSIGN expr DOWNTO expr COLON LBRACE statement_opt RBRACE     { ForRange($2, $4, $6, $9, Dec) }
   | CONTINUE SEMI                                                        { Continue }
   | BREAK SEMI                                                           { Break }
-  | RETURN expr_opt SEMI                                                 { Return (Some($2)) }
+  | RETURN expr_opt SEMI                                                 { Return $2 }
 
 for_in_expr:
    ID            {Var $1}

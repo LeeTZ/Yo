@@ -14,7 +14,6 @@ type expr =                                        (* Expressions*)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
 	| NewArray of string														 (* Int[] *)
-  | Noexpr
 
 type stmt =
   | Assign of expr option * expr
@@ -71,7 +70,7 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) -> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
   | Call(obj, f, el) -> (match obj with 
 					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
-  | Noexpr -> ""
+
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
   | Assign(Some(lvalue), rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)

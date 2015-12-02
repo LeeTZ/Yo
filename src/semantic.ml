@@ -16,7 +16,7 @@ let rec look_up_type typeName typenv = (try NameMap.find typeName typenv
 
 (* create a new variable for the given name and type in the topmost variable map in vsymtab *)	
 let new_var ctx varName typeDef =
-	try NameMap.find varName (List.hd ctx.vsymtab); 
+	try let _ = NameMap.find varName (List.hd ctx.vsymtab) in 
 		raise (SemanticError (varName ^ " already defined in current scope"))
 	with Not_found -> ctx.vsymtab <- (NameMap.add varName 
 		{name=varName; actual=varName ^ "_"; type_def=typeDef} 
@@ -29,8 +29,8 @@ let find_matching_eval func_type call_arg_types =
 
 let extract_arr_ele_type ctx (arr_type: type_entry) = 
 	let exp_ele_tn_len = (String.length arr_type.name)-2 in
-	let arr_ele_name = if (String.sub arr_type.name exp_ele_tn_len 2) = "[]" 
-						then String.sub arr_type.name 0 exp_ele_tn_len 
+	let arr_ele_name = if (String.sub arr_type.name 0 2) = "[]" 
+						then String.sub arr_type.name 2 exp_ele_tn_len 
 						else raise (Invalid_argument (arr_type.name ^ " is not of Array type")) in
 	look_up_type arr_ele_name ctx.typetab
 
@@ -39,9 +39,9 @@ let rec build_expr_semantic ctx = function
 	(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
 	(* difference in code generation: just print the string representation! *)
   	| IntConst x -> 		SLiteral (string_of_int x, {actions=[]; type_def=look_up_type "Int" ctx.typetab})
-	| DoubleConst x -> 	SLiteral (string_of_float x, {actions=[]; type_def=look_up_type "Double" ctx.typetab})
-	| BoolConst x -> 		SLiteral (string_of_bool x, {actions=[]; type_def=look_up_type "Bool" ctx.typetab})
-	| StrConst x -> 		SLiteral (x, {actions=[]; type_def=look_up_type "String" ctx.typetab})
+		| DoubleConst x -> 	SLiteral (string_of_float x, {actions=[]; type_def=look_up_type "Double" ctx.typetab})
+		| BoolConst x -> 		SLiteral (string_of_bool x, {actions=[]; type_def=look_up_type "Bool" ctx.typetab})
+		| StrConst x -> 		SLiteral (x, {actions=[]; type_def=look_up_type "String" ctx.typetab})
 	
   	| ArrayConst x -> 
   		let arrayType = match x with (* determine the array type by its first element *)
@@ -56,6 +56,16 @@ let rec build_expr_semantic ctx = function
   	| Var x -> 			SVar (x, {actions=[]; type_def = (look_up_var x ctx.vsymtab).type_def})
   	| NewArray s ->		SNewArray({actions=[NewArr]; type_def = look_up_type (s^"[]") ctx.typetab})
 		
+		| ArrayIndex (main, idx) -> 
+			let smain = build_expr_semantic ctx main in
+			let sidx = build_expr_semantic ctx idx in
+			let type_main = (extract_semantic smain).type_def  in
+			let _ = try extract_arr_ele_type ctx type_main
+				with Invalid_argument _ -> raise (SemanticError ((string_of_expr main) ^ " has to be of Array type")) in
+			if (extract_semantic sidx).type_def = look_up_type "Int" ctx.typetab 
+			then SArrayIndex(smain, sidx, {actions=[]; type_def = type_main})
+			else raise (SemanticError ((string_of_expr idx) ^ " has to be of Int type"))
+		
   	| DotExpr (expr, x) -> 
   		let sexpr = build_expr_semantic ctx expr in
 			SDotExpr (sexpr, x,  (try {actions=[]; type_def=NameMap.find x (extract_semantic sexpr).type_def.members} 
@@ -64,7 +74,6 @@ let rec build_expr_semantic ctx = function
   	| Binop (x, op, y) -> 
   		let b1 = build_expr_semantic ctx x and b2 = build_expr_semantic ctx y in (* TODO: more type checking *)
 		let s1=extract_semantic b1 and s2=extract_semantic b2 in
-		let call_arg_types = [s1.type_def; s2.type_def] in
 		let func_eval = try find_matching_eval (look_up_type (binop_type_tab op) ctx.typetab) [s1.type_def; s2.type_def]
 						with Not_found -> raise (SemanticError ("Operator " ^ (string_of_op op) 
 								^ " does not take params of type " ^ s1.type_def.name ^ " and " ^ s2.type_def.name)) 
@@ -162,7 +171,7 @@ let rec build_stmt_semantic ctx = function
 		SForRange(varname, (extract_semantic svar), s_st_expr, s_ed_expr, s_stmt_list, dir)
 																		
 
-let build_func_semantic ctx = function (* TODO: cyclic reference *)
+let build_func_semantic ctx = function
 	FuncDecl (funcName, argList, retype, stmtList) -> 
 		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
 		let sarglist = List.map (*  *)
@@ -171,23 +180,23 @@ let build_func_semantic ctx = function (* TODO: cyclic reference *)
 					SVarDecl (name, extract_semantic svar)) argList in
 		let s_stmtlist = List.map (build_stmt_semantic ctx2) stmtList in
 		let expected_ret = look_up_type retype ctx.typetab in
-		let ret_types =
-			let check_ret_type = function 
-				| SReturn expr_option -> 
-					let actual_ret_type = (match expr_option with 
-						| Some ep -> (extract_semantic ep).type_def | None -> (look_up_type "Void" ctx.typetab)) in
-					if actual_ret_type = expected_ret then () 
-					else raise (SemanticError ("Return expressions must have type " ^ expected_ret.name ^ " as defined in function " ^ funcName))
-				| _ -> () in
-			List.iter (fun x -> match x with 
-				| SReturn r -> check_ret_type (SReturn r)
-				| SIfStmt ceList -> List.iter check_ret_type
-								(List.flatten (List.map (fun ce -> match ce with SCondExec (_, stList) -> stList) ceList))
-				| SForIn (_, _, _, stList) -> List.iter check_ret_type stList
-				| SForRange (_, _, _, _, stList, _) -> List.iter check_ret_type stList
-				| _ -> ()
-			) s_stmtlist	
-		in SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=expected_ret})
+		let check_ret_type = function 
+			| SReturn expr_option -> 
+				let actual_ret_type = (match expr_option with 
+					| Some ep -> (extract_semantic ep).type_def | None -> (look_up_type "Void" ctx.typetab)) in
+				if actual_ret_type = expected_ret then () 
+				else raise (SemanticError ("Return expressions must have type " ^ expected_ret.name 
+					^ " as defined in function " ^ funcName))
+			| _ -> () in
+		List.iter (fun x -> match x with 
+			| SReturn r -> check_ret_type (SReturn r)
+			| SIfStmt ceList -> List.iter check_ret_type
+							(List.flatten (List.map (fun ce -> match ce with SCondExec (_, stList) -> stList) ceList))
+			| SForIn (_, _, _, stList) -> List.iter check_ret_type stList
+			| SForRange (_, _, _, _, stList, _) -> List.iter check_ret_type stList
+			| _ -> ()
+		) s_stmtlist;	
+		SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=expected_ret})
 
 let rec build_type_mem_semantic ctx = function
 			| MemFuncDecl memfunc -> SMemFuncDecl (build_func_semantic ctx memfunc) 

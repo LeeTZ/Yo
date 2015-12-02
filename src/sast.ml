@@ -27,7 +27,6 @@ type s_expr =                                 (* Expressions*)
 	| SNewArray of sem							(* Int[] *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
-
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
@@ -75,6 +74,7 @@ let rec string_of_s_expr = function
   | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
   | SCall (obj, f, el, s) -> (match obj with 
           | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
   | SAssign(Some(lvalue), rvalue) -> (string_of_s_expr lvalue) ^ " = " ^ (string_of_s_expr rvalue)

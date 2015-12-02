@@ -22,14 +22,12 @@ let walk_dec program context =
                 let newid = generate_scope oid (String.uppercase id) in
                 let tt = NameMap.add newid {name=newid; actual=newid; evals=[]; members=MemberMap.empty;} typetab in  
                     List.fold_left (fun tt e -> mem_nested_1 tt newid e) tt type_element 
-        | _ -> typetab
 
     and func_nested_walk_1 typetab oid = function
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope oid (String.uppercase id) in
                 let tt = NameMap.add newid {name=newid; actual=newid; evals=[]; members=NameMap.empty;} typetab in
                 tt
-        | _ -> typetab
 
     and mem_nested_1 typetab id = function
         | Ast.MemTypeDecl(typedecl) -> 
@@ -45,7 +43,6 @@ let walk_dec program context =
                 let entry = {name=newid; actual=newid; evals=[]; members=NameMap.empty} in
                 let tt = NameMap.add entry.name entry typetab in
                 tt
-        | _ -> typetab
         
     and typewalk_1 typetab parent_scope= function
          | Ast.TypeDecl(id, type_element) -> 
@@ -53,8 +50,6 @@ let walk_dec program context =
                 let entry = {name=newid; actual=newid; members=NameMap.empty; evals=[]} in
                 let tt = NameMap.add newid entry typetab in
                     List.fold_left (fun tt e -> mem_nested_1 tt id e) tt type_element 
-                    
-        | _ -> typetab
         in
 
     let walk_decl_1 typetab = function

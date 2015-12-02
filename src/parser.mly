@@ -5,7 +5,7 @@
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN MOD AND OR AMPERSAND EXCLAMATION
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE ELIF FOR WHILE IN TO CONTINUE BREAK
+%token RETURN IF ELSE ELIF FOR WHILE IN TO DOWNTO CONTINUE BREAK
 /*%token INT DOUBLE BOOL STRING ARRAY FRAME CLIP*/
 %token FUNCTION TYPE /*EVAL*/
 %token /*RIGHTARROW LEFTARROW*/ HAT AT
@@ -90,7 +90,8 @@ statement:
   | IF expr COLON LBRACE statement_opt RBRACE elif_statement_list else_statement { IfStmt(List.rev ($8 @ $7 @ [ CondExec(Some($2), $5) ])) }
   | WHILE expr COLON LBRACE statement_opt  RBRACE                        { WhileStmt($2, $5) }
   | FOR ID IN for_in_expr COLON LBRACE  statement_opt RBRACE             { ForIn($2, $4, $7) }
-  | FOR ID ASSIGN expr TO expr COLON LBRACE statement_opt RBRACE             { ForEq($2, $4, $6, $9)  }
+  | FOR ID ASSIGN expr TO expr COLON LBRACE statement_opt RBRACE         { ForRange($2, $4, $6, $9, Inc) }
+	| FOR ID ASSIGN expr DOWNTO expr COLON LBRACE statement_opt RBRACE     { ForRange($2, $4, $6, $9, Dec) }
   | CONTINUE SEMI                                                        { Continue }
   | BREAK SEMI                                                           { Break }
   | RETURN expr_opt SEMI                                                 { Return (Some($2)) }

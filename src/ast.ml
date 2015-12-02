@@ -20,11 +20,13 @@ type stmt =
   | Assign of expr option * expr
   | IfStmt of cond_exec list
   | ForIn of string * expr * stmt list
-  | ForEq of string * expr * expr * stmt list
+  | ForRange of string * expr * expr * stmt list * for_range_dir
   | WhileStmt of expr * stmt list
   | Continue 
   | Break 
   | Return of expr option
+
+and for_range_dir = Inc | Dec
 
 and cond_exec = 
    CondExec of expr option * stmt list
@@ -77,8 +79,8 @@ and string_of_stmt = function
   (String.concat "\n" (List.map string_of_cond_exec (List.tl conds)))
   | ForIn(var, expr, stmts) -> "for " ^ var ^ " in " ^ (string_of_expr expr) 
     ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
-  | ForEq(var, exprst, expred, stmts) -> "for " ^ var ^ " = " ^ (string_of_expr exprst) 
-    ^ " to " ^ (string_of_expr expred) ^ ":\n" ^(String.concat "\n" (List.map string_of_stmt stmts))
+  | ForRange(var, exprst, expred, stmts, dir) -> "for " ^ var ^ " = " ^ (string_of_expr exprst) 
+    ^ (match dir with | Inc -> " to " | Dec -> " downto ") ^ (string_of_expr expred) ^ ":\n" ^(String.concat "\n" (List.map string_of_stmt stmts))
   | WhileStmt(expr, stmts) -> "while " ^ (string_of_expr expr) ^ ":\n" 
     ^ (String.concat "\n" (List.map string_of_stmt stmts))
   | Continue -> "continue"

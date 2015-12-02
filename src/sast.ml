@@ -33,7 +33,7 @@ type s_stmt =
   | SAssign of s_expr option * s_expr
   | SIfStmt of s_cond_exec list
   | SForIn of string * sem * s_expr * s_stmt list
-  | SForEq of string * sem * s_expr * s_expr * s_stmt list
+  | SForRange of string * sem * s_expr * s_expr * s_stmt list * for_range_dir
   | SWhileStmt of s_expr * s_stmt list
   | SContinue 
   | SBreak 
@@ -82,8 +82,8 @@ and string_of_s_stmt = function
   (String.concat "\n" (List.map string_of_s_cond_exec (List.tl conds)))
   | SForIn(var, s, expr, stmts) -> "for " ^ var ^ (string_of_sem s) ^ " in " ^ (string_of_s_expr expr) 
     ^ ":\n" ^ (String.concat "\n" (List.map string_of_s_stmt stmts))
-  | SForEq(var, s, exprst, expred, stmts) -> "for " ^ var ^ (string_of_sem s) ^ " = " ^ (string_of_s_expr exprst) 
-    ^ " to " ^ (string_of_s_expr expred) ^ ":\n" ^(String.concat "\n" (List.map string_of_s_stmt stmts))
+  | SForRange(var, s, exprst, expred, stmts, dir) -> "for " ^ var ^ (string_of_sem s) ^ " = " ^ (string_of_s_expr exprst) 
+    ^ (match dir with | Inc -> " to " | Dec -> " downto ") ^ (string_of_s_expr expred) ^ ":\n" ^(String.concat "\n" (List.map string_of_s_stmt stmts))
   | SWhileStmt(expr, stmts) -> "while " ^ (string_of_s_expr expr) ^ ":\n" 
     ^ (String.concat "\n" (List.map string_of_s_stmt stmts))
   | SContinue -> "continue"

@@ -55,7 +55,7 @@ and generate_stmt = function
     in generate_cond_list l)
 
 | SForIn (x, s, y, l) -> ""
-| SForEq (x, s, y, z, l) -> ""
+| SForRange (x, s, y, z, l, d) -> ""
 | SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^ "{" ^
 	(let rec generate_stmt_list = function
 	  [] -> ""

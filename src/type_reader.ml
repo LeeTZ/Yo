@@ -25,7 +25,7 @@ let walk_dec program context =
         | _ -> typetab
 
     and func_nested_walk_1 typetab oid = function
-        | Ast.FuncDecl(id, arglist, stmtlist) ->
+        | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope oid (String.uppercase id) in
                 let tt = NameMap.add newid {name=newid; actual=newid; evals=[]; members=NameMap.empty;} typetab in
                 tt
@@ -40,7 +40,7 @@ let walk_dec program context =
     in
 
     let funcwalk_1 typetab parent_scope = function
-        | Ast.FuncDecl(id, arglist, stmtlist) ->
+        | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope parent_scope (String.uppercase id) in
                 let entry = {name=newid; actual=newid; evals=[]; members=NameMap.empty} in
                 let tt = NameMap.add entry.name entry typetab in
@@ -69,13 +69,13 @@ let walk_dec program context =
     in
 
     let funcwalk_2 typetab parent_scope = function
-        | Ast.FuncDecl(id, arglist, stmtlist) ->
+        | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
             let scope = generate_scope parent_scope id in
             let f_type = NameMap.find scope typetab in
             f_type.evals <-
             {args=(List.map (fun x -> match x with 
                 VarDecl(n,t) -> {name=n; actual=n^"_"; type_def=(exists_types typetab t)})
-                arglist); ret=(NameMap.find "$" typetab)} :: f_type.evals
+                arglist); ret=(NameMap.find retype typetab)} :: f_type.evals
     in
 
     let rec typewalk_2 typetab parent_scope = function

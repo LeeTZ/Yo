@@ -49,8 +49,8 @@ rule token = parse
 | "Frame"  { FRAME }
 | "Clip"   { CLIP }
 *)
-(*| "->"     { RIGHTARROW }
-| "<-"     { LEFTARROW }*)
+| "->"     { RIGHTARROW }
+(*| "<-"     { LEFTARROW }*)
 | "^"      { HAT }
 | "@"		{ AT }
 
@@ -64,12 +64,12 @@ rule token = parse
 | "continue" { CONTINUE }
 | "break"  { BREAK }
 | "to"     {TO}
+| "downto"	{DOWNTO}
 
 (*| "lambda" { LAMBDA }*)
 | "func"   { FUNCTION }
 (* | "global" { GLOBAL } *)
 | "type"   { TYPE }
-
 (*| "eval"   { EVAL }*)
 | "true"	as lxm	{ BoolLITERAL(bool_of_string lxm) }
 | "false"	as lxm	{ BoolLITERAL(bool_of_string lxm) }

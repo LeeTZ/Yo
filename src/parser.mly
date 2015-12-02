@@ -8,7 +8,7 @@
 %token RETURN IF ELSE ELIF FOR WHILE IN TO DOWNTO CONTINUE BREAK
 /*%token INT DOUBLE BOOL STRING ARRAY FRAME CLIP*/
 %token FUNCTION TYPE /*EVAL*/
-%token /*RIGHTARROW LEFTARROW*/ HAT AT
+%token RIGHTARROW /*LEFTARROW*/ HAT AT
 %token TRUE FALSE
 %token <int> IntLITERAL 
 %token <float> DoubleLITERAL
@@ -123,7 +123,7 @@ mem_var_decl:
   var_decl   { MemVarDecl($1) }
 
 func_decl:
-	FUNCTION ID LPAREN func_arg_opt RPAREN COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $8)}
+	FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW ID COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
 
 mem_func_decl:
   func_decl { MemFuncDecl($1) }

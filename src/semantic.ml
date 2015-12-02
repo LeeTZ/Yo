@@ -163,34 +163,31 @@ let rec build_stmt_semantic ctx = function
 																		
 
 let build_func_semantic ctx = function (* TODO: cyclic reference *)
-	FuncDecl (funcName, argList, stmtList) -> 
+	FuncDecl (funcName, argList, retype, stmtList) -> 
 		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
 		let sarglist = List.map (*  *)
 				(fun x -> match x with VarDecl (name, typename) ->
 					let svar = new_var ctx2 name (look_up_type typename ctx.typetab) in
 					SVarDecl (name, extract_semantic svar)) argList in
 		let s_stmtlist = List.map (build_stmt_semantic ctx2) stmtList in
+		let expected_ret = look_up_type retype ctx.typetab in
 		let ret_types =
-			let add_to_ret_types lst = function 
+			let check_ret_type = function 
 				| SReturn expr_option -> 
-					(match expr_option with 
-					| Some ep ->  (extract_semantic ep).type_def :: lst
-					| None -> (look_up_type "Void" ctx.typetab) :: lst)																
-				| _ -> lst in					
-			List.fold_left (fun rlst x -> match x with 
-				| SReturn r -> add_to_ret_types rlst (SReturn r)
-				| SIfStmt ceList -> List.fold_left add_to_ret_types rlst 
+					let actual_ret_type = (match expr_option with 
+						| Some ep -> (extract_semantic ep).type_def | None -> (look_up_type "Void" ctx.typetab)) in
+					if actual_ret_type = expected_ret then () 
+					else raise (SemanticError ("Return expressions must have type " ^ expected_ret.name ^ " as defined in function " ^ funcName))
+				| _ -> () in
+			List.iter (fun x -> match x with 
+				| SReturn r -> check_ret_type (SReturn r)
+				| SIfStmt ceList -> List.iter check_ret_type
 								(List.flatten (List.map (fun ce -> match ce with SCondExec (_, stList) -> stList) ceList))
-				| SForIn (_, _, _, stList) -> List.fold_left add_to_ret_types rlst stList
-				| SForRange (_, _, _, _, stList, _) -> List.fold_left add_to_ret_types rlst stList
-				| _ -> rlst
-			) [] s_stmtlist	
-		in
-	    if (List.length ret_types) < 1 
-	    	then raise (SemanticError ("Function " ^ funcName ^ " has to have a return statement")) else ();
-		try List.find (fun x -> x <> (List.hd ret_types))  ret_types; 
-			raise (SemanticError ("All return statements should return the same type in " ^ funcName))
-		with Not_found -> SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=List.hd ret_types})
+				| SForIn (_, _, _, stList) -> List.iter check_ret_type stList
+				| SForRange (_, _, _, _, stList, _) -> List.iter check_ret_type stList
+				| _ -> ()
+			) s_stmtlist	
+		in SFuncDecl (funcName, sarglist, s_stmtlist, {actions=[]; type_def=expected_ret})
 
 let rec build_type_mem_semantic ctx = function
 			| MemFuncDecl memfunc -> SMemFuncDecl (build_func_semantic ctx memfunc) 

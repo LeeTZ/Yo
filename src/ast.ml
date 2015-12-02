@@ -35,7 +35,7 @@ and var_decl =
   | VarDecl of string * string
 
 and func_decl = 
-  | FuncDecl of string * var_decl list * stmt list
+  | FuncDecl of string * var_decl list * string * stmt list
 
 and type_decl = 
   | TypeDecl of string * mem_type_decl list
@@ -100,8 +100,8 @@ and string_of_var_decl = function
   | VarDecl(ty, id) -> ty ^ " " ^ id
 
 and string_of_func_decl = function
-  | FuncDecl(name, args, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
-    ^ ")\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
+  | FuncDecl(name, args, retype, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
+    ^ ")->" ^ retype ^ "\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_type_decl = function
   | TypeDecl(name, args) -> "type " ^ name ^ "\n" ^ (String.concat "\n" (List.map string_of_type_mem_decl args))

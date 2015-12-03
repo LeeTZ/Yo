@@ -15,7 +15,7 @@ type sem = {
 }
 
 
-let string_of_sem s = "$" ^ s.type_def.name ^ " " 
+let string_of_sem s = "$" ^ s.type_def.t_name ^ " " 
                       ^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
 
 type s_expr =                                 (* Expressions*)
@@ -24,7 +24,6 @@ type s_expr =                                 (* Expressions*)
   | SArrayIndex of s_expr * s_expr * sem               (* A[B[3]]*)
   | SVar of string * sem             (* foo *)
   | SDotExpr of s_expr * string * sem        (* A.B *)
-	| SNewArray of sem							(* Int[] *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
   
@@ -68,7 +67,6 @@ let rec string_of_s_expr = function
   | SArrayLiteral (selist, sem) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_s_expr selist)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]" ^ (string_of_sem sem)
   | SArrayIndex (sout, sin, s) -> (string_of_s_expr sout) ^ "[" ^ (string_of_s_expr sin) ^ "]" ^ (string_of_sem s)
-	| SNewArray s -> "Array<" ^ (string_of_sem s) ^ ">"
 	| SVar (id, s) -> id ^ (string_of_sem s)
   | SDotExpr (sexpr, id, s) -> (string_of_s_expr sexpr) ^ "." ^ id ^ (string_of_sem s)
   | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
@@ -108,7 +106,6 @@ let extract_semantic = function
   | SDotExpr (_, _, s) -> s       
   | SBinop (_, _, _, s) ->s      
   | SCall (_, _, _, s) ->s
-	| SNewArray (s) -> s
 
 
 let rec string_of_s_var_decl = function

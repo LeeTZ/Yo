@@ -54,6 +54,10 @@ arg_expr_list:
 array_literal:
   LBRACKET arg_expr_list RBRACKET            { ArrayConst (List.rev $2) }
 
+type_name:
+	| ID 											{ SimpleType $1 }
+	| ID LBRACKET RBRACKET   	{ ArrayType $1 }
+
 primary_expr:
     ID                                               { Var $1 }  
   | primary_expr LBRACKET expr RBRACKET              { ArrayIndex($1, $3) }
@@ -78,7 +82,6 @@ expr:
   | ID LPAREN arg_expr_opt RPAREN            { Call(None, $1, $3) }
   | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
   | LPAREN expr RPAREN                       { $2 }
-	| LBRACKET RBRACKET ID								 		 { NewArray($3) }
 
 expr_opt:
     /* nothing */ { None }
@@ -117,13 +120,13 @@ else_statement:
   | ELSE COLON LBRACE statement_opt RBRACE { [CondExec(None, $4)] }
 
 var_decl:
-  ID COLON ID  	{ VarDecl($1, $3) }
+  ID COLON type_name  	{ VarDecl($1, $3) }
 
 mem_var_decl:
   var_decl   { MemVarDecl($1) }
 
 func_decl:
-	FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW ID COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
+	FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW type_name COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
 
 mem_func_decl:
   func_decl { MemFuncDecl($1) }

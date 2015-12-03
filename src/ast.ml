@@ -1,6 +1,10 @@
 type op = Add | Sub | Mult | Div | Mod | Eq | Neq | Less | Leq | Gt | Geq | And | Or
 
-type types = Int | Double | Bool | String | Array of types
+type types = Int | Double | Bool | String  of types
+
+type type_name = 
+	| SimpleType of string
+	| ArrayType of string
 
 type expr =                                        (* Expressions*)
     IntConst of int                                (* 35 *)
@@ -13,7 +17,6 @@ type expr =                                        (* Expressions*)
   | DotExpr of expr * string                       (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
-	| NewArray of string														 (* Int[] *)
 
 type stmt =
   | Assign of expr option * expr
@@ -31,10 +34,10 @@ and cond_exec =
    CondExec of expr option * stmt list
 
 and var_decl = 
-  | VarDecl of string * string
+  | VarDecl of string * type_name
 
 and func_decl = 
-  | FuncDecl of string * var_decl list * string * stmt list
+  | FuncDecl of string * var_decl list * type_name * stmt list
 
 and type_decl = 
   | TypeDecl of string * mem_type_decl list
@@ -51,6 +54,10 @@ and global_ele_decl =
 
 type program = global_ele_decl list
 
+let string_of_type_name = function
+	| SimpleType t -> t
+	| ArrayType t -> t ^ "[]"
+
 let string_of_op = function
 	| Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/" | Mod -> "%"
   | Eq -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Gt -> ">" | Geq -> ">=" 
@@ -62,7 +69,6 @@ let rec string_of_expr = function
   | BoolConst b -> string_of_bool b
   | StrConst s -> s
   | Var v -> v
-	| NewArray s -> "Array<" ^ s ^ ">"
   | ArrayIndex(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
 	| ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
@@ -96,11 +102,11 @@ and string_of_cond_exec = function
   | CondExec(Some(expr), stmts) -> "elif " ^ (string_of_expr expr) ^ ":\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_var_decl = function
-  | VarDecl(ty, id) -> ty ^ " " ^ id
+  | VarDecl(id, ty) -> (string_of_type_name ty) ^ " " ^ id
 
 and string_of_func_decl = function
   | FuncDecl(name, args, retype, stmts) -> "func " ^ name ^ " (" ^ (String.concat ", " (List.map string_of_var_decl args)) 
-    ^ ")->" ^ retype ^ "\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
+    ^ ")->" ^ (string_of_type_name retype) ^ "\n" ^ (String.concat "\n" (List.map string_of_stmt stmts))
 
 and string_of_type_decl = function
   | TypeDecl(name, args) -> "type " ^ name ^ "\n" ^ (String.concat "\n" (List.map string_of_type_mem_decl args))
@@ -132,21 +138,21 @@ exception SemanticError of string
 exception TypeExist of string
 
 module NameMap = Map.Make(String)
-module MemberMap = Map.Make(String)
 
 type eval_entry = {
     mutable args: var_entry list;
     mutable ret: type_entry
     }
 and type_entry =  { 
-  name: string; (* type name used in yo *)
-  actual: string; (* actual name used in target language *)
+  t_name: string; (* type name used in yo *)
+  t_actual: string; (* actual name used in target language *)
+	is_array: bool;
   mutable evals: eval_entry list; (* a list of eval functions *)
   mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
   }
 and var_entry = {
-  name: string; (* type name used in yo *)
-  actual: string; (* actual name used in target language *)
+  v_name: string; (* type name used in yo *)
+  v_actual: string; (* actual name used in target language *)
   type_def: type_entry (* type definition *)
   }
 
@@ -157,16 +163,16 @@ type compile_context = {
 }
 
 let binop_type_tab = function
-	| Add -> "$add"
-	| Sub -> "$sub"
-	| Mult -> "$mult"
-	| Div -> "$div"
-	| Mod -> "$mod"
-	| Eq -> "$equal"
-	| Neq -> "$neq"
-	| Less -> "$less"
-	| Leq -> "$leq"
-	| Gt -> "$gt"
-	| Geq -> "$geq"
-	| And -> "$and"
-	| Or -> "$or"
+	| Add 	-> "$add"
+	| Sub 	-> "$sub"
+	| Mult 	-> "$mult"
+	| Div 	-> "$div"
+	| Mod 	-> "$mod"
+	| Eq 		-> "$equal"
+	| Neq 	-> "$neq"
+	| Less 	-> "$less"
+	| Leq 	-> "$leq"
+	| Gt 		-> "$gt"
+	| Geq 	-> "$geq"
+	| And 	-> "$and"
+	| Or 		-> "$or"

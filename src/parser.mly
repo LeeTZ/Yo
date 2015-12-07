@@ -82,7 +82,8 @@ expr:
     | expr LBRACKET expr RBRACKET           { ArrayIndex($1, $3) }
     | expr LBRACKET expr COLON expr RBRACKET { ArrayRange($1, $3, $5) }
     | expr HAT expr AT expr                 { ClipConcat($1, $3, $5) }
-    | expr LPAREN arg_expr_opt RPAREN       { Call($1, $3) }
+    | expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
+    | ID LPAREN arg_expr_opt RPAREN         { Call(None, $1, $3) }
     | array_constructor LPAREN arg_expr_opt RPAREN { BuildArray($1, $3) }
 
 array_constructor:

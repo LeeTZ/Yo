@@ -1,5 +1,5 @@
 %{ 
-  open Ast
+    open Ast
 %}
 
 %token SEMI LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COMMA DOT TILDE QUOTATION COLON
@@ -19,7 +19,8 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
-%right ASSIGN
+%left RPAREN RBRACKET
+%right LPAREN LBRACKET
 %left EQ NEQ
 %left HAT AT
 %left AMPERSAND
@@ -28,9 +29,7 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%left UMINUS
 %left DOT
-
 
 %start global
 %type <Ast.program> global
@@ -38,137 +37,139 @@
 %%
 literal:
     IntLITERAL                              { IntConst $1 }
-  | DoubleLITERAL                           { DoubleConst $1 }
-  | StringLITERAL                           { StrConst $1 } 
-  | BoolLITERAL                             { BoolConst $1 }
-  | array_literal                           { $1  }
+    | DoubleLITERAL                           { DoubleConst $1 }
+    | StringLITERAL                           { StrConst $1 } 
+    | BoolLITERAL                             { BoolConst $1 }
+    | array_literal                           { $1  }
 
 arg_expr_opt:
-  /* nothing */                              { [] }
-  | arg_expr_list                            { List.rev $1 }
+    /* nothing */                              { [] }
+    | arg_expr_list                            { List.rev $1 }
 
 arg_expr_list:
-  | expr                                     { [$1] }
-  | arg_expr_list COMMA expr                 { $3 :: $1 }
+    | expr                                  { [$1] }
+    | arg_expr_list COMMA expr              { $3 :: $1 }
 
 array_literal:
-  LBRACKET arg_expr_list RBRACKET            { ArrayConst (List.rev $2) }
+    LBRACKET arg_expr_list RBRACKET         { ArrayConst (List.rev $2) }
+
+type_base:
+    ID                                      { SimpleType $1 }
+    | type_base DOT ID                      { NestedType($1, $3) }
 
 type_name:
-	| ID 											{ SimpleType $1 }
-	| ID LBRACKET RBRACKET   	{ ArrayType $1 }
-
-primary_expr:
-    ID                                               { Var $1 }  
-  | primary_expr LBRACKET expr RBRACKET              { ArrayIndex($1, $3) }
-  | primary_expr DOT ID                              { DotExpr($1, $3) }
+    type_base                               { $1 }
+    | type_name LBRACKET RBRACKET           { ArrayType $1 }
 
 expr:
-    primary_expr                             { $1 }
-  | literal                                  { $1 }
-  | expr PLUS   expr                         { Binop($1, Add,   $3) }
-  | expr MINUS  expr                         { Binop($1, Sub,   $3) }
-  | expr TIMES  expr                         { Binop($1, Mult,  $3) }
-  | expr DIVIDE expr                         { Binop($1, Div,   $3) }
-	| expr MOD		expr												 { Binop($1, Mod,   $3) }
-  | expr EQ     expr                         { Binop($1, Eq, $3) }
-  | expr NEQ    expr                         { Binop($1, Neq,   $3) }
-  | expr LT     expr                         { Binop($1, Less,  $3) }
-  | expr LEQ    expr                         { Binop($1, Leq,   $3) }
-  | expr GT     expr                         { Binop($1, Gt,  $3) }
-  | expr GEQ    expr                         { Binop($1, Geq,   $3) }
-	| expr AND		expr												 { Binop($1, And,   $3) }
-	| expr OR			expr												 { Binop($1, Or,   $3) }
-  | ID LPAREN arg_expr_opt RPAREN            { Call(None, $1, $3) }
-  | primary_expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
-  | LPAREN expr RPAREN                       { $2 }
+    ID                                      { Var $1}
+    | literal                               {$1}
+    | LPAREN expr RPAREN                    {$2}
+    | expr PLUS   expr                      { Binop($1, Add,   $3) }
+    | expr MINUS  expr                      { Binop($1, Sub,   $3) }
+    | expr TIMES  expr                      { Binop($1, Mult,  $3) }
+    | expr DIVIDE expr                      { Binop($1, Div,   $3) }
+    | expr MOD      expr                    { Binop($1, Mod,   $3) }
+    | expr EQ     expr                      { Binop($1, Eq,    $3) }
+    | expr NEQ    expr                      { Binop($1, Neq,   $3) }
+    | expr LT     expr                      { Binop($1, Less,  $3) }
+    | expr LEQ    expr                      { Binop($1, Leq,   $3) }
+    | expr GT     expr                      { Binop($1, Gt,    $3) }
+    | expr GEQ    expr                      { Binop($1, Geq,   $3) }
+    | expr AND      expr                    { Binop($1, And,   $3) }
+    | expr OR           expr                { Binop($1, Or,   $3) }
+    | expr DOT ID                           { DotExpr($1, $3) }
+    | expr LBRACKET expr RBRACKET           { ArrayIndex($1, $3) }
+    | expr LBRACKET expr COLON expr RBRACKET { ArrayRange($1, $3, $5) }
+    | expr HAT expr AT expr                 { ClipConcat($1, $3, $5) }
+    | expr LPAREN arg_expr_opt RPAREN       { Call($1, $3) }
+    | expr LBRACKET RBRACKET                { BuildArrayType $1 }
 
 expr_opt:
     /* nothing */ { None }
-  | expr          { Some($1) }
+    | expr          { Some($1) }
 
 statement:
-   expr SEMI                                                             { Assign(None, $1) }
-  | primary_expr ASSIGN expr SEMI                                        { Assign(Some($1), $3) }
-  | IF expr COLON LBRACE statement_opt RBRACE elif_statement_list else_statement { IfStmt(List.rev ($8 @ $7 @ [ CondExec(Some($2), $5) ])) }
-  | WHILE expr COLON LBRACE statement_opt  RBRACE                        { WhileStmt($2, $5) }
-  | FOR ID IN for_in_expr COLON LBRACE  statement_opt RBRACE             { ForIn($2, $4, $7) }
-  | FOR ID ASSIGN expr TO expr COLON LBRACE statement_opt RBRACE         { ForRange($2, $4, $6, $9, Inc) }
-	| FOR ID ASSIGN expr DOWNTO expr COLON LBRACE statement_opt RBRACE     { ForRange($2, $4, $6, $9, Dec) }
-  | CONTINUE SEMI                                                        { Continue }
-  | BREAK SEMI                                                           { Break }
-  | RETURN expr_opt SEMI                                                 { Return $2 }
+    expr SEMI                                                              { Assign(None, $1) }
+    | expr ASSIGN expr SEMI                                                { Assign(Some($1), $3) }
+    | IF expr COLON LBRACE statement_opt RBRACE elif_statement_list else_statement { IfStmt(List.rev ($8 @ $7 @ [ CondExec(Some($2), $5) ])) }
+    | WHILE expr COLON LBRACE statement_opt  RBRACE                        { WhileStmt($2, $5) }
+    | FOR ID IN for_in_expr COLON LBRACE  statement_opt RBRACE             { ForIn($2, $4, $7) }
+    | FOR ID ASSIGN expr TO expr COLON LBRACE statement_opt RBRACE         { ForRange($2, $4, $6, $9, Inc) }
+    | FOR ID ASSIGN expr DOWNTO expr COLON LBRACE statement_opt RBRACE     { ForRange($2, $4, $6, $9, Dec) }
+    | CONTINUE SEMI                                                        { Continue }
+    | BREAK SEMI                                                           { Break }
+    | RETURN expr_opt SEMI                                                 { Return $2 }
 
 for_in_expr:
-   ID            {Var $1}
-  | array_literal {$1}
+    ID            {Var $1}
+    | array_literal {$1}
 
 statement_opt:
-  /* nothing */ { [] }
-  | statement_list { List.rev $1 }
+    /* nothing */ { [] }
+    | statement_list { List.rev $1 }
 
 statement_list:  
-  | statement { [ $1 ] }
-  | statement_list statement { $2 :: $1 }
+    | statement { [ $1 ] }
+    | statement_list statement { $2 :: $1 }
 
 elif_statement_list:
-   /* nothing */ { [] }
-  | ELIF expr COLON LBRACE statement_opt RBRACE elif_statement_list { $7 @ [ CondExec(Some($2), $5) ] }
+    /* nothing */ { [] }
+    | ELIF expr COLON LBRACE statement_opt RBRACE elif_statement_list { $7 @ [ CondExec(Some($2), $5) ] }
 
 else_statement:
-	/* nothing */ { [] }
-  | ELSE COLON LBRACE statement_opt RBRACE { [CondExec(None, $4)] }
+    /* nothing */ { [] }
+    | ELSE COLON LBRACE statement_opt RBRACE { [CondExec(None, $4)] }
 
 var_decl:
-  ID COLON type_name  	{ VarDecl($1, $3) }
+    ID COLON type_name   { VarDecl($1, $3) }
 
 mem_var_decl:
-  var_decl   { MemVarDecl($1) }
+    var_decl   { MemVarDecl($1) }
 
 func_decl:
-	FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW type_name COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
+    FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW type_name COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
 
 mem_func_decl:
-  func_decl { MemFuncDecl($1) }
+    func_decl { MemFuncDecl($1) }
 
 global_func_decl:
-  func_decl { GlobalFunc($1) }
+    func_decl { GlobalFunc($1) }
 
 func_arg_opt:
-   /* nothing */    	{ [] }
-	| func_arg_list 		{ List.rev $1 }
+    /* nothing */        { [] }
+    | func_arg_list         { List.rev $1 }
 
 func_arg_list:
-	| var_decl												{ [$1] }
-  | func_arg_list COMMA var_decl    { $3 :: $1 }
-	
+    | var_decl                                              { [$1] }
+    | func_arg_list COMMA var_decl    { $3 :: $1 }
+
 type_decl:
-  TYPE ID COLON LBRACE type_element_list RBRACE    {TypeDecl($2, $5)}
+    TYPE ID COLON LBRACE type_element_list RBRACE    {TypeDecl($2, $5)}
 
 mem_type_decl:
-  type_decl  {MemTypeDecl($1)}
+    type_decl  {MemTypeDecl($1)}
 
 global_type_decl:
-  type_decl { GlobalType($1) }
+    type_decl { GlobalType($1) }
 
 global_statement:
-  statement  { GlobalStmt($1) }
+    statement  { GlobalStmt($1) }
 
 type_element_list:
-  /*  nothing */  { [] }
-  | mem_var_decl type_element_list { $1 :: $2 }
-  | mem_func_decl type_element_list { $1 :: $2 }
-  | mem_type_decl type_element_list { $1 :: $2 }
+    /*  nothing */  { [] }
+    | mem_var_decl type_element_list { $1 :: $2 }
+    | mem_func_decl type_element_list { $1 :: $2 }
+    | mem_type_decl type_element_list { $1 :: $2 }
 
 global_ele:
-	| global_func_decl	{ $1 }
-	| global_type_decl	{ $1 }
-	| global_statement	{ $1 }
+    | global_func_decl  { $1 }
+    | global_type_decl  { $1 }
+    | global_statement  { $1 }
 
 global_ele_list:
-	| global_ele 						{ [$1] }
-	| global_ele_list global_ele	{ $2 :: $1 }
+    | global_ele                        { [$1] }
+    | global_ele_list global_ele    { $2 :: $1 }
 
 global:
-	global_ele_list	{ List.rev $1 }
-	
+    global_ele_list { List.rev $1 }

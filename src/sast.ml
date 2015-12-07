@@ -9,23 +9,32 @@ let string_of_action = function
 	| NewArr -> "new array"
 
 
+
 type sem = {
   mutable actions: action list;
   type_def: type_entry
 }
 
+let rec string_of_type = function
+  | BaseTypeEntry t -> t.t_name
+  | ArrayTypeEntry t -> (string_of_type t) ^ "[]"
 
-let string_of_sem s = "$" ^ s.type_def.t_name ^ " " 
+let string_of_sem s = "$" ^ (string_of_type s.type_def) ^ " " 
                       ^ (String.concat " | " (List.map string_of_action s.actions)) ^ "$"
 
 type s_expr =                                 (* Expressions*)
   | SLiteral of string * sem      (* int, double, bool, string *)
   | SArrayLiteral of s_expr list * sem
   | SArrayIndex of s_expr * s_expr * sem               (* A[B[3]]*)
+  | SArrayRange of s_expr * s_expr * s_expr * sem
   | SVar of string * sem             (* foo *)
   | SDotExpr of s_expr * string * sem        (* A.B *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
-  | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
+  | SCall of s_expr * s_expr list * sem      (* foo(a, b) *)
+  | SClipIndex of s_expr * s_expr * sem
+  | SClipRange of s_expr * s_expr * s_expr * sem
+  | SClipConcat of s_expr * s_expr * s_expr * sem
+  | SBuildArrayType of type_entry
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
@@ -67,11 +76,15 @@ let rec string_of_s_expr = function
   | SArrayLiteral (selist, sem) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_s_expr selist)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]" ^ (string_of_sem sem)
   | SArrayIndex (sout, sin, s) -> (string_of_s_expr sout) ^ "[" ^ (string_of_s_expr sin) ^ "]" ^ (string_of_sem s)
-	| SVar (id, s) -> id ^ (string_of_sem s)
+	| SArrayRange (arr, st, ed, s) -> (string_of_s_expr arr) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
+  | SVar (id, s) -> id ^ (string_of_sem s)
   | SDotExpr (sexpr, id, s) -> (string_of_s_expr sexpr) ^ "." ^ id ^ (string_of_sem s)
   | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
-  | SCall (obj, f, el, s) -> (match obj with 
-          | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+  | SCall (call_name, el, s) -> (string_of_s_expr call_name) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+  | SClipRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
+  | SClipConcat (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
+  | SClipIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
+  | SBuildArrayType (t) -> (string_of_type t) ^ "[]"
 
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
@@ -101,11 +114,16 @@ and string_of_s_cond_exec = function
 let extract_semantic = function
   | SLiteral (_, s) -> s
   | SArrayLiteral (_, s) -> s
-  | SArrayIndex (_, _, s) -> s            
+  | SArrayIndex (_, _, s) -> s  
+  | SArrayRange (_, _, _, s) -> s            
   | SVar (_, s) -> s            
   | SDotExpr (_, _, s) -> s       
-  | SBinop (_, _, _, s) ->s      
-  | SCall (_, _, _, s) ->s
+  | SBinop (_, _, _, s) -> s      
+  | SCall (_, _, s) -> s
+  | SClipIndex (_, _, s) -> s
+  | SClipRange (_, _, _, s) -> s  
+  | SClipConcat (_, _, _, s) -> s  
+  | SBuildArrayType x -> {actions=[]; type_def=x}
 
 
 let rec string_of_s_var_decl = function

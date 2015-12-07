@@ -4,7 +4,8 @@ type types = Int | Double | Bool | String  of types
 
 type type_name = 
 	| SimpleType of string
-	| ArrayType of string
+  | NestedType of type_name * string
+	| ArrayType of type_name
 
 type expr =                                        (* Expressions*)
     IntConst of int                                (* 35 *)
@@ -15,8 +16,11 @@ type expr =                                        (* Expressions*)
   | ArrayIndex of expr * expr                      (* A[B[3]]*)
 	| Var of string                                  (* foo *)  
   | DotExpr of expr * string                       (* A.B *)
-  | Call of expr option * string * expr list       (* foo(a, b) *)
+  | Call of expr * expr list       (* foo(a, b) *)
 	| Binop of expr * op * expr
+  | ArrayRange of expr * expr * expr
+  | ClipConcat of expr * expr * expr
+  | BuildArrayType of expr
 
 type stmt =
   | Assign of expr option * expr
@@ -54,9 +58,10 @@ and global_ele_decl =
 
 type program = global_ele_decl list
 
-let string_of_type_name = function
+let rec string_of_type_name = function
 	| SimpleType t -> t
-	| ArrayType t -> t ^ "[]"
+  | NestedType (p, t) -> (string_of_type_name p) ^ "." ^ t
+	| ArrayType t -> (string_of_type_name t) ^ "[]"
 
 let string_of_op = function
 	| Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/" | Mod -> "%"
@@ -74,8 +79,10 @@ let rec string_of_expr = function
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
   | Binop(e1, o, e2) -> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
-  | Call(obj, f, el) -> (match obj with 
-					| None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
+  | Call(call_name, el) -> (string_of_expr call_name) ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
+  | ArrayRange (cl, st, ed) -> (string_of_expr cl) ^ "[" ^ (string_of_expr st) ^ ":" ^ (string_of_expr ed) ^ "]"
+  | ClipConcat (cl1, cl2, tm) -> (string_of_expr cl1) ^ "^" ^ (string_of_expr cl2) ^ "@" ^ (string_of_expr tm)
+  | BuildArrayType (t) -> (string_of_expr t) ^ "[]"
 
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
@@ -143,23 +150,24 @@ type eval_entry = {
     mutable args: var_entry list;
     mutable ret: type_entry
     }
-and type_entry =  { 
+and base_type =  { 
   t_name: string; (* type name used in yo *)
   t_actual: string; (* actual name used in target language *)
-	is_array: bool;
   mutable evals: eval_entry list; (* a list of eval functions *)
   mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
   }
+and type_entry =  BaseTypeEntry of base_type | ArrayTypeEntry of type_entry
 and var_entry = {
   v_name: string; (* type name used in yo *)
   v_actual: string; (* actual name used in target language *)
-  type_def: type_entry (* type definition *)
+  v_type: type_entry (* type definition *)
   }
+
 
 (* compile environment: variable symbol table * type environment table *)
 type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
-  mutable typetab: type_entry NameMap.t (* type environment table: a map of typename => type *)
+  mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
 }
 
 let binop_type_tab = function

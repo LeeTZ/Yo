@@ -36,7 +36,7 @@
 
 %%
 literal:
-    IntLITERAL                              { IntConst $1 }
+    | IntLITERAL                              { IntConst $1 }
     | DoubleLITERAL                           { DoubleConst $1 }
     | StringLITERAL                           { StrConst $1 } 
     | BoolLITERAL                             { BoolConst $1 }
@@ -54,7 +54,7 @@ array_literal:
     LBRACKET arg_expr_list RBRACKET         { ArrayConst (List.rev $2) }
 
 type_base:
-    ID                                      { SimpleType $1 }
+    | ID                                      { SimpleType $1 }
     | type_base DOT ID                      { NestedType($1, $3) }
 
 type_name:
@@ -62,7 +62,7 @@ type_name:
     | type_name LBRACKET RBRACKET           { ArrayType $1 }
 
 expr:
-    ID                                      { Var $1}
+    | ID                                    { Var $1}
     | literal                               {$1}
     | LPAREN expr RPAREN                    {$2}
     | expr PLUS   expr                      { Binop($1, Add,   $3) }
@@ -83,7 +83,11 @@ expr:
     | expr LBRACKET expr COLON expr RBRACKET { ArrayRange($1, $3, $5) }
     | expr HAT expr AT expr                 { ClipConcat($1, $3, $5) }
     | expr LPAREN arg_expr_opt RPAREN       { Call($1, $3) }
-    | expr LBRACKET RBRACKET                { BuildArrayType $1 }
+    | array_constructor LPAREN arg_expr_opt RPAREN { BuildArray($1, $3) }
+
+array_constructor:
+    | expr LBRACKET RBRACKET { SimpleArrayConstructor $1 }
+    | array_constructor LBRACKET RBRACKET { CompositeArrayConstructor $1}
 
 expr_opt:
     /* nothing */ { None }

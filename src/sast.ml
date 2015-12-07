@@ -31,10 +31,13 @@ type s_expr =                                 (* Expressions*)
   | SDotExpr of s_expr * string * sem        (* A.B *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr * s_expr list * sem      (* foo(a, b) *)
+  | SBuildArray of s_array_constructor * s_expr list * sem
   | SClipIndex of s_expr * s_expr * sem
   | SClipRange of s_expr * s_expr * s_expr * sem
   | SClipConcat of s_expr * s_expr * s_expr * sem
-  | SBuildArrayType of type_entry
+  and s_array_constructor = 
+  | SSimpleArrayConstructor of s_expr
+  | SCompositeArrayConstructor of s_array_constructor
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
@@ -84,7 +87,11 @@ let rec string_of_s_expr = function
   | SClipRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
   | SClipConcat (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
   | SClipIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
-  | SBuildArrayType (t) -> (string_of_type t) ^ "[]"
+  | SBuildArray (t, el, s) -> (string_of_s_array_constructor t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+
+and string_of_s_array_constructor = function
+  | SSimpleArrayConstructor e -> string_of_s_expr e
+  | SCompositeArrayConstructor e -> (string_of_s_array_constructor e) ^ "[]"
 
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
@@ -123,7 +130,7 @@ let extract_semantic = function
   | SClipIndex (_, _, s) -> s
   | SClipRange (_, _, _, s) -> s  
   | SClipConcat (_, _, _, s) -> s  
-  | SBuildArrayType x -> {actions=[]; type_def=x}
+  | SBuildArray (_, _, s) -> s
 
 
 let rec string_of_s_var_decl = function

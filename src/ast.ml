@@ -20,7 +20,10 @@ type expr =                                        (* Expressions*)
 	| Binop of expr * op * expr
   | ArrayRange of expr * expr * expr
   | ClipConcat of expr * expr * expr
-  | BuildArrayType of expr
+  | BuildArray of array_constructor * expr list
+and array_constructor = 
+  | SimpleArrayConstructor of expr
+  | CompositeArrayConstructor of array_constructor
 
 type stmt =
   | Assign of expr option * expr
@@ -82,7 +85,11 @@ let rec string_of_expr = function
   | Call(call_name, el) -> (string_of_expr call_name) ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | ArrayRange (cl, st, ed) -> (string_of_expr cl) ^ "[" ^ (string_of_expr st) ^ ":" ^ (string_of_expr ed) ^ "]"
   | ClipConcat (cl1, cl2, tm) -> (string_of_expr cl1) ^ "^" ^ (string_of_expr cl2) ^ "@" ^ (string_of_expr tm)
-  | BuildArrayType (t) -> (string_of_expr t) ^ "[]"
+  | BuildArray (t, el) -> (string_of_array_constructor t) ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
+
+and string_of_array_constructor = function
+  | SimpleArrayConstructor e -> (string_of_expr e) ^ "[]"
+  | CompositeArrayConstructor e -> (string_of_array_constructor e) ^ "[]"
 
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
@@ -169,7 +176,9 @@ type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
   mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
 }
-
+(*
+let base_type ctx type_name = BaseTypeEntry(look_up_type type_name ctx.typetab) 
+*)
 let binop_type_tab = function
 	| Add 	-> "$add"
 	| Sub 	-> "$sub"

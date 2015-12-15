@@ -54,13 +54,36 @@ and generate_stmt = function
     | hd::tl -> generate_cond hd ^ generate_cond_list tl
     in generate_cond_list l)
 
-| SForIn (x, s, y, l) -> ""
-| SForRange (x, s, y, z, l, d) -> ""
+| SForIn (x, s, e, l) -> "for (auto&" ^ generate_expr x ^ ":{"^
+	(let generate_forExpr expr =
+		try List.find NewVar (extract_semantic expr).actions; "std::make_shared<" ^  ^ ">()"
+		with Not_found -> 
+	in String.concat "," (List.map generate_forExpr e)
+	)
+    ^ "}" ^ ")" ^ "{" ^
+	(let rec generate_stmt_list = function
+	  [] -> ""
+    | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
+    in generate_stmt_list l) 
+    ^ "}"
+
+| SForRange (s, sem, start, end, sl, sign) -> 
+	let sstr = generate_expr s in let startstr = generate start in let endstr = generate_expr end in 
+	(if sign = Inc then "for (auto&" ^ sstr ^ "=" ^ startstr ^ ";" ^ sstr ^ "<" ^ endstr ^ ";" ^ sstr "++) {\n" 
+	else "for (auto&" ^ sstr ^ "=" ^ endstr ^ ";" ^ sstr ^ ">" ^ startstr ^ ";" ^ sstr "--) {\n") ^ 
+	(let rec generate_stmt_list = function
+	  [] -> ""
+    | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
+    in generate_stmt_list sl) 
+    ^ "}"
+
+
 | SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^ "{" ^
 	(let rec generate_stmt_list = function
 	  [] -> ""
     | hd::tl -> generate_stmt hd ^ generate_stmt_list tl
     in generate_stmt_list l) ^ "}"
+
 | SContinue -> "continue;\n"
 | SBreak -> "break;\n"
 | SReturn (x) -> "return " ^

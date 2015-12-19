@@ -146,7 +146,29 @@ and string_of_program program =
   | Stmt
   program*) 
 
+type eval_entry = {
+    mutable args: var_entry list;
+    mutable ret: type_entry;
+    }
+and base_type =  { 
+  t_name: string; (* type name used in yo *)
+  t_actual: string; (* actual name used in target language *)
+  mutable evals: eval_entry list; (* a list of eval functions *)
+  mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
+  }
+and type_entry =  BaseTypeEntry of base_type | ArrayTypeEntry of type_entry
+and var_entry = {
+  v_name: string; (* type name used in yo *)
+  v_actual: string; (* actual name used in target language *)
+  v_type: type_entry (* type definition *)
+  }
 
+
+(* compile environment: variable symbol table * type environment table *)
+type compile_context = {
+  mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
+  mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
+}
 
 (*
 let base_type ctx type_name = BaseTypeEntry(look_up_type type_name ctx.typetab) 

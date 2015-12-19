@@ -157,30 +157,3 @@ and string_of_s_global_ele_decl = function
 
 and string_of_s_program program =
   String.concat "\n" (List.map string_of_s_global_ele_decl program) 
-
-
-type eval_entry = {
-    mutable args: var_entry list;
-    mutable ret: type_entry;
-    mutable stmts: stmt list;
-    mutable s_stmts: s_stmt list;
-    }
-and base_type =  { 
-  t_name: string; (* type name used in yo *)
-  t_actual: string; (* actual name used in target language *)
-  mutable evals: eval_entry list; (* a list of eval functions *)
-  mutable members: type_entry NameMap.t (* map of member_name => type_entry *)
-  }
-and type_entry =  BaseTypeEntry of base_type | ArrayTypeEntry of type_entry
-and var_entry = {
-  v_name: string; (* type name used in yo *)
-  v_actual: string; (* actual name used in target language *)
-  v_type: type_entry (* type definition *)
-  }
-
-
-(* compile environment: variable symbol table * type environment table *)
-type compile_context = {
-  mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
-  mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
-}

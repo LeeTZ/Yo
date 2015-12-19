@@ -2,7 +2,7 @@ open Ast
 
 let walk_dec program context = 
     let print_kv k v =
-    print_string(k ^ "\n")
+        print_string(k ^ "\n")
 
     in
 
@@ -42,7 +42,8 @@ let walk_dec program context =
                 let newid = generate_scope oid (String.uppercase id) in
                 let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in
-                tt) else typetab
+                tt) else typetab 
+
 
     and mem_nested_1 typetab id = function
         | Ast.MemTypeDecl(typedecl) -> 
@@ -56,7 +57,7 @@ let walk_dec program context =
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope parent_scope (String.uppercase id) in
                 let entry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty} in
-                let tt = NameMap.add newid entry typetab in
+                let tt = NameMap.add newid entry typetab in 
                 tt
         
     and typewalk_1 typetab parent_scope= function

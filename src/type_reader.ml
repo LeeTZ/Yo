@@ -1,9 +1,9 @@
 open Ast
 
 let walk_dec program context = 
-    let print_kv k v =
-        print_string(k ^ "\n")
 
+    let print_kv k v =
+        print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual:" ^ v.t_actual)
     in
 
     let printtypetab t = 
@@ -22,10 +22,10 @@ let walk_dec program context =
             with Not_found -> raise (TypeNotDefined id))
     in
 
-    let rec exists_types typetab tail isarray = function
+    let rec exists_types typetab tail curtype = function
         | SimpleType(st) -> exists_types_id typetab (generate_var_type st tail) isarray
         | NestedType(nt,id) -> exists_types typetab (generate_var_type id tail) isarray nt
-        | ArrayType(at) -> exists_types typetab tail 1 at
+        | ArrayType(at) -> exists_types typetab tail ArrayTypeEntry(curtype) at
     in
     
 
@@ -75,10 +75,12 @@ let walk_dec program context =
      in
 
 
-    let varwalk_2 typetab parent_type = function
+    let varwalk_2 typetab parent = function
         | Ast.VarDecl(name, typename) ->
             let memVarEntry = exists_types typetab "" 0 typename in
-                NameMap.add name memVarEntry parent_type.members 
+            let parent_base = NameMap.find parent typetab in
+            parent_base.members <- NameMap.add name memVarEntry parent_base.members
+
     in
 
     let funcwalk_2 typetab parent_scope = function
@@ -97,7 +99,7 @@ let walk_dec program context =
             let newid = generate_scope parent_scope (String.uppercase id) in
             List.iter (fun e -> match e with
                 | Ast.MemFuncDecl(mf) -> funcwalk_2 typetab newid mf; ()
-                | Ast.MemVarDecl(mv) -> varwalk_2 typetab (NameMap.find newid typetab) mv; ()
+                | Ast.MemVarDecl(mv) -> varwalk_2 typetab newid mv; ()
                 | Ast.MemTypeDecl(mt) -> typewalk_2 typetab newid mt
             ) ele_list
     in

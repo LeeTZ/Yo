@@ -1,5 +1,13 @@
 open Ast
 
+exception VariableNotDefined of string
+exception TypeNotDefined of string
+exception SemanticError of string
+exception TypeExist of string
+
+module NameMap = Map.Make(String)
+
+
 type action = 
   | NewVar
 	| NewArr

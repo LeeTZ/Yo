@@ -146,17 +146,9 @@ and string_of_program program =
   | Stmt
   program*) 
 
-
-exception VariableNotDefined of string
-exception TypeNotDefined of string
-exception SemanticError of string
-exception TypeExist of string
-
-module NameMap = Map.Make(String)
-
 type eval_entry = {
     mutable args: var_entry list;
-    mutable ret: type_entry
+    mutable ret: type_entry;
     }
 and base_type =  { 
   t_name: string; (* type name used in yo *)
@@ -177,6 +169,7 @@ type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
   mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
 }
+
 (*
 let base_type ctx type_name = BaseTypeEntry(look_up_type type_name ctx.typetab) 
 *)

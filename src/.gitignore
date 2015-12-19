@@ -5,3 +5,4 @@ parser.ml
 parser.mli
 generate_test
 semantic_test
+typereader_test

@@ -5,7 +5,14 @@ let rec generate_expr = function
   SLiteral (x, s) -> x
 	(*if s.type_def.name = "String" then ("\"" ^ x ^ "\"" )
 	else x*)
-| SArrayLiteral (x, s)-> "" (* defined later *)
+| SArrayLiteral (x, s)-> "{" ^ 
+	(let generate_ele_expr expr =
+		try List.find  (fun x ->match x with NewVar -> true | _ -> false) (extract_semantic expr).actions; 
+
+		"std::make_shared<" ^  ^ ">()"
+		with Not_found -> (generate_expr expr)
+	in String.concat ", " (List.map generate_ele_expr e)
+	) ^ "}" (* defined later *)
 | SVar (x, s) -> x
 | SArrayIndex (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
 | SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
@@ -18,7 +25,21 @@ let rec generate_expr = function
 	in
 	(match x with
 	| None -> y ^ "(DUMMY_SELF, " ^ generate_expr_list z ^ ")"
-	| Some (expr) -> s.type_def.actual ^ "::" ^ y ^ "(" ^ generate_expr expr ^ ", " ^ generate_expr_list z ^ ")" )
+	| Some (expr) -> s.type_def.t_actual ^ "::" ^ y ^ "(" ^ generate_expr expr ^ ", " ^ generate_expr_list z ^ ")" )
+
+
+let generate_type_declaration t = 
+	"struct " ^ t.t_actual ^ " {\n" ^ 
+	(let generate_member mem_var_name mem_var_type content= 
+		content ^ (generate_type_modifier mem_var_type) ^ " " ^ mem_var_name ^ ";\n"
+	 in NameMap.fold generate_member t.members "") ^
+	(let generate_eval e content= 
+		content ^ "\n" ^ (generate_type_modifier e.ret) ^ " eval (" ^
+		(String.concat ", " (List.map (fun x -> (generate_type_modifier x.v_type) ^ " " ^ x.v_actual ) t.evals) ) ^ ") {" ^
+		
+	) ^
+	"\n};"
+
 
 let rec generate_cond = function
 | SCondExec (x, l) -> 
@@ -42,7 +63,7 @@ and generate_stmt = function
 		| "Double" -> "double" ^ generate_expr expr ^ " = " ^ generate_expr s
 		| "String" -> "String" ^ generate_expr expr ^ " = " ^ generate_expr s
 		| "Bool" -> "bool" ^ generate_expr expr ^ " = " ^ generate_expr s
-		| _ -> let type_name = sem.type_def.actual in
+		| _ -> let type_name = sem.type_def.t_actual in
 			"std::shared_ptr<" ^  type_name ^ "> " ^ generate_expr expr ^ " = std::make_shared<" ^ type_name^ ">()"
 		)
 	with Not_found -> (generate_expr expr) ^ " = " ^ (generate_expr s))) ^ ";\n"
@@ -54,9 +75,10 @@ and generate_stmt = function
     | hd::tl -> generate_cond hd ^ generate_cond_list tl
     in generate_cond_list l)
 
-| SForIn (x, s, e, l) -> "for (auto&" ^ generate_expr x ^ ":{"^
+| SForIn (x, s, e, l) -> "for (auto& " ^ generate_expr x ^ " :{"^
 	(let generate_forExpr expr =
-		try List.find NewVar (extract_semantic expr).actions; "std::make_shared<" ^  ^ ">()"
+		try List.find  (fun x ->match x with NewVar -> true | _ -> false) (extract_semantic expr).actions; 
+		"std::make_shared<" ^  ^ ">()"
 		with Not_found -> 
 	in String.concat "," (List.map generate_forExpr e)
 	)

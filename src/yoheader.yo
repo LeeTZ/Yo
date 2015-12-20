@@ -79,6 +79,19 @@ func Log(a: String) -> String: {
     return;
 }
 
+func Log(a: Clip) -> Clip: {
+    return;
+}
+
+func Log(a: Frame) -> Frame: {
+    return;
+}
+
+func Log(a: Attribute) -> Attribute: {
+    return;
+}
+
+
 func __Add(a: Int, b: Int) -> Int:{
     return;
 }

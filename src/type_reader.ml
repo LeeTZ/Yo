@@ -60,7 +60,6 @@ let walk_dec program context =
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 if id<>"eval" then (
                 let newid = generate_scope oid (String.uppercase id) in
-                let nid = duplicate_types typetab newid in 
                 let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in
                 tt) else typetab 
@@ -77,7 +76,6 @@ let walk_dec program context =
     let funcwalk_1 typetab parent_scope = function
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope parent_scope (String.uppercase id) in
-                let nid = duplicate_types typetab newid in 
                 let entry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty} in
                 let tt = NameMap.add newid entry typetab in 
                 tt

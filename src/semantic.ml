@@ -19,7 +19,8 @@ let rec look_up_type2 typeName typenv =
 	try 
 	(let rec generate_simple_type_name = function
 		| SimpleType s -> s
-		| NestedType(m, s) -> (generate_simple_type_name m) ^ "." ^ s in
+		| NestedType(m, s) -> (generate_simple_type_name m) ^ "." ^ s 
+		| _ -> raise (SemanticError "Nested type should be SimpleType") in
 	let rec generate_type = function 
 		| ArrayType t -> ArrayTypeEntry(generate_type t)
 		| x -> BaseTypeEntry(NameMap.find (generate_simple_type_name x) typenv) in
@@ -36,18 +37,22 @@ let new_var ctx varName typeDef =
 		(List.hd ctx.vsymtab)) :: (List.tl ctx.vsymtab); SVar (varName, {actions=[NewVar]; type_def=typeDef})
 
 let push_var_env ctx = {ctx with vsymtab = NameMap.empty :: ctx.vsymtab}
+
+let rec string_of_arg = function | BaseTypeEntry e -> e.t_name | ArrayTypeEntry e -> "Array<" ^ (string_of_arg e) ^ ">"
   	
-let find_matching_eval func_type call_arg_types = 
-	List.find (fun e -> (List.map (fun (k: var_entry) -> k.v_type) e.args) = call_arg_types) func_type.evals
+let find_matching_eval func_type call_arg_types =
+	let rec compare_args args1 args2 = match args1, args2 with 
+		| [], [] -> true | _, [] | [], _ -> false |  x::xs, y::ys -> (compare_type x y) && (compare_args xs ys) in
+	List.find (fun e ->	compare_args (List.map (fun k -> k.v_type) e.args) call_arg_types) func_type.evals
 
 (* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx (expression:expr) : s_expr=  
-	let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) 
-	and double_type = BaseTypeEntry(look_up_type "Double" ctx.typetab)
-	and string_type = BaseTypeEntry (look_up_type "String" ctx.typetab) in
-	let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) 
-	and clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab)
-	and frame_type = BaseTypeEntry(look_up_type "Frame" ctx.typetab) in
+	let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) 
+	and double_type = BaseTypeEntry(look_up_type "DOUBLE" ctx.typetab)
+	and string_type = BaseTypeEntry (look_up_type "STRING" ctx.typetab) in
+	let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) 
+	and clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab)
+	and frame_type = BaseTypeEntry(look_up_type "FRAME" ctx.typetab) in
 	match expression with
 	(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
 	(* difference in code generation - just print the string representation! *)
@@ -72,7 +77,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		let smain = build_expr_semantic ctx main and sidx = build_expr_semantic ctx idx in
 		(match (extract_semantic smain).type_def with 
 			| BaseTypeEntry t -> (
-				if t.t_name = "Cilp" then 
+				if t.t_name = "CLIP" then 
 					(if (extract_semantic sidx).type_def = double_type
 					then SClipIndex(smain, sidx, {actions=[]; type_def=frame_type})
 					else raise (SemanticError ((string_of_expr idx) ^ " has to be of Double type")))
@@ -88,7 +93,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		let type_main = (extract_semantic smain).type_def in
 		(match type_main with 
 			| BaseTypeEntry t -> (
-				if t.t_name = "Cilp" then 
+				if t.t_name = "CLIP" then 
 					(if (extract_semantic sst).type_def = double_type && (extract_semantic sed).type_def = double_type
 					then SClipRange(smain, sst, sed, {actions=[]; type_def=clip_type})
 					else raise (SemanticError ((string_of_expr st) ^ " and " ^ (string_of_expr ed) 
@@ -104,7 +109,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			SDotExpr (sexpr, x,  (try {actions=[]; type_def=NameMap.find x (
 										match (extract_semantic sexpr).type_def with 
 											| BaseTypeEntry t -> t.members
-											| ArrayTypeEntry t -> (look_up_type "Array" ctx.typetab).members)} 
+											| ArrayTypeEntry t -> (look_up_type "ARRAY" ctx.typetab).members)} 
 								with Not_found -> raise (VariableNotDefined (x ^ " in " ^ (string_of_expr expr)))))
   		
   	| Binop (x, op, y) -> 
@@ -117,7 +122,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		in SBinop (b1, op, b2, {actions=[]; type_def=func_eval.ret})
   	
   														  		
-  	| Call (obj, fname, args) -> 
+  	| Call (obj, fname, args) -> 	
   		let s_call_args = List.map (fun e -> build_expr_semantic ctx e) args in (*build semantics for args*)
 		let upper_name = String.uppercase fname in 
 		let func_name = match obj with (*should we change a name when searching for the function?*)
@@ -174,7 +179,7 @@ let rec build_stmt_semantic ctx = function
 				| _ -> raise (SemanticError ("Invalid assignment: lvalue " ^ (string_of_expr e) ^ " not found")))
 
 	| IfStmt cl -> 
-		let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) in
+		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
 		let ctx2 = push_var_env ctx in
 		SIfStmt (List.map (* go through each cond_exec *)
 		(fun t -> match t with CondExec (x,y) -> let s_stmt_list = List.map (build_stmt_semantic ctx2) y in
@@ -188,7 +193,7 @@ let rec build_stmt_semantic ctx = function
 		cl)
 
 	| WhileStmt (pred, stmts) -> 
-		let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) in
+		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
 		let ctx2 = push_var_env ctx in
 		let s_pred = build_expr_semantic ctx2 pred in
 		if (extract_semantic s_pred).type_def=bool_type then () 
@@ -214,7 +219,7 @@ let rec build_stmt_semantic ctx = function
 		SForIn(varname, (extract_semantic svar), s_expr, s_stmt_list)
 	
 	| ForRange (varname, st_expr, ed_expr, stmts, dir) ->
-		let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) in
+		let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) in
 		let s_st_expr = build_expr_semantic ctx st_expr and s_ed_expr = build_expr_semantic ctx ed_expr in
 		let nested_env = push_var_env ctx in
 		let svar = new_var nested_env varname 
@@ -228,7 +233,7 @@ let rec build_stmt_semantic ctx = function
 																		
 
 let build_func_semantic ctx = function
-	FuncDecl (funcName, argList, retype, stmtList) -> 
+	FuncDecl (funcName, argList, retype, stmtList) ->
 		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
 		let sarglist = List.map (*  *)
 				(fun x -> match x with VarDecl (name, typename) ->
@@ -239,7 +244,7 @@ let build_func_semantic ctx = function
 		let check_ret_type = function 
 			| SReturn expr_option -> 
 				let actual_ret_type = (match expr_option with 
-					| Some ep -> (extract_semantic ep).type_def | None -> BaseTypeEntry(look_up_type "Void" ctx.typetab)) in
+					| Some ep -> (extract_semantic ep).type_def | None -> BaseTypeEntry(look_up_type "VOID" ctx.typetab)) in
 				if actual_ret_type = expected_ret then () 
 				else raise (SemanticError ("Return expressions must have type " ^ (string_of_type expected_ret)
 					^ " as defined in function " ^ funcName))

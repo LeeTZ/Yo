@@ -172,6 +172,11 @@ and var_entry = {
   }
 
 
+let rec compare_type t1 t2 = match t1, t2 with 
+  | BaseTypeEntry _, ArrayTypeEntry _ | ArrayTypeEntry _,  BaseTypeEntry _ -> false
+  | ArrayTypeEntry a, ArrayTypeEntry b -> compare_type a b
+  | BaseTypeEntry a, BaseTypeEntry b -> a.t_name = b.t_name && a.t_actual = b.t_actual
+
 (* compile environment: variable symbol table * type environment table *)
 type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)

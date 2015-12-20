@@ -41,4 +41,26 @@ type Void:
     func eval(a: Void) -> Void:
         return
 
+type Attribute:
+    second: Double      
+    value: Double     
+
+type Clip:
+    filename: String  
+    starttime : Double    
+    endtime : Double      
+    position : Double    
+    alpha : Attribute[]        
+    location_x : Attribute[]   
+    location_y : Attribute[]   
+    scale_x : Attribute[]      
+    scale_y : Attribute[]      
+    rotate : Attribute[]       
+    volume : Attribute[]       
+    clips:  Clip[]
+
+type Frame:
+    
+
+
 

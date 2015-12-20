@@ -9,3 +9,5 @@ template <typename T>
 void LOG (std::shared_ptr<Universal> obj, T str) {
 	std::cout << str;
 }
+
+

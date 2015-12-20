@@ -7,10 +7,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-using tr1::shared_ptr;
-using tr1::make_shared;
-using std::vector;
-using std::string;
+using namespace std;
 using namespace libconfig;
 /*Global output configuration*/
 int V_FPS=24;
@@ -71,34 +68,11 @@ void readConfig(){
 	catch(const SettingNotFoundException &nfex){}
 }
 
-
-
-
-template<T>
-shared_ptr<vector<T>> slice_array(shared_ptr<vector<T>> vec, int start, int end) {
-	assert(end <= vec->size());
-	auto n_vec = tr1::make_shared<vector<T>>();
-	while (start < end) {
-		n_vec->push_back(*vec[start]);
-		++start;
-	}
-	return n_vec;
-}
-
-template<T>
-shared_ptr<vector<T>> create_array(shared_ptr<T>[] elements)
-{
-	auto n_vec = make_shared<vector<T>>();
-	for (auto e : elements)
-		n_vec.push_back(e);
-	return n_vec;
-}
-
 template<typename T>
-void pop_front(shared_ptr<vector<T>> vec)
+void pop_front(std::vector<T>& vec)
 {
-    assert(!vec->empty());
-    vec->erase(vec->begin());
+    assert(!vec.empty());
+    vec.erase(vec.begin());
 }
 
 
@@ -146,19 +120,14 @@ int isVideo(string filename){
 	return -1;
 }
 
-
 /*create a clip from a file, 
   yo prog:
-
   r = Clip("output.webm") 	
-
   generate as:
-
-  shared_ptr<Timeline> r = createClip("output.webm");
-
+  tr1::shared_ptr<Timeline> r = createClip("output.webm");
 */
 
-shared_ptr<Timeline> createClip(string filename){
+tr1::shared_ptr<Timeline> createClip(string filename){
 	//check the file type, an image or a video
 	int filetype = isVideo(filename);
 	if (filetype == 1){
@@ -167,7 +136,7 @@ shared_ptr<Timeline> createClip(string filename){
 		reader->Open();
 		Clip* clip = new Clip(reader);
 		// TODO : This infomation should be saved in an config file 
-		shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
+		tr1::shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 		r->AddClip(clip);
 		r->Open();
 		reader->Close();
@@ -177,7 +146,7 @@ shared_ptr<Timeline> createClip(string filename){
 		reader->Open();
 		Clip* clip = new Clip(reader);
 		// TODO : This infomation should be saved in an config file 
-		shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));	
+		tr1::shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));	
 		r->AddClip(clip);
 		r->Open();
 		reader->Close();
@@ -189,21 +158,17 @@ shared_ptr<Timeline> createClip(string filename){
 }
 /* create clips from a dir
    yo:prog:
-
    clips = readclips("dirname/")
-
    generate as:
-
-   vector<shared_ptr<Timeline>> clips = createClips("dir/");
-
+   std::vector<tr1::shared_ptr<Timeline>> clips = createClips("dir/");
 */
 
-vector<shared_ptr<Timeline>> createClips(string dirname){
+std::vector<tr1::shared_ptr<Timeline>> createClips(string dirname){
 	//read files into Filenames
-	vector<string> Filenames = vector<string>();
+	std::vector<std::string> Filenames = vector<string>();
 	getdir(dirname,Filenames);
 
-	vector<shared_ptr<Timeline>> res;
+	std::vector<tr1::shared_ptr<Timeline>> res;
 	int len = Filenames.size();
 	for (int i = 0; i < len; i++){
 		//std::cout << Filenames[i] << endl;	
@@ -215,19 +180,15 @@ vector<shared_ptr<Timeline>> createClips(string dirname){
 
 /* clips addition
    yo:prog:
-
    clip = clip1 + clip2
-
    generate as:
-
-   shared_ptr<Timeline> clip = addClip(clip1,clip2);
-
+   tr1::shared_ptr<Timeline> clip = addClip(clip1,clip2);
 */
 
-shared_ptr<Timeline> addClip(shared_ptr<Timeline> lop, shared_ptr<Timeline> rop){
+tr1::shared_ptr<Timeline> addClip(tr1::shared_ptr<Timeline> lop, tr1::shared_ptr<Timeline> rop){
 	list<Clip*> leftlists = lop->Clips();
 	list<Clip*> rightlists = rop->Clips();
-	shared_ptr<Timeline> res (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
+	tr1::shared_ptr<Timeline> res (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 
 	double maxpos = 0.0;
 	for (std::list<Clip*>::const_iterator iterator = leftlists.begin(), end = leftlists.end(); iterator != end; ++iterator) {
@@ -250,19 +211,15 @@ shared_ptr<Timeline> addClip(shared_ptr<Timeline> lop, shared_ptr<Timeline> rop)
 
 /* clips layering
    yo:prog:
-
    clip = clip1 ^ clip2 @ 1.0
-
    generate as:
-
-   shared_ptr<Timeline> clip = layerClip(clip1,clip2,1.0);
-
+   tr1::shared_ptr<Timeline> clip = layerClip(clip1,clip2,1.0);
 */
 
-shared_ptr<Timeline> layerClip(shared_ptr<Timeline> bottom, shared_ptr<Timeline> top, double shifttime){
+tr1::shared_ptr<Timeline> layerClip(tr1::shared_ptr<Timeline> bottom, tr1::shared_ptr<Timeline> top, double shifttime){
 	list<Clip*>	bottomlists = bottom->Clips();
 	list<Clip*> toplists = top->Clips();
-	shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
+	tr1::shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 	
 	int maxlayer = 0;
 	for (std::list<Clip*>::const_iterator iterator = bottomlists.begin(), end = bottomlists.end(); iterator != end; ++iterator){
@@ -284,15 +241,12 @@ shared_ptr<Timeline> layerClip(shared_ptr<Timeline> bottom, shared_ptr<Timeline>
 
 /* write clips to a file
    yo:prog:
-
    write(clip,"filename.mp4")
-
    generate as:
    writeClips(clip,"filename.mp4");
-
 */
 
-void writeClips(shared_ptr<Timeline> clip, string filename){
+void writeClips(tr1::shared_ptr<Timeline> clip, string filename){
 	FFmpegWriter w(filename);
 	string extension = getextension(filename);
 	if (extension == "webm")
@@ -313,15 +267,88 @@ void writeClips(shared_ptr<Timeline> clip, string filename){
 }
 
 /*
-return a matrix of 
-pixel : R G B{}
-
-pixel = getpixel(clip,frame,i,j)
-
+	clipRange argument is double (seconds)
+	yo:prog:
+    a = clip[2.0:3.0]
+    generate as:
+    a = clipRange(clip,2.0,3.0);
 */
 
-pixel getPixel(shared_ptr<Timeline> clip, int frame, int x, int y){
-	shared_ptr<Frame> f = clip->GetFrame(frame);
+tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,double starttime, double endtime){
+	assert(starttime <= endtime);
+	list<Clip*>	cliplists = clip->Clips();
+	tr1::shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
+	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
+		if ((*iterator)->Position() < starttime){
+			if ((*iterator)->Position() + (*iterator)->End() < starttime){
+				continue;
+			}
+			(*iterator)->Start(starttime - (*iterator)->Position());
+		}
+
+		if ((*iterator)->Position() >= starttime && (*iterator)->Position() < endtime){
+			if ((*iterator)->Position() + (*iterator)-> End() > endtime){
+				(*iterator)->End(endtime - (*iterator)->Position());
+			}
+		}
+		if ((*iterator)->Position() >= endtime){
+			continue;
+		}
+		res->AddClip(*iterator);
+	}
+	res->Open();
+	return res;
+}
+
+/*
+	clipRange argument is integer (frames)
+	yo:prog:
+    a = clip[24:48]
+    generate as:
+    a = clipRange(clip,24,48);
+*/
+
+tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,int startframe, int endframe){
+	double starttime = startframe / V_FPS;
+	double endtime = endframe / V_FPS;
+	return clipRange(clip, starttime, endtime);
+}
+
+/*
+	clipIndex argument is integer (frame)
+	yo:prog:
+    a = clip[24]
+    generate as:
+    a = clipIndex(clip,24);
+*/
+
+tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<Timeline> clip,int frame){
+	return clip->GetFrame(frame);
+}
+
+
+/*
+	clipIndex argument is double (time)
+	yo:prog:
+    a = clip[2.4]
+    generate as:
+    a = clipIndex(clip,2.4);
+*/
+
+tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<Timeline> clip,double frametime){
+	int frame = int(frametime * V_FPS);
+	return clip->GetFrame(frame);
+}
+
+
+/*
+return a matrix of 
+pixel : R G B{}
+pixel = getpixel(clip,frame,i,j)
+*/
+
+pixel getPixel(tr1::shared_ptr<Timeline> clip, int frame, int x, int y){
+	tr1::shared_ptr<Frame> f = clip->GetFrame(frame);
 	const unsigned char* pixels = f->GetPixels();
 	int index = x * f->GetWidth() + y;
 	pixel res;
@@ -337,17 +364,17 @@ no use now
 */
 
 template< typename T >
-string int_to_hex( T i )
+std::string int_to_hex( T i )
 {
-  stringstream stream;
+  std::stringstream stream;
   stream << std::setfill ('0') << std::setw(2) 
          << std::hex << i;
   return stream.str();
 }
 
 
-void setPixel(shared_ptr<Timeline> clip, int frame, int x, int y, pixel p){
-	shared_ptr<Frame> f = clip->GetFrame(frame);
+void setPixel(tr1::shared_ptr<Timeline> clip, int frame, int x, int y, pixel p){
+	tr1::shared_ptr<Frame> f = clip->GetFrame(frame);
 	string color = "#" + int_to_hex(p.R) + int_to_hex(p.G) + int_to_hex(p.B);
 	cout << color << endl;
 	f->AddColor(x,y,color);
@@ -355,14 +382,13 @@ void setPixel(shared_ptr<Timeline> clip, int frame, int x, int y, pixel p){
 
 /* write clips to a file
    yo:prog:
-
    clip.alpha@1 = 255
    generate as:
    setProperty(clip,"alpha",1,255);
    
 */
 
-void setProperty(shared_ptr<Timeline> clip, string attname, int second, double value){
+void setProperty(tr1::shared_ptr<Timeline> clip, string attname, int second, double value){
 	list<Clip*> lists = clip->Clips();
 	if (attname == "alpha"){
 		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
@@ -371,26 +397,56 @@ void setProperty(shared_ptr<Timeline> clip, string attname, int second, double v
 	}// add more..
 }
 
-int main(){
-	readConfig();
-	//shared_ptr<Timeline> r = createClip("output.webm");
-	//r->Open();
-	vector<shared_ptr<Timeline>> clips = createClips("dir/");
-	shared_ptr<Timeline> clip = layerClip(clips[0],clips[1],1.0);
+template<typename T>
+tr1::shared_ptr<vector<T>> slice_array(tr1::shared_ptr<vector<T>> vec, int start, int end) {
+	assert(end <= vec->size());
+	tr1::shared_ptr<vector<T>> n_vec;
+	while (start < end) {
+		n_vec->push_back(*vec[start]);
+		++start;
+	}
+	return n_vec;
+}
 
+/*
+template<typename T>
+tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
+{
+	tr1::shared_ptr<vector<T>> n_vec;
+	for (auto e : elements)
+		n_vec.push_back(e);
+	return n_vec;
+}
+*/
+void logClip(tr1::shared_ptr<Timeline> clip){
+	list<Clip*> cliplists = clip->Clips();
+	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
+		std::cout << (*iterator)->Json() << std::endl;
+	}
+}
+
+
+/*int main(){
+	readConfig();
+	//tr1::shared_ptr<Timeline> r = createClip("output.webm");
+	//r->Open();
+	std::vector<tr1::shared_ptr<Timeline>> clips = createClips("dir/");
+	tr1::shared_ptr<Timeline> clip = layerClip(clips[0],clips[1],1.0);
+	logClip(clips[0]);
 	//writeClips(clip,"o.webm");
-	shared_ptr<Frame> f = clip->GetFrame(30);
+	tr1::shared_ptr<Frame> f = clip->GetFrame(30);
 	pixel p;
 	p.R = 255;
 	p.G = 255;
 	p.B = 255;
 	setPixel(clip, 30, 100, 100, p);
-
+	
 	//pixel tmp = getPixel(clip,30,1,1);
 	//std::cout << "R:" << tmp.R << " G:" << tmp.G << " B:" << tmp.B << std::endl;
-	f->Display();
+	//f->Display();
 	//r->Close();
 }
+*/
 /*
 write a global error handler which process all the errors generated by each part of the program
 if a python error raises, write "Preprocess error"

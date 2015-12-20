@@ -234,7 +234,8 @@ TestRunningProgram() {
     YO="./generate_test"
     generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
     Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
-    g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    g++ ${basename}.f.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
+    #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
     Run "./yo.prog" ">" ${basename}.f.out &&
     Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
 
@@ -319,9 +320,15 @@ do
         Check $file 2>> $globallog
         ;;
     *)
-        echo "unknown file type $file"
-        globalerror=1
+        echo "##### Now Testing Single FullStack #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
+        TestRunningProgram $file 2>> $globallog
         ;;
+        #echo "unknown file type $file"
+        #globalerror=1
+        #;;
     esac
 done
 

@@ -146,6 +146,17 @@ and string_of_program program =
   | Stmt
   program*) 
 
+
+
+exception VariableNotDefined of string
+exception TypeNotDefined of string
+exception SemanticError of string
+exception TypeExist of string
+exception GenerationError of string
+
+module NameMap = Map.Make(String)
+
+
 type eval_entry = {
     mutable args: var_entry list;
     mutable ret: type_entry;

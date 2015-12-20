@@ -9,9 +9,10 @@ OBJ=ast.cmo \
 	semantic.cmo \
 	type_reader.cmo \
 	print_typetab.cmo  \
-	typereader_test.cmo
+	typereader_test.cmo \
+	generate_test.cmo
 	
-YO=typereader_test
+YO=generate_test
 
 FLAGS:=-g
 

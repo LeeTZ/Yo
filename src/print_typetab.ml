@@ -11,6 +11,8 @@ and print_varentry k =
 
 and print_memberentry k v = 
 	print_string ("Key: "^k^"\n");
+	print_string (print_typeentry "" v);
+	print_string "\n";
 
 and print_basetype k (bt:base_type) =
 	print_string ("Typetab KEY: " ^ k ^ "\n");

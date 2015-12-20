@@ -7,22 +7,29 @@ let is_primitive_type t_def = match t_def.t_name with
 
 let rec generate_type_modifier = function
 	| BaseTypeEntry b -> (match b.t_name with 
-		| "INT" -> "int" | "DOUBLE" -> "double" | "BOOL" -> "bool" | "STRING" -> "std::string"
-		| _ -> "std::shared_ptr<" ^ b.t_actual ^ ">")
-	| ArrayTypeEntry a -> "std::shared_ptr<std::vector<" ^ (generate_type_modifier a) ^ ">>"
+		| "INT" -> "int" | "DOUBLE" -> "double" | "BOOL" -> "bool" | "STRING" -> "string"
+		| _ -> "shared_ptr<" ^ b.t_actual ^ ">")
+	| ArrayTypeEntry a -> "shared_ptr<vector<" ^ (generate_type_modifier a) ^ ">>"
 
+let extract_array_ele_type t = match t with ArrayTypeEntry a -> a | _ -> raise (GenerationError "Expect an array type here")
 
 let rec generate_expr = function
  	| SLiteral (x, s) -> x
-	| SArrayLiteral (x, s)-> "ARRAY_TO_VECTOR<" ^ (match s.type_def with ArrayTypeEntry a -> generate_type_modifier a | _ -> raise (GenerationError "Expect an array type here")) ^ 
-		">({" ^ String.concat ", " (List.map generate_expr x) ^ "})" (* change to a C++ call *)
+	| SArrayLiteral (x, s)-> "create_array<" ^ (generate_type_modifier (extract_array_ele_type s.type_def)) ^ 
+		">({" ^ String.concat ", " (List.map generate_expr x) ^ "})"
 	| SVar (x, s) -> x
-	| SArrayIndex (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
+	| SArrayIndex (x, y, s) -> "*" ^ generate_expr x ^ "[" ^ generate_expr y ^ "]"
 	| SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
 	| SBinop (x, op, y, s) -> "(" ^ (generate_expr x) ^ " " ^ (string_of_op op) ^ " " ^ (generate_expr y) ^ ")"
 	| SCall (obj, f, el, s) -> String.uppercase(f) ^ "::eval(" ^
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^
 		(List.fold_left (fun content x -> content ^ ", " ^ (generate_expr x)) "" el) ^ ")"
+	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">({})"
+	| SArrayRange (smain, sst, sed, sem) -> "slice_array<" ^ (generate_type_modifier (extract_array_ele_type sem.type_def)) 
+		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
+	| SClipConcat (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
+		^ (generate_expr stm) ^ ")"
+	
 
 
 let rec generate_cond = function
@@ -50,9 +57,9 @@ and generate_stmt = function
 				(match sem.type_def.t_name with 
 				| "Int" -> "int " ^ generate_expr expr ^ " = " ^ generate_expr s
 				| "Double" -> "double" ^ generate_expr expr ^ " = " ^ generate_expr s
-				| "String" -> "std::string" ^ generate_expr expr ^ " = " ^ generate_expr s
+				| "String" -> "string" ^ generate_expr expr ^ " = " ^ generate_expr s
 				| "Bool" -> "bool" ^ generate_expr expr ^ " = " ^ generate_expr s
-				| _ -> "auto " ^ (generate_expr expr) ^ " = std::make_shared<" ^ 
+				| _ -> "auto " ^ (generate_expr expr) ^ " = make_shared<" ^ 
 					(let tm = (generate_type_modifier sem.type_def) in 
 						String.sub tm 16 ((String.length tm)-16)) ^ ">()"
 				)

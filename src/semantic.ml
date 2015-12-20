@@ -150,11 +150,11 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		else raise (SemanticError "ClipConcat operation expects type of Clip, Clip and Double")
 	
 	| BuildArray (main, args) ->
-		let rec resolve_arr_type = function
-			| SimpleArrayConstructor expr -> ArrayTypeEntry(BaseTypeEntry(look_up_type (string_of_expr expr) ctx.typetab))
-			| CompositeArrayConstructor arr -> ArrayTypeEntry(resolve_arr_type arr) in
-		let arr_type = resolve_arr_type main in
-		SBuildArray (arr_type, [], {actions=[NewArr]; type_def=arr_type}) (*TODO: the constructor argument is currently ignored*)
+		let rec resolve_ele_type = function
+			| SimpleArrayConstructor expr -> BaseTypeEntry(look_up_type (string_of_expr expr) ctx.typetab)
+			| CompositeArrayConstructor arr -> ArrayTypeEntry(resolve_ele_type arr) in
+		let ele_type = resolve_ele_type main in
+		SBuildArray (ele_type, [], {actions=[NewArr]; type_def=ArrayTypeEntry(ele_type)}) (*TODO: the constructor argument is currently ignored*)
 
 let rec build_stmt_semantic ctx = function
 	| Assign (e1, e2) -> 

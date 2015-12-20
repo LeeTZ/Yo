@@ -79,6 +79,19 @@ func Log(a: String) -> String: {
     return;
 }
 
+func Log(a: Clip) -> Clip: {
+    return;
+}
+
+func Log(a: Frame) -> Frame: {
+    return;
+}
+
+func Log(a: Attribute) -> Attribute: {
+    return;
+}
+
+
 func __Add(a: Int, b: Int) -> Int:{
     return;
 }
@@ -167,7 +180,6 @@ func __Leq(a: Int, b: Int) -> Int:{
 func __Leq(a: Double, b: Double) -> Double:{
     return;
 }
-
 
 func __Geq(a: Int, b: Int) -> Int:{
     return;

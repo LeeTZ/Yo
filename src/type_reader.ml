@@ -1,10 +1,9 @@
 open Ast
 
-let walk_dec program context = 
+let walk_dec program context =
 
     (*let print_kv k v =
         print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual:" ^ v.t_actual)
-    in
 
     let printtypetab t = 
         NameMap.iter print_kv t
@@ -14,20 +13,25 @@ let walk_dec program context =
     in
 
     let generate_var_type id tail = if tail="" then (String.uppercase id) else ((String.uppercase id)^"::")^ (String.uppercase tail) 
-
     in
 
     let rec wrapArray curtype arrcnt =
         if arrcnt = 0 then curtype else (wrapArray (ArrayTypeEntry(curtype)) (arrcnt-1))
-
     in 
+
+    let duplicate_types typetab id = 
+        try 
+            let _ = NameMap.find id typetab in
+                raise (TypeRedefined id)
+        with   
+            Not_found -> id
+    in
 
     let exists_types_id typetab basename arrcnt = 
             try 
                 let be = (NameMap.find basename typetab) in 
                 let curtype = wrapArray (BaseTypeEntry(be)) arrcnt in
                 curtype
-
             with Not_found -> raise (TypeNotDefined basename)
     in
 
@@ -46,6 +50,7 @@ let walk_dec program context =
     let rec type_nested_walk_1 typetab oid = function
         | Ast.TypeDecl(id, type_element) -> 
                 let newid = generate_scope oid (String.uppercase id) in
+                let _ = duplicate_types typetab newid in 
                 let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in  
                     List.fold_left (fun tt e -> mem_nested_1 tt newid e) tt type_element 
@@ -54,6 +59,7 @@ let walk_dec program context =
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 if id<>"eval" then (
                 let newid = generate_scope oid (String.uppercase id) in
+                let _ = duplicate_types typetab newid in 
                 let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in
                 tt) else typetab 
@@ -70,6 +76,7 @@ let walk_dec program context =
     let funcwalk_1 typetab parent_scope = function
         | Ast.FuncDecl(id, arglist, retype, stmtlist) ->
                 let newid = generate_scope parent_scope (String.uppercase id) in
+                let _ = duplicate_types typetab newid in 
                 let entry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty} in
                 let tt = NameMap.add newid entry typetab in 
                 tt
@@ -77,6 +84,7 @@ let walk_dec program context =
     and typewalk_1 typetab parent_scope= function
          | Ast.TypeDecl(id, type_element) -> 
                 let newid = generate_scope parent_scope (String.uppercase id) in 
+                let _ = duplicate_types typetab newid in 
                 let entry = {t_name=newid; t_actual=newid; members=NameMap.empty; evals=[]} in
                 let tt = NameMap.add newid entry typetab in
                     List.fold_left (fun tt e -> mem_nested_1 tt id e) tt type_element 

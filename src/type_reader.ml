@@ -2,13 +2,13 @@ open Ast
 
 let walk_dec program context = 
 
-    let print_kv k v =
+    (*let print_kv k v =
         print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual:" ^ v.t_actual)
     in
 
     let printtypetab t = 
         NameMap.iter print_kv t
-    in
+    in*)
 
     let generate_scope parent_scope id = (if parent_scope="" then "" else (String.uppercase parent_scope) ^ "::") ^ (String.uppercase id) 
     in

@@ -193,12 +193,12 @@ let rec build_stmt_semantic ctx = function
 				clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab) in
 			if sem.type_def = clip_type then (
 				if (extract_semantic s_value).type_def = double_type then (
-					match (extract_semantic s_time).type_def with
-						| int_type -> SFrameSetAttribute (sexpr, x, s_time, s_value)
-						| double_type -> STimeSetAttribute (sexpr, x, s_time, s_value)
-						| _ -> raise (SemanticError ("Attribute assignment index" ^ (string_of_expr time) ^ " has to be of Int of Double type"))
+					if (extract_semantic s_time).type_def=int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
+					else if (extract_semantic s_time).type_def=double_type then STimeSetAttribute (sexpr, x, s_time, s_value)
+					else  raise (SemanticError ("Attribute assignment index" ^ (string_of_expr time) ^ " has to be of Int of Double type"))
 				) else raise (SemanticError ((string_of_expr value) ^ ": rvalue for attribute assignment has to be of Double type"))
-			) else raise (SemanticError ("Attribute assignment has to be performed to a Clip, but " ^ (string_of_expr main) ^ "'s type is mismatched")))
+			) else raise (SemanticError ("Attribute assignment has to be performed to a Clip, but " ^ (string_of_expr main) ^ "'s type is mismatched"))
+			| _ -> raise (ProcessingError ("SetAttribute analysis error when processing " ^ (string_of_s_expr s_main))))
 	| IfStmt cl -> 
 		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
 		let ctx2 = push_var_env ctx in

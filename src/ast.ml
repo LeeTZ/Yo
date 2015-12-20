@@ -152,6 +152,7 @@ and string_of_program program =
 exception VariableNotDefined of string
 exception TypeNotDefined of string
 exception SemanticError of string
+exception ProcessingError of string
 exception TypeExist of string
 exception GenerationError of string
 module NameMap = Map.Make(String)

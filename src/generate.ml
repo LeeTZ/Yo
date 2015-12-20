@@ -2,12 +2,12 @@ open Ast
 open Sast
 
 let is_primitive_type t_def = match t_def.t_name with
-	| "Int" | "Double" | "String" | "Bool" -> true
+	| "INT" | "DOUBLE" | "STRING" | "BOOL" -> true
 	| _ -> false
 
 let rec generate_type_modifier = function
 	| BaseTypeEntry b -> (match b.t_name with 
-		| "Int" -> "int" | "Double" -> "double" | "Bool" -> "bool" | "String" -> "std::string"
+		| "INT" -> "int" | "DOUBLE" -> "double" | "BOOL" -> "bool" | "STRING" -> "std::string"
 		| _ -> "std::shared_ptr<" ^ b.t_actual ^ ">")
 	| ArrayTypeEntry a -> "std::shared_ptr<std::vector<" ^ (generate_type_modifier a) ^ ">>"
 
@@ -19,7 +19,7 @@ let rec generate_expr = function
 	| SVar (x, s) -> x
 	| SArrayIndex (x, y, s) -> generate_expr x ^ "[" ^ generate_expr y ^ "]"
 	| SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
-	| SBinop (x, op, y, s) -> generate_expr x ^ " " ^ (string_of_op op) ^ " " ^ generate_expr y
+	| SBinop (x, op, y, s) -> "(" ^ (generate_expr x) ^ " " ^ (string_of_op op) ^ " " ^ (generate_expr y) ^ ")"
 	| SCall (obj, f, el, s) -> String.uppercase(f) ^ "::eval(" ^
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^
 		(List.fold_left (fun content x -> content ^ ", " ^ (generate_expr x)) "" el) ^ ")"
@@ -40,7 +40,12 @@ and generate_stmt = function
 	| SAssign (x, s) -> 
 		(match x with
 		| None -> generate_expr s
-		| Some (expr) -> (generate_expr expr) ^ " = " ^ (generate_expr s)(*let sem = extract_semantic expr in
+		| Some (expr) -> 
+			let sem = extract_semantic expr in
+			(try List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions; 
+				(generate_type_modifier sem.type_def) ^ " " ^ (generate_expr expr)
+			with Not_found -> generate_expr expr) 
+			^ " = " ^ (generate_expr s)(*let sem = extract_semantic expr in
 			(try List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions; 
 				(match sem.type_def.t_name with 
 				| "Int" -> "int " ^ generate_expr expr ^ " = " ^ generate_expr s
@@ -59,7 +64,7 @@ and generate_stmt = function
 	| SIfStmt (l) -> "if(false) {}\n" ^ 
 		(let rec generate_cond_list = function
 		  [] -> ""
-	    | hd::tl -> generate_cond hd ^ generate_cond_list tl
+	    | hd::tl -> (generate_cond hd) ^ (generate_cond_list tl)
 	    in generate_cond_list l)
 
 	| SForIn (loop_var_name, loop_var_sem, array_expr, stmt_list) -> 
@@ -96,7 +101,7 @@ let generate_eval args stmts s = (generate_type_modifier s.type_def) ^ " eval(" 
 			(String.concat ", " (List.map (
 				fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
 				 ^ " " ^ arg_name )) args) ) 
-			^ ") {" ^ (generate_stmt_list stmts) ^ "}\n\n"
+			^ ") {\n" ^ (generate_stmt_list stmts) ^ "}\n\n"
 
 let generate_func parent_name = function
 	| SFuncDecl(name, args, stmts, s) -> "struct " ^ String.uppercase(parent_name ^ "_" ^ name) ^ " {\n" ^
@@ -129,6 +134,7 @@ let rec generate_type parent_name = function
 		(List.filter (fun x -> match x with SMemTypeDecl s -> true | _ -> false) stml))
 
 let generate program = 
+	print_string "hi";
 	let header = ["\"yolib.h\""] in
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  

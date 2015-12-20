@@ -78,3 +78,118 @@ func Log(a: Double) -> Double: {
 func Log(a: String) -> String: {
     return;
 }
+
+func __Add(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Add(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Add(a: String, b: String) -> String:{
+    return;
+}
+
+func __Sub(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Sub(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Mult(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Mult(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Div(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Div(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Mod(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Eq(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Eq(a: String, b: String) -> Int:{
+    return;
+}
+
+func __Eq(a: Double, b: Double) -> Int:{
+    return;
+}
+
+func __Eq(a: Bool, b: Bool) -> Int:{
+    return;
+}
+
+
+func __Neq(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Neq(a: String, b: String) -> Int:{
+    return;
+}
+
+func __Neq(a: Double, b: Double) -> Int:{
+    return;
+}
+
+func __Neq(a: Bool, b: Bool) -> Int:{
+    return;
+}
+
+func __Less(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Less(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Leq(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Leq(a: Double, b: Double) -> Double:{
+    return;
+}
+
+
+func __Geq(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Geq(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __Gt(a: Int, b: Int) -> Int:{
+    return;
+}
+
+func __Gt(a: Double, b: Double) -> Double:{
+    return;
+}
+
+func __And(a: Bool, b: Bool) -> Int:{
+    return;
+}
+
+func __Or(a: Bool, b: Bool) -> Int:{
+    return;
+}
+

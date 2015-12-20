@@ -2,7 +2,7 @@
 
 let Integer_cons = ['0'-'9']+
 let Double_cons = ['0'-'9']+ '.' ['0'-'9']+
-let Id_cons = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let Id_cons = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let String_cons = [^ '"' ]* (* Is that correct? *)
 
 rule token = parse

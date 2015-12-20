@@ -11,7 +11,7 @@ let rec look_up_var id = function
   	| hd :: tail -> (try NameMap.find id hd with Not_found -> look_up_var id tail)
 
 (* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
-let rec look_up_type typeName typenv = (try NameMap.find typeName typenv 
+let rec look_up_type typeName typenv = (try NameMap.find (String.uppercase typeName) typenv 
 	with Not_found -> raise (TypeNotDefined typeName))
 
 (* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
@@ -19,11 +19,11 @@ let rec look_up_type2 typeName typenv =
 	try 
 	(let rec generate_simple_type_name = function
 		| SimpleType s -> s
-		| NestedType(m, s) -> (generate_simple_type_name m) ^ "." ^ s 
+		| NestedType(m, s) -> (generate_simple_type_name m) ^ "_" ^ s 
 		| _ -> raise (SemanticError "Nested type should be SimpleType") in
 	let rec generate_type = function 
 		| ArrayType t -> ArrayTypeEntry(generate_type t)
-		| x -> BaseTypeEntry(NameMap.find (generate_simple_type_name x) typenv) in
+		| x -> BaseTypeEntry(NameMap.find (String.uppercase(generate_simple_type_name x)) typenv) in
 	generate_type typeName)
 	with Not_found -> raise (TypeNotDefined (string_of_type_name typeName))
 
@@ -237,7 +237,7 @@ let build_func_semantic ctx = function
 		let ctx2 = push_var_env ctx in (* create a new variable env on top of the old *)
 		let sarglist = List.map (*  *)
 				(fun x -> match x with VarDecl (name, typename) ->
-					let svar = new_var ctx2 name (look_up_type2 retype ctx.typetab) in
+					let svar = new_var ctx2 name (look_up_type2 typename ctx.typetab) in
 					SVarDecl (name, extract_semantic svar)) argList in
 		let s_stmtlist = List.map (build_stmt_semantic ctx2) stmtList in
 		let expected_ret = look_up_type2 retype ctx.typetab in
@@ -245,7 +245,7 @@ let build_func_semantic ctx = function
 			| SReturn expr_option -> 
 				let actual_ret_type = (match expr_option with 
 					| Some ep -> (extract_semantic ep).type_def | None -> BaseTypeEntry(look_up_type "VOID" ctx.typetab)) in
-				if actual_ret_type = expected_ret then () 
+				if compare_type actual_ret_type expected_ret then () 
 				else raise (SemanticError ("Return expressions must have type " ^ (string_of_type expected_ret)
 					^ " as defined in function " ^ funcName))
 			| _ -> () in

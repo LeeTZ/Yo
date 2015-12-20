@@ -8,19 +8,18 @@ OBJ=ast.cmo \
 	built_in_type.cmo \
 	semantic.cmo \
 	type_reader.cmo \
-	print_typetab.cmo  \
-	typereader_test.cmo \
-	generate_test.cmo
-	
-YO=typereader_test
+	print_typetab.cmo \
+	semantic_test.cmo \
+	generate.cmo \
+	generate_test.cmo 
+
+YO=generate_test
 
 FLAGS:=-g
 
 $(YO): $(OBJ)
-	#ocamlc -g -o scanner_test scanner.cmo
-	#ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
-	#ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo 
-	ocamlc -g -o typereader_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo typereader_test.cmo 
+	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
+	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo generate.cmo generate_test.cmo 
 	
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
@@ -65,14 +64,11 @@ type_reader.cmo: ast.cmo
 type_reader.cmx: ast.cmx
 print_typetab.cmo: ast.cmo
 print_typetab.cmx: ast.cmx
-generate.cmo: sast.cmo
-generate.cmx: sast.cmx
+generate.cmo: sast.cmo ast.cmo
+generate.cmx: sast.cmx ast.cmx
 semantic_test.cmo: type_reader.cmo scanner.cmo print_typetab.cmo parser.cmi built_in_type.cmo
 semantic_test.cmx: type_reader.cmx scanner.cmx print_typetab.cmx parser.cmx built_in_type.cmx
-generate_test.cmo: semantic.cmo scanner.cmo parser.cmi generate.cmo built_in_type.cmo type_reader.cmo
-generate_test.cmx: semantic.cmx scanner.cmx parser.cmx generate.cmx built_in_type.cmx type_reader.cmx
-typereader_test.cmo: type_reader.cmo scanner.cmo print_typetab.cmo parser.cmi built_in_type.cmo 
-typereader_test.cmx: type_reader.cmx scanner.cmx print_typetab.cmx parser.cmx built_in_type.cmx 
-scanner_test.cmo: scanner.cmo ast.cmo
-scanner_test.cmx: scanner.cmx ast.cmx
-
+generate_test.cmo : type_reader.cmo semantic.cmo scanner.cmo parser.cmi \
+    generate.cmo built_in_type.cmo ast.cmo
+generate_test.cmx : type_reader.cmx semantic.cmx scanner.cmx parser.cmx \
+    generate.cmx built_in_type.cmx ast.cmx

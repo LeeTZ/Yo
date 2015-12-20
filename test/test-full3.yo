@@ -1,0 +1,8 @@
+type A:
+    a: Int
+    b: String
+    func xyz(a: Int) -> String:
+        x = 1
+        y = 2
+        return "abc"
+

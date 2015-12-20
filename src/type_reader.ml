@@ -132,7 +132,7 @@ let walk_dec program context =
         let listpass = List.fold_left (fun tt e -> walk_decl_2 tt e) tt program
             in listpass
 in let t = context.typetab in let t = first_pass t program in let t = second_pass t program in
-{vsymtab=[]; typetab=t} 
+{vsymtab=[NameMap.empty]; typetab=t} 
 
 (*
 let context = walk_dec

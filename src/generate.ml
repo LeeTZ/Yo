@@ -29,7 +29,10 @@ let rec generate_expr = function
 		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipConcat (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
 		^ (generate_expr stm) ^ ")"
-	
+	| SClipFrameRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
+	| SClipTimeRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
+	| SClipFrameIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
+	| SClipTimeIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
 
 
 let rec generate_cond = function
@@ -49,7 +52,7 @@ and generate_stmt = function
 		| None -> generate_expr s
 		| Some (expr) -> 
 			let sem = extract_semantic expr in
-			(try List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions; 
+			(try let _ = List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions in
 				(generate_type_modifier sem.type_def) ^ " " ^ (generate_expr expr)
 			with Not_found -> generate_expr expr) 
 			^ " = " ^ (generate_expr s)(*let sem = extract_semantic expr in
@@ -67,6 +70,10 @@ and generate_stmt = function
 		) 
 		^ ";\n"
 
+	| SFrameSetAttribute (sexpr, x, s_time, s_value) -> 
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
+	| STimeSetAttribute (sexpr, x, s_time, s_value) -> 
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
 
 	| SIfStmt (l) -> "if(false) {}\n" ^ 
 		(let rec generate_cond_list = function
@@ -104,7 +111,7 @@ and generate_stmt_list stmt_list = String.concat "\n" (List.map generate_stmt st
 let generate_var_decl = function
 	| SVarDecl (name, s) -> (generate_type_modifier s.type_def) ^ " " ^ name
 
-let generate_eval args stmts s = (generate_type_modifier s.type_def) ^ " eval(" ^
+let generate_eval args stmts s = "static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
 			(String.concat ", " (List.map (
 				fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
 				 ^ " " ^ arg_name )) args) ) 
@@ -137,7 +144,8 @@ let rec generate_type parent_name = function
 		| _ -> raise (GenerationError "Expecting SMemVarDecl here")
 	 in List.fold_left generate_mem_func "" (List.filter (fun x -> match x with SMemFuncDecl s -> true | _ -> false) stml)) ^
 	
-	(List.fold_left  (fun content x -> content ^ (match x with SMemTypeDecl mtd ->generate_type this_name mtd) ) "" 
+	(List.fold_left  (fun content x -> content ^ 
+		(match x with SMemTypeDecl mtd ->generate_type this_name mtd | _ -> raise (ProcessingError ("Generation error"))) ) "" 
 		(List.filter (fun x -> match x with SMemTypeDecl s -> true | _ -> false) stml))
 
 let generate program = 
@@ -145,13 +153,19 @@ let generate program =
 	let header = ["\"yolib.h\""] in
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
-	(List.fold_left (fun content x -> content ^ (match x with SGlobalType t -> generate_type "" t)) 
+	(List.fold_left (fun content x -> content ^ (match x with 
+		| SGlobalType t -> generate_type "" t 
+		| _ -> raise (ProcessingError ("Generation error")))) 
 		"" (List.filter (fun x -> match x with SGlobalType s -> true | _ -> false) program)) ^
 	"\n/****************TYPE DECLARATION ENDED***********/\n" ^
-	(List.fold_left (fun content x -> content ^ (match x with SGlobalFunc t -> generate_func "" t)) 
+	(List.fold_left (fun content x -> content ^ (match x with 
+		| SGlobalFunc t -> generate_func "" t 
+		| _ -> raise (ProcessingError ("Generation error")))) 
 		"" (List.filter (fun x -> match x with SGlobalFunc s -> true | _ -> false) program)) ^
 	"\n/**************FUNCTION DECLARATION ENDED***********/\n" ^
 	"int main() {\n" ^ 
-	(List.fold_left (fun content x -> content ^ (match x with SGlobalStmt t -> generate_stmt t)) 
+	(List.fold_left (fun content x -> content ^ (match x with 
+		| SGlobalStmt t -> generate_stmt t 
+		| _ -> raise (ProcessingError ("Generation error")))) 
 		"" (List.filter (fun x -> match x with SGlobalStmt s -> true | _ -> false) program)) ^
 	"return 0;\n}"

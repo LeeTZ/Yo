@@ -32,12 +32,16 @@ type s_expr =                                 (* Expressions*)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
   | SBuildArray of type_entry * s_expr list * sem
-  | SClipIndex of s_expr * s_expr * sem
-  | SClipRange of s_expr * s_expr * s_expr * sem
+  | SClipTimeIndex of s_expr * s_expr * sem
+  | SClipFrameIndex of s_expr * s_expr * sem
+  | SClipTimeRange of s_expr * s_expr * s_expr * sem
+  | SClipFrameRange of s_expr * s_expr * s_expr * sem
   | SClipConcat of s_expr * s_expr * s_expr * sem
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
+  | STimeSetAttribute of s_expr * string * s_expr * s_expr
+  | SFrameSetAttribute of s_expr * string * s_expr * s_expr
   | SIfStmt of s_cond_exec list
   | SForIn of string * sem * s_expr * s_stmt list
   | SForRange of string * sem * s_expr * s_expr * s_stmt list * for_range_dir
@@ -82,14 +86,18 @@ let rec string_of_s_expr = function
   | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
   | SCall (obj, f, el, s) -> (match obj with 
           | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
-  | SClipRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
+  | SClipTimeRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
+  | SClipFrameRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
   | SClipConcat (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
-  | SClipIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
+  | SClipTimeIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
+  | SClipFrameIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
   | SBuildArray (t, el, s) -> (string_of_type t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
 
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
   | SAssign(Some(lvalue), rvalue) -> (string_of_s_expr lvalue) ^ " = " ^ (string_of_s_expr rvalue)
+  | STimeSetAttribute(main, attr, time, value) -> (string_of_s_expr main) ^ attr ^ "@" ^ (string_of_s_expr time) ^ " = " ^ (string_of_s_expr value)
+  | SFrameSetAttribute(main, attr, time, value) -> (string_of_s_expr main) ^ attr ^ "@" ^ (string_of_s_expr time) ^ " = " ^ (string_of_s_expr value)
   | SIfStmt(conds) -> string_of_s_first_cond_exec (List.hd conds) ^ "\n" ^
   (String.concat "\n" (List.map string_of_s_cond_exec (List.tl conds)))
   | SForIn(var, s, expr, stmts) -> "for " ^ var ^ (string_of_sem s) ^ " in " ^ (string_of_s_expr expr) 
@@ -121,8 +129,10 @@ let extract_semantic = function
   | SDotExpr (_, _, s) -> s       
   | SBinop (_, _, _, s) -> s      
   | SCall (_, _, _, s) -> s
-  | SClipIndex (_, _, s) -> s
-  | SClipRange (_, _, _, s) -> s  
+  | SClipTimeIndex (_, _, s) -> s
+  | SClipFrameIndex (_, _, s) -> s
+  | SClipTimeRange (_, _, _, s) -> s
+  | SClipFrameRange (_, _, _, s) -> s  
   | SClipConcat (_, _, _, s) -> s  
   | SBuildArray (_, _, s) -> s
 

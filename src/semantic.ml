@@ -79,8 +79,10 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			| BaseTypeEntry t -> (
 				if t.t_name = "CLIP" then 
 					(if (extract_semantic sidx).type_def = double_type
-					then SClipIndex(smain, sidx, {actions=[]; type_def=frame_type})
-					else raise (SemanticError ((string_of_expr idx) ^ " has to be of Double type")))
+					then SClipTimeIndex(smain, sidx, {actions=[]; type_def=frame_type})
+					else if (extract_semantic sidx).type_def = int_type
+					then SClipFrameIndex(smain, sidx, {actions=[]; type_def=frame_type})
+					else raise (SemanticError ((string_of_expr idx) ^ " has to be of either Double or Int type")))
 				else raise (SemanticError ((string_of_expr main) ^ " has to be of Array type")))
 			| ArrayTypeEntry ele_type -> (
 				if (extract_semantic sidx).type_def = int_type
@@ -95,9 +97,11 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			| BaseTypeEntry t -> (
 				if t.t_name = "CLIP" then 
 					(if (extract_semantic sst).type_def = double_type && (extract_semantic sed).type_def = double_type
-					then SClipRange(smain, sst, sed, {actions=[]; type_def=clip_type})
+					then SClipTimeRange(smain, sst, sed, {actions=[]; type_def=clip_type})
+					else if (extract_semantic sst).type_def = int_type && (extract_semantic sed).type_def = int_type
+					then SClipFrameRange(smain, sst, sed, {actions=[]; type_def=clip_type})
 					else raise (SemanticError ((string_of_expr st) ^ " and " ^ (string_of_expr ed) 
-						^ " have to be of Double type")))
+						^ " have to be of both Double types or Int types")))
 				else raise (SemanticError ((string_of_expr main) ^ " has to be of Array type")))
 			| ArrayTypeEntry _ -> (
 				if (extract_semantic sst).type_def = int_type && (extract_semantic sed).type_def = int_type
@@ -177,7 +181,24 @@ let rec build_stmt_semantic ctx = function
 					SAssign (Some(l_expr_sem), r_expr_sem)
 				(* make sure l-value is a var: otherwise it must be defined (processed above) *)
 				| _ -> raise (SemanticError ("Invalid assignment: lvalue " ^ (string_of_expr e) ^ " not found")))
-
+	| SetAttribute (main, time, value) ->
+		let s_main = (match main with 
+			| DotExpr (expr, x) -> build_expr_semantic ctx main
+			| _ -> raise (SemanticError ((string_of_expr main) ^ "is expected to have DotExpr here")))
+		and s_time = build_expr_semantic ctx time 
+		and s_value = build_expr_semantic ctx value in
+		(match s_main with SDotExpr (sexpr, x, sem) ->
+			let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) and 
+				double_type = BaseTypeEntry(look_up_type "DOUBLE" ctx.typetab) and 
+				clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab) in
+			if sem.type_def = clip_type then (
+				if (extract_semantic s_value).type_def = double_type then (
+					if (extract_semantic s_time).type_def=int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
+					else if (extract_semantic s_time).type_def=double_type then STimeSetAttribute (sexpr, x, s_time, s_value)
+					else  raise (SemanticError ("Attribute assignment index" ^ (string_of_expr time) ^ " has to be of Int of Double type"))
+				) else raise (SemanticError ((string_of_expr value) ^ ": rvalue for attribute assignment has to be of Double type"))
+			) else raise (SemanticError ("Attribute assignment has to be performed to a Clip, but " ^ (string_of_expr main) ^ "'s type is mismatched"))
+			| _ -> raise (ProcessingError ("SetAttribute analysis error when processing " ^ (string_of_s_expr s_main))))
 	| IfStmt cl -> 
 		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
 		let ctx2 = push_var_env ctx in

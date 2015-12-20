@@ -27,6 +27,7 @@ and array_constructor =
 
 type stmt =
   | Assign of expr option * expr
+  | SetAttribute of expr * expr * expr
   | IfStmt of cond_exec list
   | ForIn of string * expr * stmt list
   | ForRange of string * expr * expr * stmt list * for_range_dir
@@ -95,6 +96,7 @@ and string_of_array_constructor = function
 and string_of_stmt = function
   | Assign(None,rvalue) -> string_of_expr rvalue
   | Assign(Some(lvalue), rvalue) -> (string_of_expr lvalue) ^ " = " ^ (string_of_expr rvalue)
+  | SetAttribute(main, time, value) -> (string_of_expr main) ^ "@" ^ (string_of_expr time) ^ "=" ^ (string_of_expr value)
   | IfStmt(conds) -> string_of_first_cond_exec (List.hd conds) ^ "\n" ^
   (String.concat "\n" (List.map string_of_cond_exec (List.tl conds)))
   | ForIn(var, expr, stmts) -> "for " ^ var ^ " in " ^ (string_of_expr expr) 
@@ -150,6 +152,7 @@ and string_of_program program =
 exception VariableNotDefined of string
 exception TypeNotDefined of string
 exception SemanticError of string
+exception ProcessingError of string
 exception TypeExist of string
 exception GenerationError of string
 exception TypeRedefined of string

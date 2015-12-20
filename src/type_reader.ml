@@ -1,14 +1,13 @@
 open Ast
 
-let walk_dec program context = 
-    
-    let print_kv k v =
-        print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual: " ^ v.t_actual)
-    in
+let walk_dec program context =
+
+    (*let print_kv k v =
+        print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual:" ^ v.t_actual)
 
     let printtypetab t = 
         NameMap.iter print_kv t
-    in
+    in*)
 
     let generate_scope parent_scope id = (if parent_scope="" then "" else (String.uppercase parent_scope) ^ "::") ^ (String.uppercase id) 
     in
@@ -22,7 +21,7 @@ let walk_dec program context =
 
     let duplicate_types typetab id = 
         try 
-            let typeentry = NameMap.find id typetab in
+            let _ = NameMap.find id typetab in
                 raise (TypeRedefined id)
         with   
             Not_found -> id
@@ -51,7 +50,7 @@ let walk_dec program context =
     let rec type_nested_walk_1 typetab oid = function
         | Ast.TypeDecl(id, type_element) -> 
                 let newid = generate_scope oid (String.uppercase id) in
-                let nid = duplicate_types typetab newid in 
+                let _ = duplicate_types typetab newid in 
                 let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in  
                     List.fold_left (fun tt e -> mem_nested_1 tt newid e) tt type_element 
@@ -83,7 +82,7 @@ let walk_dec program context =
     and typewalk_1 typetab parent_scope= function
          | Ast.TypeDecl(id, type_element) -> 
                 let newid = generate_scope parent_scope (String.uppercase id) in 
-                let nid = duplicate_types typetab newid in 
+                let _ = duplicate_types typetab newid in 
                 let entry = {t_name=newid; t_actual=newid; members=NameMap.empty; evals=[]} in
                 let tt = NameMap.add newid entry typetab in
                     List.fold_left (fun tt e -> mem_nested_1 tt id e) tt type_element 

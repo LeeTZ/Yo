@@ -1,0 +1,44 @@
+type Int:
+    a: Int
+    func eval(a: Double) -> Int:
+        return
+
+    func eval(a: String) -> Int:
+        return 
+
+    func eval(a:Int) -> Int:
+        return
+
+
+type String:
+    b: String
+    func eval(a: Int) -> String:
+        return 
+
+    func eval(a: Double) -> String:
+        return
+
+    func eval(a: String) -> String:
+        return 
+
+type Double:
+    c: Double
+    func eval(a: Int) -> Double:
+        return
+
+    func eval(a: String) -> Double:
+        return
+
+    func eval(a: Double) -> Double:
+        return 
+
+
+type Bool:
+    func eval(a: Bool) -> Bool:
+        return 
+
+type Void:
+    func eval(a: Void) -> Void:
+        return
+
+

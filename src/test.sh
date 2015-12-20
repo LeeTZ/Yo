@@ -213,6 +213,53 @@ CheckFail() {
     globalerror=$error
     fi
 }
+TestTypeReader() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.yo//'`
+    reffile=`echo $1 | sed 's/.yo$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+
+    echo -n "$basename..."
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+    generatedfiles=""
+    tmpfiles=""
+    # old from microc - interpreter
+    # generatedfiles="$generatedfiles ${basename}.i.out" &&
+    # Run "$YO" "-i" "<" $1 ">" ${basename}.i.out &&
+    # Compare ${basename}.i.out ${reffile}.out ${basename}.i.diff
+    YO="./typereader_test"
+    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
+    Run "$YO" "<" "../test/typereader/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
+    #g++ ${basename}.f.cpp libclip.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
+    g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    Run "./yo.prog" ">" ${basename}.f.out &&
+    Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
+
+
+    #generatedfiles="$generatedfiles ${basename}.f.out" &&
+    #tmpfiles="$tmpfiles tests/${basename}.lrx_lrxtmp.c a.out" &&
+    #Run "$YO" "-b" $1 &&
+    #Run "$binaryoutput" ">" ${basename}.f.out &&
+    #Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
+    
+    #rm -f $tmpfiles
+
+    # Report the status and clean up the generated files
+
+    if [ $error -eq 0 ] ; then
+    if [ $keep -eq 0 ] ; then
+        rm -f $generatedfiles
+    fi
+    echo "OK"
+    echo "###### SUCCESS" 1>&2
+    else
+    echo "###### FAILED" 1>&2
+    globalerror=$error
+    fi
+}
 
 TestRunningProgram() {
     error=0
@@ -234,8 +281,8 @@ TestRunningProgram() {
     YO="./generate_test"
     generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
     Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
-    g++ ${basename}.f.cpp libclip.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
-    #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    #g++ ${basename}.f.cpp libclip.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
+    g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
     Run "./yo.prog" ">" ${basename}.f.out &&
     Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
 
@@ -313,19 +360,20 @@ do
         echo "\033[32m OK \033[0m"
         TestRunningProgram $file 2>> $globallog
         ;;
+    *test-typereader*)
+        echo "##### Now Testing Single FullStack #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
+        TestTypeReader $file 2>> $globallog
+        ;;
     *test-fail*)
         CheckFail $file 2>> $globallog
         ;;
     *test-*)
         Check $file 2>> $globallog
         ;;
-    *)
-        echo "##### Now Testing Single FullStack #####"
-        echo "preprocessing....."
-        python $preproc_path $file
-        echo "\033[32m OK \033[0m"
-        TestRunningProgram $file 2>> $globallog
-        ;;
+    
         #echo "unknown file type $file"
         #globalerror=1
         #;;

@@ -78,13 +78,16 @@ expr:
     | expr GEQ    expr                      { Binop($1, Geq,   $3) }
     | expr AND      expr                    { Binop($1, And,   $3) }
     | expr OR           expr                { Binop($1, Or,   $3) }
-    | expr DOT ID                           { DotExpr($1, $3) }
+    | dot_expr                           { $1 }
     | expr LBRACKET expr RBRACKET           { ArrayIndex($1, $3) }
     | expr LBRACKET expr COLON expr RBRACKET { ArrayRange($1, $3, $5) }
     | expr HAT expr AT expr                 { ClipConcat($1, $3, $5) }
     | expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
     | ID LPAREN arg_expr_opt RPAREN         { Call(None, $1, $3) }
     | array_constructor LPAREN arg_expr_opt RPAREN { BuildArray($1, $3) }
+
+dot_expr:
+    | expr DOT ID  { DotExpr($1, $3) }
 
 array_constructor:
     | expr LBRACKET RBRACKET { SimpleArrayConstructor $1 }
@@ -95,8 +98,9 @@ expr_opt:
     | expr          { Some($1) }
 
 statement:
-    expr SEMI                                                              { Assign(None, $1) }
+    | expr SEMI                                                            { Assign(None, $1) }
     | expr ASSIGN expr SEMI                                                { Assign(Some($1), $3) }
+    | dot_expr AT expr ASSIGN expr SEMI                                        { SetAttribute($1, $3, $5) }
     | IF expr COLON LBRACE statement_opt RBRACE elif_statement_list else_statement { IfStmt(List.rev ($8 @ $7 @ [ CondExec(Some($2), $5) ])) }
     | WHILE expr COLON LBRACE statement_opt  RBRACE                        { WhileStmt($2, $5) }
     | FOR ID IN for_in_expr COLON LBRACE  statement_opt RBRACE             { ForIn($2, $4, $7) }

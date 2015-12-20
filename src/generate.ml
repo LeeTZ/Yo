@@ -29,7 +29,10 @@ let rec generate_expr = function
 		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipConcat (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
 		^ (generate_expr stm) ^ ")"
-	
+	| SClipFrameRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
+	| SClipTimeRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
+	| SClipFrameIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
+	| SClipTimeIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
 
 
 let rec generate_cond = function
@@ -67,6 +70,10 @@ and generate_stmt = function
 		) 
 		^ ";\n"
 
+	| SFrameSetAttribute (sexpr, x, s_time, s_value) -> 
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
+	| STimeSetAttribute (sexpr, x, s_time, s_value) -> 
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
 
 	| SIfStmt (l) -> "if(false) {}\n" ^ 
 		(let rec generate_cond_list = function

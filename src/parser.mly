@@ -127,10 +127,10 @@ else_statement:
     | ELSE COLON LBRACE statement_opt RBRACE { [CondExec(None, $4)] }
 
 var_decl:
-    ID COLON type_name   { VarDecl($1, $3) }
+    ID COLON type_name  { VarDecl($1, $3) }
 
 mem_var_decl:
-    var_decl   { MemVarDecl($1) }
+    var_decl SEMI  { MemVarDecl($1) }
 
 func_decl:
     FUNCTION ID LPAREN func_arg_opt RPAREN RIGHTARROW type_name COLON LBRACE statement_opt RBRACE      {FuncDecl($2, $4, $7, $10)}
@@ -163,7 +163,7 @@ global_statement:
 
 type_element_list:
     /*  nothing */  { [] }
-    | mem_var_decl type_element_list { $1 :: $2 }
+    | mem_var_decl  type_element_list { $1 :: $2 }
     | mem_func_decl type_element_list { $1 :: $2 }
     | mem_type_decl type_element_list { $1 :: $2 }
 

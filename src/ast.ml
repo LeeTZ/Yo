@@ -3,9 +3,9 @@ type op = Add | Sub | Mult | Div | Mod | Eq | Neq | Less | Leq | Gt | Geq | And 
 type types = Int | Double | Bool | String  of types
 
 type type_name = 
-	| SimpleType of string
+  | SimpleType of string
   | NestedType of type_name * string
-	| ArrayType of type_name
+  | ArrayType of type_name
 
 type expr =                                        (* Expressions*)
     IntConst of int                                (* 35 *)
@@ -14,10 +14,10 @@ type expr =                                        (* Expressions*)
   | StrConst of string                             (* "ocaml" *)
   | ArrayConst of expr list                        (* [12,23,34,56] *)
   | ArrayIndex of expr * expr                      (* A[B[3]]*)
-	| Var of string                                  (* foo *)  
+  | Var of string                                  (* foo *)  
   | DotExpr of expr * string                       (* A.B *)
   | Call of expr option * string * expr list       (* foo(a, b) *)
-	| Binop of expr * op * expr
+  | Binop of expr * op * expr
   | ArrayRange of expr * expr * expr
   | ClipConcat of expr * expr * expr
   | BuildArray of array_constructor * expr list
@@ -62,14 +62,14 @@ and global_ele_decl =
 type program = global_ele_decl list
 
 let rec string_of_type_name = function
-	| SimpleType t -> t
+  | SimpleType t -> t
   | NestedType (p, t) -> (string_of_type_name p) ^ "." ^ t
-	| ArrayType t -> (string_of_type_name t) ^ "[]"
+  | ArrayType t -> (string_of_type_name t) ^ "[]"
 
 let string_of_op = function
-	| Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/" | Mod -> "%"
+  | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/" | Mod -> "%"
   | Eq -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Gt -> ">" | Geq -> ">=" 
-	| And -> "&&" | Or -> "||"
+  | And -> "&&" | Or -> "||"
 
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
@@ -78,7 +78,7 @@ let rec string_of_expr = function
   | StrConst s -> s
   | Var v -> v
   | ArrayIndex(a, b) -> (string_of_expr a) ^ "[" ^ (string_of_expr b) ^ "]"
-	| ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
+  | ArrayConst(e) -> let s = (List.fold_left (fun a b -> a ^ ", " ^ b) "" (List.map string_of_expr e)) in 
   "[" ^ (String.sub s 2 ((String.length s) - 2))  ^ "]"
   | DotExpr(a, b) -> (string_of_expr a) ^ "." ^ b
   | Binop(e1, o, e2) -> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
@@ -147,19 +147,17 @@ and string_of_program program =
   program*) 
 
 
-
 exception VariableNotDefined of string
 exception TypeNotDefined of string
 exception SemanticError of string
 exception TypeExist of string
 exception GenerationError of string
-
 module NameMap = Map.Make(String)
 
 
 type eval_entry = {
     mutable args: var_entry list;
-    mutable ret: type_entry;
+    mutable ret: type_entry
     }
 and base_type =  { 
   t_name: string; (* type name used in yo *)
@@ -180,21 +178,20 @@ type compile_context = {
   mutable vsymtab: var_entry NameMap.t list; (* a stack of variable symbol maps of varname => var_entry *)
   mutable typetab: base_type NameMap.t (* type environment table: a map of base type name => base_type *)
 }
-
 (*
 let base_type ctx type_name = BaseTypeEntry(look_up_type type_name ctx.typetab) 
 *)
 let binop_type_tab = function
-	| Add 	-> "$add"
-	| Sub 	-> "$sub"
-	| Mult 	-> "$mult"
-	| Div 	-> "$div"
-	| Mod 	-> "$mod"
-	| Eq 		-> "$equal"
-	| Neq 	-> "$neq"
-	| Less 	-> "$less"
-	| Leq 	-> "$leq"
-	| Gt 		-> "$gt"
-	| Geq 	-> "$geq"
-	| And 	-> "$and"
-	| Or 		-> "$or"
+  | Add   -> "$add"
+  | Sub   -> "$sub"
+  | Mult  -> "$mult"
+  | Div   -> "$div"
+  | Mod   -> "$mod"
+  | Eq    -> "$equal"
+  | Neq   -> "$neq"
+  | Less  -> "$less"
+  | Leq   -> "$leq"
+  | Gt    -> "$gt"
+  | Geq   -> "$geq"
+  | And   -> "$and"
+  | Or    -> "$or"

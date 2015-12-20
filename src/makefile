@@ -17,6 +17,7 @@ YO=generate_test
 FLAGS:=-g
 
 $(YO): $(OBJ)
+	#ocamlc -g -o scanner_test scanner.cmo
 	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
 	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo 
 	ocamlc -g -o typereader_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo built_in_type.cmo type_reader.cmo print_typetab.cmo typereader_test.cmo
@@ -72,4 +73,6 @@ generate_test.cmo: semantic.cmo scanner.cmo parser.cmi generate.cmo built_in_typ
 generate_test.cmx: semantic.cmx scanner.cmx parser.cmx generate.cmx built_in_type.cmx type_reader.cmx
 typereader_test.cmo: type_reader.cmo scanner.cmo print_typetab.cmo parser.cmi built_in_type.cmo
 typereader_test.cmx: type_reader.cmx scanner.cmx print_typetab.cmx parser.cmx built_in_type.cmx
+scanner_test.cmo: scanner.cmo ast.cmo
+scanner_test.cmx: scanner.cmx ast.cmx
 

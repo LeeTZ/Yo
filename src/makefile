@@ -12,7 +12,7 @@ OBJ=ast.cmo \
 	generate_test.cmo \
 	typereader_test.cmo 
 
-YO=typereader_test
+YO=generate_test
 
 FLAGS:=-g
 

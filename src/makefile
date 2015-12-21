@@ -10,9 +10,10 @@ OBJ=ast.cmo \
 	print_typetab.cmo \
 	generate.cmo \
 	generate_test.cmo \
-	typereader_test.cmo 
+	typereader_test.cmo  \
+	semantic_test.cmo
 
-YO=generate_test
+YO=semantic_test
 
 FLAGS:=-g
 
@@ -20,7 +21,8 @@ $(YO): $(OBJ)
 	ocamlc -g -o parser_test parser.cmo scanner.cmo ast.cmo parser_test.cmo 
 	ocamlc -g -o typereader_test parser.cmo scanner.cmo ast.cmo sast.cmo type_reader.cmo print_typetab.cmo typereader_test.cmo
 	ocamlc -g -o generate_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo type_reader.cmo print_typetab.cmo generate.cmo generate_test.cmo 
-	
+	ocamlc -g -o semantic_test parser.cmo scanner.cmo ast.cmo sast.cmo semantic.cmo type_reader.cmo print_typetab.cmo semantic_test.cmo
+
 .SUFFIXES: .ml .cmo .cmi .mll .mly .mli
 .PRECIOUS: %.ml %.mli %.cmo
 
@@ -66,3 +68,5 @@ generate_test.cmo: type_reader.cmo semantic.cmo scanner.cmo parser.cmi generate.
 generate_test.cmx: type_reader.cmx semantic.cmx scanner.cmx parser.cmx generate.cmx ast.cmx
 typereader_test.cmo: type_reader.cmo scanner.cmo print_typetab.cmo parser.cmi ast.cmo
 typereader_test.cmx: type_reader.cmx scanner.cmx print_typetab.cmx parser.cmx ast.cmx
+semantic_test.cmo: type_reader.cmo semantic.cmo scanner.cmo sast.cmo parser.cmi ast.cmo
+semantic_test.cmx: type_reader.cmx semantic.cmx scanner.cmx sast.cmx parser.cmx ast.cmx

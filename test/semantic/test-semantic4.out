@@ -276,14 +276,26 @@ v_name: b, v_actual: _bInt
 ret: Int
 Member: 
 
-Typetab KEY: ocamlisgood
-t_name: ocamlisgood, t_actual: _ocamlisgood, 
+Typetab KEY: ocamlisbad
+t_name: ocamlisbad, t_actual: _ocamlisbad, 
 Eval:
-args: v_name: c, v_actual: _cDouble
-ret: String
-args: v_name: b, v_actual: _bString
-ret: String
-args: v_name: a, v_actual: _aInt
-ret: Int
+args: ret: ocamlisbad
 Member: 
+Key: a
+ocamlisbad
+Key: b
+ocamlisbad
+
+Typetab KEY: ocamlisbad_ocamlisgood
+t_name: ocamlisbad_ocamlisgood, t_actual: _ocamlisbad_ocamlisgood, 
+Eval:
+args: v_name: d, v_actual: _dString
+ret: Int
+args: v_name: c, v_actual: _cInt
+ret: ocamlisbad_ocamlisgood
+Member: 
+Key: a
+ocamlisbad_ocamlisgood
+Key: b
+ocamlisbad
 

@@ -8,7 +8,7 @@ type ocamlisbad:
         b:ocamlisbad
 
         func eval(c: Int) -> ocamlisbad.ocamlisgood:
-            return
+            return 
 
         func eval(d: String) -> Int:
-            return
+            return 

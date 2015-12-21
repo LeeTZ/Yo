@@ -1,0 +1,11 @@
+type aaa: 
+    a: Int
+    b: Double
+    func bbb(a: aaa) -> aaa:
+        a = 1
+        b = 2
+        return a+b
+
+
+type clip:
+    h: String

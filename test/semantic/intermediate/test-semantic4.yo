@@ -1,0 +1,10 @@
+type udf:{
+    a: Int;
+    b: String;
+    func eval(self: udf) -> udf:{
+        self.a = 2;
+        self.b = "1";
+        return self;
+}
+}
+u = udf();

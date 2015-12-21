@@ -1,0 +1,25 @@
+for i$Int new$ = 1$Int $ to 10$Int $:
+log(i$Int $)$Int $
+a$Int new$ = 3$Int $
+log(a$Int $)$Int $
+break
+for i$Int new$ = 10$Int $ downto 1$Int $:
+if i$Int $ == 3$Int $$Bool $:
+continue
+
+log(i$Int $)$Int $
+arr2$Int[] new$ = [1$Int $, 2$Int $, 3$Int $, 4$Int $]$Int[] new array$
+for i$Int new$ in arr2$Int[] $:
+if i$Int $ == 3$Int $$Bool $:
+break
+
+log(i$Int $)$Int $
+arr3$String[] new$ = ["a"$String $, "b"$String $, "c"$String $, "d"$String $]$String[] new array$
+for i$String new$ in arr3$String[] $:
+if i$String $ == "a"$String $$Bool $:
+log(i$String $)$String $
+elif i$String $ == "b"$String $$Bool $:
+log(i$String $)$String $
+log(i$String $)$String $
+else:for j$Int new$ = 1$Int $ to 3$Int $:
+log(i$String $)$String $

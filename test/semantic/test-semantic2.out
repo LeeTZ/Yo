@@ -1,5 +1,0 @@
-i$Int new$ = 1$Int $
-while i$Int $ <=10$Int $$Bool $:
-LOG(i$Int $)$Void $
-LOG(" hello world\n"$String $)$Void $
-i$Int $ = i$Int $ +1$Int $$Int $

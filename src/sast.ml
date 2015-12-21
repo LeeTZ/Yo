@@ -30,7 +30,7 @@ type s_expr =                                 (* Expressions*)
   | SVar of string * sem             (* foo *)
   | SDotExpr of s_expr * string * sem        (* A.B *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
-  | SCall of s_expr option * string * s_expr list * sem      (* foo(a, b) *)
+  | SCall of s_expr option * base_type * s_expr list * sem      (* foo(a, b) *)
   | SBuildArray of type_entry * s_expr list * sem
   | SClipTimeIndex of s_expr * s_expr * sem
   | SClipFrameIndex of s_expr * s_expr * sem
@@ -84,8 +84,8 @@ let rec string_of_s_expr = function
   | SVar (id, s) -> id ^ (string_of_sem s)
   | SDotExpr (sexpr, id, s) -> (string_of_s_expr sexpr) ^ "." ^ id ^ (string_of_sem s)
   | SBinop (lsexpr, op, rsexpr, s) -> (string_of_s_expr lsexpr) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_s_expr rsexpr) ^ (string_of_sem s)
-  | SCall (obj, f, el, s) -> (match obj with 
-          | None -> "" | Some st -> (string_of_s_expr st) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+  | SCall (obj, func_type, el, s) -> (match obj with 
+          | None -> "" | Some st -> (string_of_s_expr st) ^ "." ) ^ func_type.t_name ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
   | SClipTimeRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
   | SClipFrameRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
   | SClipConcat (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)

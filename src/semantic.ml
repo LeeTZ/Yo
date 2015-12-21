@@ -146,7 +146,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		SCall ((match obj with 
 		 				| None -> None 
 						| Some s -> Some(build_expr_semantic ctx s)), 
-					func_name, s_call_args, 
+					func_type, s_call_args, 
 					{actions=[]; type_def=func_eval.ret})
 	
 	| ClipConcat (cl1, cl2, tm) ->

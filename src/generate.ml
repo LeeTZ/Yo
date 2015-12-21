@@ -53,7 +53,7 @@ and generate_stmt = function
 		| Some (expr) -> 
 			let sem = extract_semantic expr in
 			(try let _ = List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions in
-				(generate_type_modifier sem.type_def) ^ " " ^ (generate_expr expr)
+				(*(generate_type_modifier sem.type_def) ^ *)"auto " ^ (generate_expr expr)
 			with Not_found -> generate_expr expr) 
 			^ " = " ^ (generate_expr s)(*let sem = extract_semantic expr in
 			(try List.find (fun x -> match x with NewVar -> true | _ -> false) sem.actions; 

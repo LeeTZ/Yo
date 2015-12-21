@@ -459,6 +459,22 @@ void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int frame, double
 		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
 	    	(*iterator)->location_x.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
 	   	}
+	}if (attname == "location_y"){
+		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
+	    	(*iterator)->location_y.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	   	}
+	}if (attname == "scale_x"){
+		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
+	    	(*iterator)->scale_x.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	   	}
+	}if (attname == "scale_y"){
+		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
+	    	(*iterator)->scale_y.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	   	}
+	}if (attname == "rotate"){
+		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
+	    	(*iterator)->rotate.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	   	}
 	}
 
 	// add more..

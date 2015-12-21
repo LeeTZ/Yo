@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include <libconfig.h++>
 #include <iostream>
+#include <fstream>
 #include <sys/types.h>
 #include <errno.h>
 #include <vector>
@@ -465,9 +466,21 @@ tr1::shared_ptr<_Clip> _Clip::eval(tr1::shared_ptr<Universal> obj, string fileNa
 		return createClip(fileName);
 	}
 
+
 struct _Clip_save : Universal {
 	static void eval(tr1::shared_ptr<_Clip> _clip, string fileName) {
 		writeClips(_clip, fileName);
+	}
+};
+
+struct _Clip_log : Universal {
+	static void eval(tr1::shared_ptr<_Clip> _clip) {
+		std::cout << logClip(_clip) << std::endl;
+	}
+
+	static void eval(tr1::shared_ptr<_Clip> _clip, string fileName) {
+		std::fstream fout(fileName);
+		fout << logClip(_clip);
 	}
 };
 

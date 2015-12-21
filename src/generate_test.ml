@@ -1,5 +1,5 @@
 open Ast
-let yoheader = "yoheader.yo"
+let yoheader = "../src/yoheader.yo"
 
 let _ =
 	let lexbuf = Lexing.from_channel (open_in yoheader) in	

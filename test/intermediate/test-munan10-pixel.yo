@@ -1,2 +1,5 @@
 c = Clip("helloworld.webm");
 p = c<20!30>@1;
+log(p.R);
+log(p.G);
+log(p.B);

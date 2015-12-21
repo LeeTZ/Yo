@@ -51,7 +51,7 @@ let walk_dec program context =
         | Ast.TypeDecl(id, type_element) -> 
                 let newid = generate_scope oid id in
                 let _ = duplicate_types typetab newid in 
-                let typeEntry = {t_name=newid; t_actual=newid; evals=[]; members=NameMap.empty;} in
+                let typeEntry = {t_name=newid; t_actual="_"^newid; evals=[]; members=NameMap.empty;} in
                 let tt = NameMap.add newid typeEntry typetab in  
                     List.fold_left (fun tt e -> mem_nested_1 tt newid e) tt type_element 
 

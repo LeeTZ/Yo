@@ -19,7 +19,8 @@ type expr =                                        (* Expressions*)
   | Call of expr option * string * expr list       (* foo(a, b) *)
   | Binop of expr * op * expr
   | ArrayRange of expr * expr * expr
-  | ClipConcat of expr * expr * expr
+  | ClipCascade of expr * expr * expr
+  | ClipConcat of expr * expr
   | BuildArray of array_constructor * expr list
 and array_constructor = 
   | SimpleArrayConstructor of expr
@@ -86,7 +87,8 @@ let rec string_of_expr = function
   | Call(obj, f, el) -> (match obj with 
           | None -> "" | Some s -> (string_of_expr s) ^ "." )^ f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | ArrayRange (cl, st, ed) -> (string_of_expr cl) ^ "[" ^ (string_of_expr st) ^ ":" ^ (string_of_expr ed) ^ "]"
-  | ClipConcat (cl1, cl2, tm) -> (string_of_expr cl1) ^ "^" ^ (string_of_expr cl2) ^ "@" ^ (string_of_expr tm)
+  | ClipCascade (cl1, cl2, tm) -> (string_of_expr cl1) ^ "^" ^ (string_of_expr cl2) ^ "@" ^ (string_of_expr tm)
+  | ClipConcat (cl1, cl2) -> (string_of_expr cl1) ^ "&" ^ (string_of_expr cl2)
   | BuildArray (t, el) -> (string_of_array_constructor t) ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
 
 and string_of_array_constructor = function

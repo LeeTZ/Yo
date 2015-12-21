@@ -147,13 +147,23 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 					func_type, s_call_args, 
 					{actions=[]; type_def=func_eval.ret})
 	
-	| ClipConcat (cl1, cl2, tm) ->
+	| ClipCascade (cl1, cl2, tm) ->
 		let scl1 = build_expr_semantic ctx cl1 and scl2 = build_expr_semantic ctx cl2 and stm = build_expr_semantic ctx tm in
 		if compare_type (extract_semantic scl1).type_def clip_type 
 			&& compare_type (extract_semantic scl2).type_def clip_type 
-			&& compare_type (extract_semantic stm).type_def double_type
-		then SClipConcat(scl1, scl2, stm, {actions=[]; type_def=clip_type})
-		else raise (SemanticError "ClipConcat operation expects type of Clip, Clip and Double")
+			then (if compare_type (extract_semantic stm).type_def double_type
+				then SClipTimeCascade(scl1, scl2, stm, {actions=[]; type_def=clip_type})
+				else if compare_type (extract_semantic stm).type_def int_type
+				then SClipFrameCascade(scl1, scl2, stm, {actions=[]; type_def=clip_type})
+				else raise (SemanticError "ClipCascade operation expects last argument of type Int or Double"))
+		else raise (SemanticError "First two arguments of ClipCascade operation expects type of Clip, Clip")
+
+	| ClipConcat (cl1, cl2) ->
+		let scl1 = build_expr_semantic ctx cl1 and scl2 = build_expr_semantic ctx cl2 in
+		if compare_type (extract_semantic scl1).type_def clip_type 
+			&& compare_type (extract_semantic scl2).type_def clip_type
+		then SClipConcat(scl1, scl2, {actions=[]; type_def=clip_type})
+		else raise (SemanticError "ClipConcat operation expects type of Clip, Clip")
 	
 	| BuildArray (main, args) ->
 		let rec resolve_ele_type = function

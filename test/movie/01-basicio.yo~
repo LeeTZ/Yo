@@ -1,2 +1,0 @@
-a = Clip("mactest.mov")
-a.save("mactest.webm")

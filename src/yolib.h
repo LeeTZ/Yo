@@ -506,7 +506,7 @@ tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
 
 tr1::shared_ptr<Universal> DUMMY_SELF;
 
-struct LOG
+struct _log
 {
 	template <typename T>
 	static void eval (tr1::shared_ptr<Universal> obj, T str) {

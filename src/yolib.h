@@ -1,5 +1,7 @@
 #include <memory>
 #include <iostream>
+#include <string>
+using namespace std;
 
 struct Universal {};
 using std::string;

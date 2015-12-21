@@ -61,10 +61,17 @@ type Clip:{
     rotate : Attribute[];
     volume : Attribute[];
     clips:  Clip[];
+
+    func eval(a: String) -> Clip: {
+        return;
+    }
+
+
 }
 type Frame:{
     width: Int;
     height: Int;
+    
 }
 
 func Log(a: Int) -> Int:{

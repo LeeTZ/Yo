@@ -1,12 +1,5 @@
-INT_MAX = 42 + 1
-for i = 0 to v:
-dist[i] = INT_MAX
-sptset[i] = false
-if dist[i]:
-continue
-elif sptset[i] != false:
-break
-elif dist[i] < m:
-return m
-else:while m < 3:
-dist[i] = i + 3
+i = 1
+while i < 10:
+log(i)
+log("hello world\n")
+i = i + 1

@@ -1,4 +1,0 @@
-type Clip:{
-    a: Int;
-    b: Double;
-}

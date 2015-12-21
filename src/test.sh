@@ -131,7 +131,7 @@ CheckSemanticAnalysis() {
     if [ $keep -eq 0 ] ; then
         rm -f $generatedfiles
     fi
-    echo "OK"
+    echo "\033[32m OK \033[0m"
     echo "###### SUCCESS" 1>&2
     else
     echo "###### FAILED" 1>&2
@@ -167,7 +167,7 @@ Check() {
     if [ $keep -eq 0 ] ; then
         rm -f $generatedfiles
     fi
-    echo "OK"
+    echo "\033[32m OK \033[0m"
     echo "###### SUCCESS" 1>&2
     else
     echo "###### FAILED" 1>&2
@@ -232,10 +232,10 @@ TestTypeReader() {
     # Compare ${basename}.i.out ${reffile}.out ${basename}.i.diff
     YO="./typereader_test"
     generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
-    Run "$YO" "<" "../test/typereader/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
+    Run "$YO" "<" "../test/typereader/intermediate/$basename.yo" ">" ${basename}.f.out &&
     #g++ ${basename}.f.cpp libclip.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
-    g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
-    Run "./yo.prog" ">" ${basename}.f.out &&
+    #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    #Run "./yo.prog" ">" ${basename}.f.out &&
     Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
 
 

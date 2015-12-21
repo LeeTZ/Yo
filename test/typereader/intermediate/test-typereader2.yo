@@ -1,0 +1,9 @@
+func ocamlisgood(a: Int) -> Int:{
+    return 123;
+}
+func ocamlisgood(b: String) -> String:{
+    return "123";
+}
+func ocamlisgood(c: Double) -> String:{
+    return "aaa";
+}

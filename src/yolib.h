@@ -278,11 +278,13 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	double totaltime = 0;
 	list<Clip*> lists = clip->Clips();
 	for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
-    	if ((*iterator)->Position() + (*iterator)->End() > totaltime){
-    		totaltime = (*iterator)->Position()+ (*iterator)->End();
+    	if ((*iterator)->Position() + ((*iterator)->End() - (*iterator)->Start()) > totaltime){
+    		totaltime = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}    	
 	}
-	int totalframe = 24 * (int(totaltime) + 1);
+	std::cout << totaltime << std::endl;
+	int totalframe = int(V_FPS * totaltime) + 1;
+	std::cout << totalframe << std::endl;
 	std::cout << "Rendering... Totalframe:" << totalframe << std::endl;
 	w.WriteFrame(&(*clip), 1, totalframe);
 	w.Close();
@@ -301,21 +303,29 @@ tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,double starttime, 
 	list<Clip*>	cliplists = _clip->__instance__->Clips();
 	tr1::shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
+		bool modifyhead = false;
+		bool modifyend = false;
 		if ((*iterator)->Position() < starttime){
-			if ((*iterator)->Position() + (*iterator)->End() < starttime){
+			if ((*iterator)->Position() + ((*iterator)->End() - (*iterator)->Start()) < starttime){
 				continue;
 			}
-			(*iterator)->Start(starttime - (*iterator)->Position());
+			modifyhead = true;
 		}
-
-		if ((*iterator)->Position() >= starttime && (*iterator)->Position() < endtime){
-			if ((*iterator)->Position() + (*iterator)-> End() > endtime){
-				(*iterator)->End(endtime - (*iterator)->Position());
+		if ((*iterator)->Position() < endtime){
+			if ((*iterator)->Position() + ((*iterator)-> End() - (*iterator)->Start()) > endtime){
+				modifyend = true;
 			}
 		}
 		if ((*iterator)->Position() >= endtime){
 			continue;
 		}
+		if (modifyhead){
+			(*iterator)->Start(starttime - (*iterator)->Position());
+		}
+		if (modifyend){
+			(*iterator)->End(endtime - (*iterator)->Position());
+		}
+
 		res->AddClip(*iterator);
 	}
 	res->Open();
@@ -331,8 +341,8 @@ tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,double starttime, 
 */
 
 tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,int startframe, int endframe){
-	double starttime = startframe / V_FPS;
-	double endtime = endframe / V_FPS;
+	double starttime = double (startframe) / V_FPS;
+	double endtime = double (endframe) / V_FPS;
 	return clipRange(_clip, starttime, endtime);
 }
 

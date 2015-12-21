@@ -14,10 +14,10 @@ using namespace std;
 using namespace libconfig;
 /*Global output configuration*/
 int V_FPS=24;
-int V_WIDTH=1280;
-int V_HEIGHT=720;
+int V_WIDTH=960;
+int V_HEIGHT=480;
 int V_PIXEL_RATIO=1;
-int V_BIT_RATE=2500000;
+int V_BIT_RATE=300000;
 
 struct pixel{
 	int R;
@@ -283,6 +283,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	//std::cout << (clip)->Json() << std::endl;
 	FFmpegWriter w(filename);
 	string extension = getextension(filename);
+	w.SetAudioOptions(true, "libvorbis", 44100, 2, LAYOUT_STEREO, 188000);
 	if (extension == "webm")
 		w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
 	w.Open();
@@ -385,7 +386,7 @@ tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<_Clip> _clip,double frametime){
 
 
 /*
-return a matrix of 
+return a matrix of 	
 pixel : R G B{}
 pixel = getpixel(clip,frame,i,j)
 */
@@ -399,6 +400,11 @@ pixel getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){
 	res.G = int(pixels[3 * index + 1]);
 	res.B = int(pixels[3 * index + 2]);
 	return res;	
+}
+
+pixel getPixel(tr1::shared_ptr<_Clip> _clip, double frametime, int x, int y){
+	int frame = int (frametime*V_FPS);
+	return getPixel(_clip,frame,x,y);	
 }
 
 /*
@@ -415,13 +421,23 @@ std::string int_to_hex( T i )
   return stream.str();
 }
 
-
-void setPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y, pixel p){
+/*
+void setPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y, pixel res){
 	tr1::shared_ptr<Frame> f = _clip->__instance__->GetFrame(frame);
-	string color = "#" + int_to_hex(p.R) + int_to_hex(p.G) + int_to_hex(p.B);
-	cout << color << endl;
-	f->AddColor(x,y,color);
+	const unsigned char* pixels = f->GetPixels();
+	unsigned char* dest;
+	strcpy(dest,pixels);
+	int index = x * f->GetWidth() + y;
+	dest[3*index] = char(res.R);
+	dest[3*index + 1] = char(res.G);
+	dest[3*index + 2] = char(res.B);
+	const unsigned char* p = (const char*) dest;
+	f->AddImage(f->GetWidth(), f->GetHeight(), 4, QImage::Format_RGBA8888, p);
+	//string color = "#" + int_to_hex(p.R) + int_to_hex(p.G) + int_to_hex(p.B);
+	//cout << color << endl;
+	//f->AddColor(x,y,color);
 }
+*/
 
 /* write clips to a file
    yo:prog:

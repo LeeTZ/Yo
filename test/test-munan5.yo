@@ -1,5 +1,5 @@
 #c = Clip("helloworld.webm")
-b = Clip("helloworld3.webm")
+b = Clip("mactest.mov")
 #a = c[10:50]
 #a.location_x@0 = (0.0-1.0)
 #a.location_x@39 = (1.0)

@@ -1,3 +1,7 @@
-type Clip: 
+type aaa: 
     a: Int
     b: Double
+
+
+type clip:
+	h: String

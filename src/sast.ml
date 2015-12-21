@@ -36,7 +36,9 @@ type s_expr =                                 (* Expressions*)
   | SClipFrameIndex of s_expr * s_expr * sem
   | SClipTimeRange of s_expr * s_expr * s_expr * sem
   | SClipFrameRange of s_expr * s_expr * s_expr * sem
-  | SClipConcat of s_expr * s_expr * s_expr * sem
+  | SClipConcat of s_expr * s_expr * sem
+  | SClipTimeCascade of s_expr * s_expr * s_expr * sem
+  | SClipFrameCascade of s_expr * s_expr * s_expr * sem
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
@@ -88,7 +90,9 @@ let rec string_of_s_expr = function
           | None -> "" | Some st -> (string_of_s_expr st) ^ "." ) ^ func_type.t_name ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
   | SClipTimeRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
   | SClipFrameRange (cl, st, ed, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr st) ^ "," ^ (string_of_s_expr ed) ^ "]" ^ (string_of_sem s)
-  | SClipConcat (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
+  | SClipTimeCascade (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
+  | SClipFrameCascade (cl1, cl2, tm, s) -> (string_of_s_expr cl1) ^ "^" ^ (string_of_s_expr cl2) ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
+  | SClipConcat (cl1, cl2, s) -> (string_of_s_expr cl1) ^ "&" ^ (string_of_s_expr cl2)  ^ (string_of_sem s)
   | SClipTimeIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
   | SClipFrameIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
   | SBuildArray (t, el, s) -> (string_of_type t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
@@ -133,7 +137,9 @@ let extract_semantic = function
   | SClipFrameIndex (_, _, s) -> s
   | SClipTimeRange (_, _, _, s) -> s
   | SClipFrameRange (_, _, _, s) -> s  
-  | SClipConcat (_, _, _, s) -> s  
+  | SClipTimeCascade (_, _, _, s) -> s  
+  | SClipFrameCascade (_, _, _, s) -> s  
+  | SClipConcat (_, _, s) -> s  
   | SBuildArray (_, _, s) -> s
 
 

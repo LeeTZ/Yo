@@ -27,8 +27,11 @@ let rec generate_expr = function
 	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">({})"
 	| SArrayRange (smain, sst, sed, sem) -> "slice_array<" ^ (generate_type_modifier (extract_array_ele_type sem.type_def)) 
 		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
-	| SClipConcat (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
+	| SClipTimeCascade (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
 		^ (generate_expr stm) ^ ")"
+	| SClipFrameCascade (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
+			^ (generate_expr stm) ^ ")"
+	| SClipConcat (scl1, scl2, _) -> "addClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ")"
 	| SClipFrameRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipTimeRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipFrameIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"

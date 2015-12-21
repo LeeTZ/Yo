@@ -278,7 +278,6 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	if (extension == "webm")
 		w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
 	w.Open();
-	//std::cout << clip->info.video_length << endl;
 	// calculate the ending time
 	double totaltime = 0;
 	list<Clip*> lists = clip->Clips();
@@ -287,9 +286,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
     		totaltime = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}    	
 	}
-	std::cout << totaltime << std::endl;
 	int totalframe = int(V_FPS * totaltime) + 1;
-	std::cout << totalframe << std::endl;
 	std::cout << "Rendering... Totalframe:" << totalframe << std::endl;
 	w.WriteFrame(&(*clip), 1, totalframe);
 	w.Close();

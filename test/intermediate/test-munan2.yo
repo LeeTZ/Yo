@@ -2,7 +2,6 @@ type A:{
     a: Int;
     type B:{
         b: Int;
-        a: A;
+        a: A.B;
 }
-    b: A_B_;
 }

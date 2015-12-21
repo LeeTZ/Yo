@@ -47,12 +47,12 @@ let find_matching_eval func_type call_arg_types =
 
 (* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx (expression:expr) : s_expr=  
-	let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) 
-	and double_type = BaseTypeEntry(look_up_type "DOUBLE" ctx.typetab)
-	and string_type = BaseTypeEntry (look_up_type "STRING" ctx.typetab) in
-	let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) 
-	and clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab)
-	and frame_type = BaseTypeEntry(look_up_type "FRAME" ctx.typetab) in
+	let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) 
+	and double_type = BaseTypeEntry(look_up_type "Double" ctx.typetab)
+	and string_type = BaseTypeEntry (look_up_type "String" ctx.typetab) in
+	let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) 
+	and clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab)
+	and frame_type = BaseTypeEntry(look_up_type "Frame" ctx.typetab) in
 	match expression with
 	(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
 	(* difference in code generation - just print the string representation! *)
@@ -77,7 +77,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		let smain = build_expr_semantic ctx main and sidx = build_expr_semantic ctx idx in
 		(match (extract_semantic smain).type_def with 
 			| BaseTypeEntry t -> (
-				if t.t_name = "CLIP" then 
+				if compare_type t clip_type then 
 					(if compare_type (extract_semantic sidx).type_def double_type
 					then SClipTimeIndex(smain, sidx, {actions=[]; type_def=frame_type})
 					else if compare_type (extract_semantic sidx).type_def int_type
@@ -95,7 +95,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		let type_main = (extract_semantic smain).type_def in
 		(match type_main with 
 			| BaseTypeEntry t -> (
-				if t.t_name = "CLIP" then 
+				if compare_type type_main clip_type then 
 					(if compare_type (extract_semantic sst).type_def double_type 
 						&& compare_type (extract_semantic sed).type_def double_type
 					then SClipTimeRange(smain, sst, sed, {actions=[]; type_def=clip_type})
@@ -191,9 +191,9 @@ let rec build_stmt_semantic ctx = function
 		and s_time = build_expr_semantic ctx time 
 		and s_value = build_expr_semantic ctx value in
 		(match s_main with SDotExpr (sexpr, x, sem) ->
-			let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) and 
-				double_type = BaseTypeEntry(look_up_type "DOUBLE" ctx.typetab) and 
-				clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab) in
+			let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) and 
+				double_type = BaseTypeEntry(look_up_type "Double" ctx.typetab) and 
+				clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab) in
 			if sem.type_def = clip_type then (
 				if compare_type (extract_semantic s_value).type_def double_type then (
 					if compare_type (extract_semantic s_time).type_def int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
@@ -203,7 +203,7 @@ let rec build_stmt_semantic ctx = function
 			) else raise (SemanticError ("Attribute assignment has to be performed to a Clip, but " ^ (string_of_expr main) ^ "'s type is mismatched"))
 			| _ -> raise (ProcessingError ("SetAttribute analysis error when processing " ^ (string_of_s_expr s_main))))
 	| IfStmt cl -> 
-		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
+		let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) in
 		let ctx2 = push_var_env ctx in
 		SIfStmt (List.map (* go through each cond_exec *)
 		(fun t -> match t with CondExec (x,y) -> let s_stmt_list = List.map (build_stmt_semantic ctx2) y in
@@ -217,7 +217,7 @@ let rec build_stmt_semantic ctx = function
 		cl)
 
 	| WhileStmt (pred, stmts) -> 
-		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
+		let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) in
 		let ctx2 = push_var_env ctx in
 		let s_pred = build_expr_semantic ctx2 pred in
 		if compare_type (extract_semantic s_pred).type_def bool_type then ()
@@ -243,7 +243,7 @@ let rec build_stmt_semantic ctx = function
 		SForIn(varname, (extract_semantic svar), s_expr, s_stmt_list)
 	
 	| ForRange (varname, st_expr, ed_expr, stmts, dir) ->
-		let int_type = BaseTypeEntry(look_up_type "INT" ctx.typetab) in
+		let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) in
 		let s_st_expr = build_expr_semantic ctx st_expr and s_ed_expr = build_expr_semantic ctx ed_expr in
 		let nested_env = push_var_env ctx in
 		let svar = new_var nested_env varname 

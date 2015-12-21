@@ -2,5 +2,4 @@ type A:
     a: Int
     type B:
         b: Int
-        a: A
-    b: A_B_
+        a: A.B

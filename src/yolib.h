@@ -148,6 +148,13 @@ tr1::shared_ptr<_Clip> fromTimeline(tr1::shared_ptr<Timeline> tlptr) {
   tr1::shared_ptr<Timeline> r = createClip("output.webm");
 */
 
+std::string logClip(tr1::shared_ptr<_Clip> _clip){
+	list<Clip*> cliplists = _clip->__instance__->Clips();
+	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
+		return (*iterator)->Json();
+	}
+}
+
 tr1::shared_ptr<_Clip> createClip(string filename){
 	//check the file type, an image or a video
 	int filetype = isVideo(filename);
@@ -273,6 +280,7 @@ tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<
 
 void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	auto clip = _clip->__instance__;
+	//std::cout << (clip)->Json() << std::endl;
 	FFmpegWriter w(filename);
 	string extension = getextension(filename);
 	if (extension == "webm")
@@ -284,7 +292,9 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
     	if ((*iterator)->Position() + ((*iterator)->End() - (*iterator)->Start()) > totaltime){
     		totaltime = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
-    	}    	
+    	}   
+    	std::cout << (*iterator)->Position() << " " << (*iterator)->Start() << " " << (*iterator)->End() << std::endl;
+		//std::cout << (*iterator)->Json() << endl;
 	}
 	int totalframe = int(V_FPS * totaltime) + 1;
 	std::cout << "Rendering... Totalframe:" << totalframe << std::endl;
@@ -327,7 +337,6 @@ tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,double starttime, 
 		if (modifyend){
 			(*iterator)->End(endtime - (*iterator)->Position());
 		}
-
 		res->AddClip(*iterator);
 	}
 	res->Open();
@@ -460,12 +469,7 @@ tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
 	return n_vec;
 }
 */
-std::string logClip(tr1::shared_ptr<_Clip> _clip){
-	list<Clip*> cliplists = _clip->__instance__->Clips();
-	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
-		return (*iterator)->Json();
-	}
-}
+
 
 
 

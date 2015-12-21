@@ -1,4 +1,6 @@
 c = Clip("helloworld.webm");
 b = Clip("helloworld2.webm");
-d = (c & b);
-d.save("hello-combined.webm");
+e = c[0.0:1.5];
+f = b[0.0:5.8];
+d = (e & f);
+b.save("hello-combined.webm");

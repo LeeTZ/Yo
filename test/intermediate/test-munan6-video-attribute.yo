@@ -1,4 +1,4 @@
-c = Clip("abc.avi");
-c.alpha@1.0 = 0.2;
-c.alpha@2.0 = 0.5;
-Log(c.endtime);
+c = Clip("helloworld.webm");
+c.alpha@1 = 0.1;
+c.alpha@96 = 1.0;
+c.save("abc.webm");

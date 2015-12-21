@@ -2,12 +2,12 @@ open Ast
 open Sast
 
 let is_primitive_type t_def = match t_def.t_name with
-	| "Int" | "Double" | "String" | "Bool" -> true
+	| "Int" | "Double" | "String" | "Bool" | "Void" -> true
 	| _ -> false
 
 let rec generate_type_modifier = function
 	| BaseTypeEntry b -> (match b.t_name with 
-		| "Int" -> "int" | "Double" -> "double" | "Bool" -> "bool" | "String" -> "string"
+		| "Int" -> "int" | "Double" -> "double" | "Bool" -> "bool" | "String" -> "string" | "Void" -> "void"
 		| _ -> "tr1::shared_ptr<" ^ b.t_actual ^ ">")
 	| ArrayTypeEntry a -> "tr1::shared_ptr<vector<" ^ (generate_type_modifier a) ^ ">>"
 

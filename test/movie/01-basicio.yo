@@ -1,2 +1,3 @@
+# This script converts a movie to any other format. Details could be configured in config.ini
 a = Clip("mactest.mov")
 a.save("mactest.webm")

@@ -2,13 +2,6 @@ open Ast
 
 let walk_dec program context =
 
-    (*let print_kv k v =
-        print_string("key is " ^ k ^ ", t_name: " ^ v.t_name ^ ", t_actual:" ^ v.t_actual)
-
-    let printtypetab t = 
-        NameMap.iter print_kv t
-    in*)
-
     let generate_scope parent_scope id = (if parent_scope="" then "" else (parent_scope ^ "_")) ^ id
     in
 
@@ -45,7 +38,6 @@ let walk_dec program context =
         | ArrayType(at) -> 
                 exists_types typetab tail (arrcnt+1) at
     in
-    
 
     let rec type_nested_walk_1 typetab oid = function
         | Ast.TypeDecl(id, type_element) -> 
@@ -92,7 +84,7 @@ let walk_dec program context =
           | Ast.GlobalType(type_decl) -> let tt = typewalk_1 typetab "" type_decl in tt
           | Ast.GlobalFunc(func_decl) -> let tt = funcwalk_1 typetab "" func_decl in tt
           | _ -> typetab
-     in
+    in
 
 
     let varwalk_2 typetab parent = function
@@ -100,7 +92,6 @@ let walk_dec program context =
             let memVarEntry = exists_types typetab "" 0 typename in
             let parent_base = NameMap.find parent typetab in
             parent_base.members <- NameMap.add name memVarEntry parent_base.members
-
     in
 
     let funcwalk_2 typetab parent_scope = function
@@ -121,7 +112,6 @@ let walk_dec program context =
                 | Ast.MemVarDecl(mv) -> varwalk_2 typetab newid mv; ()
                 | Ast.MemTypeDecl(mt) -> typewalk_2 typetab newid mt
             ) ele_list;
-
     in
 
     let rec walk_decl_2 typetab = function
@@ -146,6 +136,4 @@ let walk_dec program context =
 in let t = context.typetab in let t = first_pass t program in let t = second_pass t program in let t = third_pass t in
 {vsymtab=[NameMap.empty]; typetab=t} 
 
-(*
-let context = walk_dec
-[GlobalType(TypeDecl("typetest",[MemVarDecl(VarDecl("a","Int"))]))]  *)
+

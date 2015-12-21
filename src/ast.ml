@@ -156,6 +156,7 @@ exception ProcessingError of string
 exception TypeExist of string
 exception GenerationError of string
 exception TypeRedefined of string
+
 module NameMap = Map.Make(String)
 
 

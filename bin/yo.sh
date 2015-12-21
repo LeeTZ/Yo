@@ -1,7 +1,7 @@
 #!/bin/sh
 
 binaryoutput="./a.out"
-preproc_path="preprocessor.py"
+preproc_path="../src/preprocessor.py"
 
 # Set time limit for all operations
 ulimit -t 30
@@ -65,11 +65,11 @@ TestRunningProgram() {
     generatedfiles=""
     tmpfiles=""
 
-    YO="./generate_test"
+    YO="../src/generate_test"
     #generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
     generatedfiles=""
     Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
-    g++ ${basename}.f.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
+    g++ ${basename}.f.cpp ../src/yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
     #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
     Run "./yo.prog" 
     

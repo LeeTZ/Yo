@@ -1,1 +1,2 @@
 c = Clip("abc.avi")
+c.save("cba.avi")

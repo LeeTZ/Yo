@@ -66,6 +66,9 @@ type Clip:{
         return;
     }
 
+    func save(self: Clip, a: String) -> Void: {
+        return;
+    }
 
 }
 type Frame:{

@@ -447,8 +447,10 @@ struct _Clip : Universal {
 	static tr1::shared_ptr<Timeline> eval(tr1::shared_ptr<Universal> obj, string fileName) {
 		return createClip(fileName);
 	}
+};
 
-	static void save(tr1::shared_ptr<Timeline> clip, string fileName) {
+struct _Clip_save : Universal {
+	static void eval(tr1::shared_ptr<Timeline> clip, string fileName) {
 		return writeClips(clip, fileName);
 	}
 };

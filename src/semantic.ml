@@ -139,7 +139,10 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 						(string_of_type t) ^ "_" ^ fname in
 		let func_type = try NameMap.find func_name ctx.typetab (* get type_entry for this func *)
 						with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " is not defined")) in
-		let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) s_call_args in
+		let augmented_s_args = match obj with 
+			| None -> s_call_args
+			| Some x -> (build_expr_semantic ctx x) :: s_call_args in
+		let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) augmented_s_args in
 		let func_eval = try find_matching_eval func_type call_arg_types (* get the matching eval *)
 						with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " does not take params of type " 
 								^ (String.concat ", " (List.map string_of_expr args)))) in

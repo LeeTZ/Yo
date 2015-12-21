@@ -1,0 +1,14 @@
+dist[i] = INT_MAX;
+sptset[i] = false;
+if (dist[i]):{
+    a = 1;
+}
+elif (sptset[i] != false):{
+    dist[2] = INT_MAX;
+}
+elif (dist[i] < m):{
+    return m;
+}
+else:{
+    return n;
+}

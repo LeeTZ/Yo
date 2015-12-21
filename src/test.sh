@@ -309,6 +309,41 @@ TestRunningProgram() {
     fi
 }
 
+
+MunanTest() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.yo//'`
+    reffile=`echo $1 | sed 's/.yo$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+
+    echo -n "$basename..."
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+    generatedfiles=""
+    tmpfiles=""
+
+    YO="./generate_test"
+    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
+    echo "\n"
+    echo "\n"
+    Run "$YO" "<" "../test/intermediate/$basename.yo" &&
+    #g++ ${basename}.f.cpp libclip.cpp yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
+    #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
+    #Run "./yo.prog" ">" ${basename}.f.out &&
+    #Compare ${basename}.f.out ${reffile}.out ${basename}.f.diff
+
+    if [ $error -eq 0 ] ; then
+    if [ $keep -eq 0 ] ; then
+        rm -f $generatedfiles
+    fi
+    echo "\n"
+    globalerror=$error
+    fi
+}
+
+
 while getopts kdpsh c; do
     case $c in
     k) # Keep intermediate files
@@ -359,6 +394,13 @@ do
         python $preproc_path $file
         echo "\033[32m OK \033[0m"
         TestRunningProgram $file 2>> $globallog
+        ;;
+    *test-munan*)
+        echo "##### Now Testing Munan #####"
+        echo "preprocessing....."
+        python $preproc_path $file
+        echo "\033[32m OK \033[0m"
+        MunanTest $file 
         ;;
     *test-typereader*)
         echo "##### Now Testing Single FullStack #####"

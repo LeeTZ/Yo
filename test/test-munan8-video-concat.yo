@@ -1,0 +1,4 @@
+c = Clip("helloworld.webm")
+b = Clip("helloworld2.webm")
+c = (c & b)
+c.save("hello-combined.webm")

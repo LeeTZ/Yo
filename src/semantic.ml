@@ -277,7 +277,7 @@ let build_func_semantic ctx = function
 		let check_ret_type = function 
 			| SReturn expr_option -> 
 				let actual_ret_type = (match expr_option with 
-					| Some ep -> (extract_semantic ep).type_def | None -> BaseTypeEntry(look_up_type "VOID" ctx.typetab)) in
+					| Some ep -> (extract_semantic ep).type_def | None -> BaseTypeEntry(look_up_type "Void" ctx.typetab)) in
 				if compare_type actual_ret_type expected_ret then () 
 				else raise (SemanticError ("Return expressions must have type " ^ (string_of_type expected_ret)
 					^ " as defined in function " ^ funcName))

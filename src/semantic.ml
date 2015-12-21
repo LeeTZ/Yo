@@ -175,7 +175,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			let sx = build_expr_semantic ctx x 
 			and sy  = build_expr_semantic ctx y in
 			if compare_type (extract_semantic sx).type_def int_type && compare_type (extract_semantic sy).type_def int_type
-			then SClipPixel (scl, sx, sy, stm, {actions=[]; type_def=clip_type})
+			then SClipPixel (scl, sx, sy, stm, {actions=[]; type_def=pixel_type})
 			else raise (SemanticError "Coordinate in ClipPixel operation expects type of Int, Int"))
 	else raise (SemanticError "ClipPixel operation expects type of Clip, <Int, Int>, Int")
 	

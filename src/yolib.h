@@ -442,7 +442,7 @@ struct LOG
 	}
 };
 
-struct _Clip : Universal {
+struct _Clip : Universal  {
 	
 	static tr1::shared_ptr<Timeline> eval(tr1::shared_ptr<Universal> obj, string fileName) {
 		return createClip(fileName);

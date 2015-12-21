@@ -1,8 +1,3 @@
-(*TODO : break continue in if statement? 
-          in while statement?
-*)
-
-
 open Ast
 open Sast
 
@@ -68,7 +63,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		let arraySem = {actions=[NewArr]; type_def=ArrayTypeEntry(elementType)} in
 		SArrayLiteral (
 			(List.map (fun e -> let s = build_expr_semantic ctx e in 
-			if (extract_semantic s).type_def = elementType then s 
+			if compare_type (extract_semantic s).type_def elementType then s 
 			else raise (SemanticError ("Element types in the array has to be uniform"))) x), arraySem)
   	(* try to find the variable in the symbol table; may throw exception when it is not found *)
   	| Var x -> SVar (x, {actions=[]; type_def=(look_up_var x ctx.vsymtab).v_type})

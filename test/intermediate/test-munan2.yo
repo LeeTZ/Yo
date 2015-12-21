@@ -1,0 +1,8 @@
+type A:{
+    a: Int;
+    type B:{
+        b: Int;
+        a: A;
+}
+    b: A_B_;
+}

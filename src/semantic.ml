@@ -11,7 +11,7 @@ let rec look_up_var id = function
   	| hd :: tail -> (try NameMap.find id hd with Not_found -> look_up_var id tail)
 
 (* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
-let rec look_up_type typeName typenv = (try NameMap.find (String.uppercase typeName) typenv 
+let rec look_up_type typeName typenv = (try NameMap.find typeName typenv 
 	with Not_found -> raise (TypeNotDefined typeName))
 
 (* lookup a variable from local to global in vsymtab. Usage: look_up_var id context.vsymtab *)
@@ -23,7 +23,7 @@ let rec look_up_type2 typeName typenv =
 		| _ -> raise (SemanticError "Nested type should be SimpleType") in
 	let rec generate_type = function 
 		| ArrayType t -> ArrayTypeEntry(generate_type t)
-		| x -> BaseTypeEntry(NameMap.find (String.uppercase(generate_simple_type_name x)) typenv) in
+		| x -> BaseTypeEntry(NameMap.find (generate_simple_type_name x) typenv) in
 	generate_type typeName)
 	with Not_found -> raise (TypeNotDefined (string_of_type_name typeName))
 
@@ -131,12 +131,11 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
   														  		
   	| Call (obj, fname, args) -> 	
   		let s_call_args = List.map (fun e -> build_expr_semantic ctx e) args in (*build semantics for args*)
-		let upper_name = String.uppercase fname in 
 		let func_name = match obj with (*should we change a name when searching for the function?*)
-			| None -> upper_name
+			| None -> fname
 			| Some x -> let sobj = build_expr_semantic ctx x in 
 						let t = (extract_semantic sobj).type_def in
-						(string_of_type t) ^ "." ^ upper_name in
+						(string_of_type t) ^ "_" ^ fname in
 		let func_type = try NameMap.find func_name ctx.typetab (* get type_entry for this func *)
 						with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " is not defined")) in
 		let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) s_call_args in

@@ -10,7 +10,7 @@ let _ =
 	let context = Type_reader.walk_dec program builtincontext in
 	(*Print_typetab.printtypetab context.typetab*)
 	let seman = Semantic.build_semantic context program in
-	let ccode = Generate.generate seman in
+	let ccode = Generate.generate context seman in
 	print_string ccode
 (*
 let _ =

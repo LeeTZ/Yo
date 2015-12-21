@@ -8,8 +8,8 @@ let is_primitive_type t_def = match t_def.t_name with
 let rec generate_type_modifier = function
 	| BaseTypeEntry b -> (match b.t_name with 
 		| "INT" -> "int" | "DOUBLE" -> "double" | "BOOL" -> "bool" | "STRING" -> "string"
-		| _ -> "shared_ptr<" ^ b.t_actual ^ ">")
-	| ArrayTypeEntry a -> "shared_ptr<vector<" ^ (generate_type_modifier a) ^ ">>"
+		| _ -> "tr1::shared_ptr<" ^ b.t_actual ^ ">")
+	| ArrayTypeEntry a -> "tr1::shared_ptr<vector<" ^ (generate_type_modifier a) ^ ">>"
 
 let extract_array_ele_type t = match t with ArrayTypeEntry a -> a | _ -> raise (GenerationError "Expect an array type here")
 
@@ -127,7 +127,7 @@ let rec generate_type parent_name = function
   	"struct " ^ String.uppercase(parent_name ^ "_" ^ s) ^ " {\n" ^ 
 
 	(let generate_member content = function
-		| SMemVarDecl v -> content ^ (generate_var_decl v) ^ ";\n\n" | _ -> raise (GenerationError "Expecting SMemVarDecl here")
+		| SMemVarDecl v -> content ^ (generate_var_decl v) ^ ";\n" | _ -> raise (GenerationError "Expecting SMemVarDecl here")
 	 in List.fold_left generate_member "" (List.filter (fun x -> match x with SMemVarDecl s -> true | _ -> false) stml)) ^
 
 	(let generate_mem_eval content = function
@@ -148,15 +148,19 @@ let rec generate_type parent_name = function
 		(match x with SMemTypeDecl mtd ->generate_type this_name mtd | _ -> raise (ProcessingError ("Generation error"))) ) "" 
 		(List.filter (fun x -> match x with SMemTypeDecl s -> true | _ -> false) stml))
 
-let generate program = 
+let generate context program = 
 	let header = ["\"yolib.h\""] in
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
+	"\n/********************INCLUDE END******************/\n" ^
+	(List.fold_left (fun content x -> content ^ "struct " ^ x.t_actual ^ ";\n") 
+		"" (NameMap.fold (fun k v lst -> v:: lst) context.typetab [])) ^
+	"\n/********************DECLARATION END*****************/\n" ^
 	(List.fold_left (fun content x -> content ^ (match x with 
 		| SGlobalType t -> generate_type "" t 
 		| _ -> raise (ProcessingError ("Generation error")))) 
 		"" (List.filter (fun x -> match x with SGlobalType s -> true | _ -> false) program)) ^
-	"\n/****************TYPE DECLARATION ENDED***********/\n" ^
+	"\n/****************TYPE DECLARATION ENDED************/\n" ^
 	(List.fold_left (fun content x -> content ^ (match x with 
 		| SGlobalFunc t -> generate_func "" t 
 		| _ -> raise (ProcessingError ("Generation error")))) 

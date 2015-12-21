@@ -421,11 +421,13 @@ void setPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y, pixel p){
    
 */
 
-void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int second, double value){
+void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int frame, double value){
 	list<Clip*> lists = _clip->__instance__->Clips();
 	if (attname == "alpha"){
 		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
-	    	(*iterator)->alpha.AddPoint(second,value);    	
+	    	//double keytime = double(frame) / V_FPS + (*iterator)->Start();
+	    	(*iterator)->alpha.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	    	//std::cout << (*iterator)->Position() << " " << (*iterator)->Start() <<" " << (*iterator)->End() << " " << keytime <<" " << value << std::endl;
 		}
 	}// add more..
 }

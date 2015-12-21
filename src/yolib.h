@@ -122,7 +122,19 @@ int isVideo(string filename){
 	return -1;
 }
 
-struct _Clip;
+
+struct Universal {};
+using std::string;
+struct _Clip : Universal  {
+	
+	tr1::shared_ptr<Timeline> __instance__;
+
+	_Clip(tr1::shared_ptr<Timeline> tl) {
+		__instance__ = tl;
+	}	
+	static tr1::shared_ptr<_Clip> eval(tr1::shared_ptr<Universal> obj, string fileName);
+
+};
 
 tr1::shared_ptr<_Clip> fromTimeline(tr1::shared_ptr<Timeline> tlptr) {
 	return tr1::shared_ptr<_Clip>(new _Clip(tlptr));
@@ -261,7 +273,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	if (extension == "webm")
 		w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
 	w.Open();
-	std::cout << clip->info.video_length << endl;
+	//std::cout << clip->info.video_length << endl;
 	// calculate the ending time
 	double totaltime = 0;
 	list<Clip*> lists = clip->Clips();
@@ -271,6 +283,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
     	}    	
 	}
 	int totalframe = 24 * (int(totaltime) + 1);
+	std::cout << "Rendering... Totalframe:" << totalframe << std::endl;
 	w.WriteFrame(&(*clip), 1, totalframe);
 	w.Close();
 }
@@ -306,7 +319,7 @@ tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,double starttime, 
 		res->AddClip(*iterator);
 	}
 	res->Open();
-	return res;
+	return fromTimeline(res);
 }
 
 /*
@@ -436,9 +449,6 @@ void logClip(tr1::shared_ptr<_Clip> _clip){
 
 
 
-struct Universal {};
-using std::string;
-
 tr1::shared_ptr<Universal> DUMMY_SELF;
 
 struct LOG
@@ -449,22 +459,15 @@ struct LOG
 	}
 };
 
-struct _Clip : Universal  {
-	
-	tr1::shared_ptr<Timeline> __instance__;
 
-	_Clip(tr1::shared_ptr<Timeline> tl) {
-		__instance = tl;
-	}
 
-	static tr1::shared_ptr<_Clip> eval(tr1::shared_ptr<Universal> obj, string fileName) {
-		return tr1::shared_ptr<_Clip>(new _Clip(createClip(fileName)));
+tr1::shared_ptr<_Clip> _Clip::eval(tr1::shared_ptr<Universal> obj, string fileName) {
+		return createClip(fileName);
 	}
-};
 
 struct _Clip_save : Universal {
 	static void eval(tr1::shared_ptr<_Clip> _clip, string fileName) {
-		return writeClips(_clip->__instance__, fileName);
+		writeClips(_clip, fileName);
 	}
 };
 

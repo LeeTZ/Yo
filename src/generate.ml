@@ -21,7 +21,7 @@ let rec generate_expr = function
 	| SArrayIndex (x, y, s) -> "*" ^ generate_expr x ^ "[" ^ generate_expr y ^ "]"
 	| SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
 	| SBinop (x, op, y, s) -> "(" ^ (generate_expr x) ^ " " ^ (string_of_op op) ^ " " ^ (generate_expr y) ^ ")"
-	| SCall (obj, f, el, s) -> String.uppercase(f) ^ "::eval(" ^
+	| SCall (obj, f, el, s) -> f ^ "::eval(" ^
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^
 		(List.fold_left (fun content x -> content ^ ", " ^ (generate_expr x)) "" el) ^ ")"
 	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">({})"
@@ -118,13 +118,13 @@ let generate_eval args stmts s = "static " ^ (generate_type_modifier s.type_def)
 			^ ") {\n" ^ (generate_stmt_list stmts) ^ "}\n\n"
 
 let generate_func parent_name = function
-	| SFuncDecl(name, args, stmts, s) -> "struct " ^ String.uppercase(parent_name ^ "_" ^ name) ^ " {\n" ^
+	| SFuncDecl(name, args, stmts, s) -> "struct " ^ parent_name ^ "_" ^ name ^ " {\n" ^
 		(generate_eval args stmts s) ^ "\n};\n\n"
 
 let rec generate_type parent_name = function
 	| STypeDecl (s, stml) -> 
-	let this_name = String.uppercase(parent_name ^ "_" ^ s) in
-  	"struct " ^ String.uppercase(parent_name ^ "_" ^ s) ^ " {\n" ^ 
+	let this_name = parent_name ^ "_" ^ s in
+  	"struct " ^ parent_name ^ "_" ^ s ^ " {\n" ^ 
 
 	(let generate_member content = function
 		| SMemVarDecl v -> content ^ (generate_var_decl v) ^ ";\n" | _ -> raise (GenerationError "Expecting SMemVarDecl here")

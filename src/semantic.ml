@@ -75,9 +75,10 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 
 	| ArrayIndex (main, idx) -> 
 		let smain = build_expr_semantic ctx main and sidx = build_expr_semantic ctx idx in
-		(match (extract_semantic smain).type_def with 
+		(let main_type = (extract_semantic smain).type_def in
+			match main_type with 
 			| BaseTypeEntry t -> (
-				if compare_type t clip_type then 
+				if compare_type main_type clip_type then 
 					(if compare_type (extract_semantic sidx).type_def double_type
 					then SClipTimeIndex(smain, sidx, {actions=[]; type_def=frame_type})
 					else if compare_type (extract_semantic sidx).type_def int_type

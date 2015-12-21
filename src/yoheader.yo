@@ -85,27 +85,27 @@ type Frame:{
     
 }
 
-func Log(a: Int) -> Int:{
+func log(a: Int) -> Int:{
     return;
 }
 
-func Log(a: Double) -> Double: {
+func log(a: Double) -> Double: {
     return;
 }
 
-func Log(a: String) -> String: {
+func log(a: String) -> String: {
     return;
 }
 
-func Log(a: Clip) -> Clip: {
+func log(a: Clip) -> Clip: {
     return;
 }
 
-func Log(a: Frame) -> Frame: {
+func log(a: Frame) -> Frame: {
     return;
 }
 
-func Log(a: Attribute) -> Attribute: {
+func log(a: Attribute) -> Attribute: {
     return;
 }
 
@@ -150,19 +150,19 @@ func __Mod(a: Int, b: Int) -> Int:{
     return;
 }
 
-func __Eq(a: Int, b: Int) -> Bool:{
+func __Equal(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Eq(a: String, b: String) -> Bool:{
+func __Equal(a: String, b: String) -> Bool:{
     return;
 }
 
-func __Eq(a: Double, b: Double) -> Bool:{
+func __Equal(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Eq(a: Bool, b: Bool) -> Bool:{
+func __Equal(a: Bool, b: Bool) -> Bool:{
     return;
 }
 

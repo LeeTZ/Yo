@@ -9,7 +9,3 @@ let _ =
 	let program = Parser.global Scanner.token lexbuf in
 	let context = Type_reader.walk_dec program builtincontext in
 	Print_typetab.printtypetab context.typetab
-	(*let seman = Semantic.build_semantic context program in
-	print_string (Sast.string_of_s_program seman)
-	let ccode = Generate.generate seman in
-	print_string ccode*)

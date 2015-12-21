@@ -1,0 +1,1 @@
+Fatal error: exception Ast.SemanticError("Invalid assignment: expecting aaa, but having Int")

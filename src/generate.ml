@@ -19,7 +19,7 @@ let rec generate_expr = function
 		">({" ^ String.concat ", " (List.map generate_expr x) ^ "})"
 	| SVar (x, s) -> x
 	| SArrayIndex (x, y, s) -> "*" ^ generate_expr x ^ "[" ^ generate_expr y ^ "]"
-	| SDotExpr (x, y, s) -> generate_expr x ^ "." ^ y 
+	| SDotExpr (x, y, s) -> generate_expr x ^ "->" ^ y 
 	| SBinop (x, op, y, s) -> "(" ^ (generate_expr x) ^ " " ^ (string_of_op op) ^ " " ^ (generate_expr y) ^ ")"
 	| SCall (obj, func_type, el, s) -> func_type.t_actual ^ "::eval(" ^
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^

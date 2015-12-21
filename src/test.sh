@@ -109,36 +109,6 @@ CheckParser() {
     fi 
 }
 
-CheckSemanticAnalysis() {
-    error=0
-    basename=`echo $1 | sed 's/.*\\///
-                             s/.yo//'`
-    reffile=`echo $1 | sed 's/.yo$//'`
-    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
-
-    echo -n "$basename..."
-
-    echo 1>&2
-    echo "###### Testing $basename" 1>&2
-
-    generatedfiles=""
-
-    YO="./semantic_test"
-    generatedfiles="$generatedfiles ${basename}.s.out"
-    Run "$YO" "<" "../test/semantic/intermediate/$basename.yo" ">" ${basename}.s.out &&
-    Compare ${basename}.s.out ${reffile}.out ${basename}.s.diff
-
-    if [ $error -eq 0 ] ; then
-    if [ $keep -eq 0 ] ; then
-        rm -f $generatedfiles
-    fi
-    echo "OK"
-    echo "###### SUCCESS" 1>&2
-    else
-    echo "###### FAILED" 1>&2
-    globalerror=$error
-    fi 
-}
 
 Check() {
     error=0
@@ -214,6 +184,39 @@ CheckFail() {
     globalerror=$error
     fi
 }
+
+
+CheckSemanticAnalysis() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.yo//'`
+    reffile=`echo $1 | sed 's/.yo$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+
+    echo -n "$basename..."
+
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+    generatedfiles=""
+
+    YO="./semantic_test"
+    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
+    Run "$YO" "<" "../test/semantic/intermediate/$basename.yo" ">" ${basename}.s.out "2>" ${basename}.s.out &&    
+    Compare ${basename}.s.out ${reffile}.out ${basename}.s.diff
+
+    if [ $error -eq 0 ] ; then
+    if [ $keep -eq 0 ] ; then
+        rm -f $generatedfiles
+    fi
+    echo "OK"
+    echo "###### SUCCESS" 1>&2
+    else
+    echo "###### FAILED" 1>&2
+    globalerror=$error
+    fi
+}
+
 TestTypeReader() {
     error=0
     basename=`echo $1 | sed 's/.*\\///

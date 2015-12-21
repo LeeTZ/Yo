@@ -216,8 +216,8 @@ tr1::shared_ptr<_Clip> addClip(tr1::shared_ptr<_Clip> lop, tr1::shared_ptr<_Clip
     	// directly add clip to the timeline
     	res->AddClip(*iterator);
     	// find out how much time clip2 should shift
-    	if ((*iterator)->Position() + (*iterator)->End() > maxpos){
-    		maxpos = (*iterator)->Position()+ (*iterator)->End();
+    	if ((*iterator)->Position() + ((*iterator)->End()- (*iterator)->Start()) > maxpos){
+    		maxpos = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}    	
 	}
 
@@ -260,6 +260,10 @@ tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<
 	return fromTimeline(res);
 }
 
+tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<_Clip> top, int shiftframe){
+	double shiftime = double(shifttime) / V_FPS;
+	return layerClip(bottom,top,shifttime);
+}
 /* write clips to a file
    yo:prog:
    write(clip,"filename.mp4")

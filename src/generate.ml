@@ -71,9 +71,9 @@ and generate_stmt = function
 		^ ";\n"
 
 	| SFrameSetAttribute (sexpr, x, s_time, s_value) -> 
-		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); "\"" ^ x ^ "\""; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
 	| STimeSetAttribute (sexpr, x, s_time, s_value) -> 
-		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); x; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
+		"setProperty(" ^ (String.concat ", " [(generate_expr sexpr); "\"" ^ x ^ "\""; (generate_expr s_time); (generate_expr s_value)]) ^ ");\n"
 
 	| SIfStmt (l) -> "if(false) {}\n" ^ 
 		(let rec generate_cond_list = function

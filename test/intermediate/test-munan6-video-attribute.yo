@@ -1,0 +1,4 @@
+c = Clip("abc.avi");
+c.alpha@1.0 = 0.2;
+c.alpha@2.0 = 0.5;
+Log(c.endtime);

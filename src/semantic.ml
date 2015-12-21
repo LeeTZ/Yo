@@ -198,7 +198,7 @@ let rec build_stmt_semantic ctx = function
 			let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) and 
 				double_type = BaseTypeEntry(look_up_type "Double" ctx.typetab) and 
 				clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab) in
-			if sem.type_def = clip_type then (
+			if compare_type (extract_semantic sexpr).type_def clip_type then (
 				if compare_type (extract_semantic s_value).type_def double_type then (
 					if compare_type (extract_semantic s_time).type_def int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
 					else if compare_type (extract_semantic s_time).type_def double_type then STimeSetAttribute (sexpr, x, s_time, s_value)

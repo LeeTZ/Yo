@@ -114,11 +114,27 @@ and generate_stmt_list stmt_list = String.concat "\n" (List.map generate_stmt st
 let generate_var_decl = function
 	| SVarDecl (name, s) -> (generate_type_modifier s.type_def) ^ " " ^ name
 
-let generate_eval args stmts s = "static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
-			(String.concat ", " (List.map (
-				fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
-				 ^ " " ^ arg_name )) args) ) 
-			^ ") {\n" ^ (generate_stmt_list stmts) ^ "}\n\n"
+let generate_init_eval args stmts s = 
+	let initialObject = 
+		let extract_arg_name = function SVarDecl(arg_name, arg_sem) -> arg_name in
+		match args with hd :: tail ->
+			let selfName = extract_arg_name hd and typeName = (generate_type_modifier s.type_def) in
+			selfName ^ " = " ^ typeName ^ "( new " ^ typeName ^ "(" ^ (String.concat ", " (List.map extract_arg_name tail)) ^ "));\n"
+		in
+		"static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
+		(String.concat ", " (List.map (
+			fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
+			 ^ " " ^ arg_name )) args) ) 
+		^ ") {\n" ^ initialObject ^ (generate_stmt_list stmts) ^ "}\n\n"
+
+let generate_eval args stmts s = 
+		"static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
+		(String.concat ", " (List.map (
+			fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
+			 ^ " " ^ arg_name )) args) ) 
+		^ ") {\n" ^ (generate_stmt_list stmts) ^ "}\n\n"
+
+
 
 let generate_func parent_name = function
 	| SFuncDecl(name, args, stmts, s) -> "struct " ^ parent_name ^ "_" ^ name ^ " {\n" ^
@@ -133,11 +149,11 @@ let rec generate_type parent_name = function
 		| SMemVarDecl v -> content ^ (generate_var_decl v) ^ ";\n" | _ -> raise (GenerationError "Expecting SMemVarDecl here")
 	 in List.fold_left generate_member "" (List.filter (fun x -> match x with SMemVarDecl s -> true | _ -> false) stml)) ^
 
-	(let generate_mem_eval content = function
+	(let generate_type_eval content = function
 		| SMemFuncDecl f -> content ^
-			(match f with SFuncDecl(name, args, stmts, s) -> if name <> "eval" then "" else (generate_eval args stmts s))
+			(match f with SFuncDecl(name, args, stmts, s) -> if name <> "eval" then "" else (generate_init_eval args stmts s))
 		| _ -> raise (GenerationError "Expecting SMemVarDecl here")
-	 in List.fold_left generate_mem_eval "" (List.filter (fun x -> match x with SMemFuncDecl s -> true | _ -> false) stml)) ^
+	 in List.fold_left generate_type_eval "" (List.filter (fun x -> match x with SMemFuncDecl s -> true | _ -> false) stml)) ^
 
 	"\n};\n\n" ^
 

@@ -216,8 +216,8 @@ tr1::shared_ptr<_Clip> addClip(tr1::shared_ptr<_Clip> lop, tr1::shared_ptr<_Clip
     	// directly add clip to the timeline
     	res->AddClip(*iterator);
     	// find out how much time clip2 should shift
-    	if ((*iterator)->Position() + (*iterator)->End() > maxpos){
-    		maxpos = (*iterator)->Position()+ (*iterator)->End();
+    	if ((*iterator)->Position() + ((*iterator)->End()- (*iterator)->Start()) > maxpos){
+    		maxpos = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}    	
 	}
 
@@ -260,6 +260,10 @@ tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<
 	return fromTimeline(res);
 }
 
+tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<_Clip> top, int shiftframe){
+	double shiftime = double(shifttime) / V_FPS;
+	return layerClip(bottom,top,shifttime);
+}
 /* write clips to a file
    yo:prog:
    write(clip,"filename.mp4")
@@ -274,7 +278,6 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	if (extension == "webm")
 		w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
 	w.Open();
-	//std::cout << clip->info.video_length << endl;
 	// calculate the ending time
 	double totaltime = 0;
 	list<Clip*> lists = clip->Clips();
@@ -283,9 +286,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
     		totaltime = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}    	
 	}
-	std::cout << totaltime << std::endl;
 	int totalframe = int(V_FPS * totaltime) + 1;
-	std::cout << totalframe << std::endl;
 	std::cout << "Rendering... Totalframe:" << totalframe << std::endl;
 	w.WriteFrame(&(*clip), 1, totalframe);
 	w.Close();

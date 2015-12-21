@@ -20,11 +20,14 @@ type expr =                                        (* Expressions*)
   | Binop of expr * op * expr
   | ArrayRange of expr * expr * expr
   | ClipCascade of expr * expr * expr
+  | ClipPixel of expr * coord * expr
   | ClipConcat of expr * expr
   | BuildArray of array_constructor * expr list
 and array_constructor = 
   | SimpleArrayConstructor of expr
   | CompositeArrayConstructor of array_constructor
+and coord = 
+  | Coord of expr * expr
 
 type stmt =
   | Assign of expr option * expr
@@ -73,6 +76,8 @@ let string_of_op = function
   | Eq -> "==" | Neq -> "!=" | Less -> "<" | Leq -> "<=" | Gt -> ">" | Geq -> ">=" 
   | And -> "&&" | Or -> "||"
 
+
+
 let rec string_of_expr = function
   | IntConst l -> string_of_int l
   | DoubleConst d -> string_of_float d 
@@ -89,7 +94,11 @@ let rec string_of_expr = function
   | ArrayRange (cl, st, ed) -> (string_of_expr cl) ^ "[" ^ (string_of_expr st) ^ ":" ^ (string_of_expr ed) ^ "]"
   | ClipCascade (cl1, cl2, tm) -> (string_of_expr cl1) ^ "^" ^ (string_of_expr cl2) ^ "@" ^ (string_of_expr tm)
   | ClipConcat (cl1, cl2) -> (string_of_expr cl1) ^ "&" ^ (string_of_expr cl2)
+  | ClipPixel (cl, c, tm) -> (string_of_expr cl) ^ (string_of_coord c) ^ (string_of_expr tm)
   | BuildArray (t, el) -> (string_of_array_constructor t) ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
+
+and string_of_coord = function
+  | Coord (x, y) -> "<" ^ (string_of_expr x) ^ ", " ^ (string_of_expr y) ^ ">"
 
 and string_of_array_constructor = function
   | SimpleArrayConstructor e -> (string_of_expr e) ^ "[]"

@@ -39,6 +39,7 @@ type s_expr =                                 (* Expressions*)
   | SClipConcat of s_expr * s_expr * sem
   | SClipTimeCascade of s_expr * s_expr * s_expr * sem
   | SClipFrameCascade of s_expr * s_expr * s_expr * sem
+  | SClipPixel of s_expr * s_expr * s_expr * s_expr * sem
   
 type s_stmt =
   | SAssign of s_expr option * s_expr
@@ -95,6 +96,7 @@ let rec string_of_s_expr = function
   | SClipConcat (cl1, cl2, s) -> (string_of_s_expr cl1) ^ "&" ^ (string_of_s_expr cl2)  ^ (string_of_sem s)
   | SClipTimeIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
   | SClipFrameIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
+  | SClipPixel (cl, x, y, tm, s) -> (string_of_s_expr cl) ^ "<" ^ (string_of_s_expr x) ^ (string_of_s_expr y) ^ ">" ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
   | SBuildArray (t, el, s) -> (string_of_type t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
 
 and string_of_s_stmt = function
@@ -140,6 +142,7 @@ let extract_semantic = function
   | SClipTimeCascade (_, _, _, s) -> s  
   | SClipFrameCascade (_, _, _, s) -> s  
   | SClipConcat (_, _, s) -> s  
+  | SClipPixel (_,_,_,_,s) -> s
   | SBuildArray (_, _, s) -> s
 
 

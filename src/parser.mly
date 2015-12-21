@@ -19,17 +19,19 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc COMMA
 %left RPAREN RBRACKET
 %right LPAREN LBRACKET
+%left LT GT LEQ GEQ
 %left EQ NEQ
 %left HAT AT
 %left AMPERSAND
 %left OR
 %left AND
-%left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %left DOT
+%nonassoc EXCLAMATION
 
 %start global
 %type <Ast.program> global
@@ -82,6 +84,7 @@ expr:
     | expr LBRACKET expr RBRACKET           { ArrayIndex($1, $3) }
     | expr LBRACKET expr COLON expr RBRACKET { ArrayRange($1, $3, $5) }
     | expr HAT expr AT expr                 { ClipCascade($1, $3, $5) }
+    | expr coord AT expr                 { ClipPixel($1, $2, $4) }
     | expr AMPERSAND expr                   { ClipConcat($1, $3)}
     | expr DOT ID LPAREN arg_expr_opt RPAREN { Call(Some($1), $3, $5) }
     | ID LPAREN arg_expr_opt RPAREN         { Call(None, $1, $3) }
@@ -89,6 +92,9 @@ expr:
 
 dot_expr:
     | expr DOT ID  { DotExpr($1, $3) }
+
+coord:
+    | LT expr EXCLAMATION expr GT { Coord($2, $4)}
 
 array_constructor:
     | expr LBRACKET RBRACKET { SimpleArrayConstructor $1 }

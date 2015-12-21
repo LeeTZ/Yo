@@ -79,6 +79,13 @@ type Clip:{
     }
 
 }
+
+type Pixel:{
+    R: Int;
+    G: Int;
+    B: Int;
+}
+
 type Frame:{
     width: Int;
     height: Int;

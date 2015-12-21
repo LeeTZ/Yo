@@ -36,6 +36,8 @@ let rec generate_expr = function
 	| SClipTimeRange (smain, sst, sed, _) -> "clipRange(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipFrameIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
 	| SClipTimeIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
+	| SClipPixel (clip, x, y, tm, _) -> "getPixel(" ^ (generate_expr clip) ^  ", " ^ (generate_expr tm) ^  ", " 
+		^ (generate_expr x) ^  ", " ^ (generate_expr y) ^ ")"
 
 
 let rec generate_cond = function

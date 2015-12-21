@@ -47,6 +47,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 	and string_type = BaseTypeEntry (look_up_type "String" ctx.typetab) in
 	let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) 
 	and clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab)
+	and pixel_type = BaseTypeEntry(look_up_type "Pixel" ctx.typetab)
 	and frame_type = BaseTypeEntry(look_up_type "Frame" ctx.typetab) in
 	match expression with
 	(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
@@ -164,6 +165,19 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			&& compare_type (extract_semantic scl2).type_def clip_type
 		then SClipConcat(scl1, scl2, {actions=[]; type_def=clip_type})
 		else raise (SemanticError "ClipConcat operation expects type of Clip, Clip")
+
+	| ClipPixel (clip, coord, tm) ->
+		let scl = build_expr_semantic ctx clip and stm = build_expr_semantic ctx tm in
+		if compare_type (extract_semantic scl).type_def clip_type
+		&& ((compare_type (extract_semantic stm).type_def int_type) || (compare_type (extract_semantic stm).type_def double_type))
+		then
+		(match coord with Coord (x, y) -> 
+			let sx = build_expr_semantic ctx x 
+			and sy  = build_expr_semantic ctx y in
+			if compare_type (extract_semantic sx).type_def int_type && compare_type (extract_semantic sy).type_def int_type
+			then SClipPixel (scl, sx, sy, stm, {actions=[]; type_def=clip_type})
+			else raise (SemanticError "Coordinate in ClipPixel operation expects type of Int, Int"))
+	else raise (SemanticError "ClipPixel operation expects type of Clip, <Int, Int>, Int")
 	
 	| BuildArray (main, args) ->
 		let rec resolve_ele_type = function

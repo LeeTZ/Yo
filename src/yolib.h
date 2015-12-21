@@ -23,6 +23,9 @@ struct _Pixel{
 	int R;
 	int G;
 	int B;
+	_Pixel(int r, int g, int b){
+		R =r; G =g; B=b;
+	}
 };
 
 
@@ -390,14 +393,10 @@ pixel : R G B{}
 pixel = getpixel(clip,frame,i,j)
 */
 
-tr1::shared_ptr<_Pixel> getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){
+tr1::shared_ptr<_Pixel> getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){	
 	tr1::shared_ptr<Frame> f = _clip->__instance__->GetFrame(frame);
-	const unsigned char* pixels = f->GetPixels();
-	int index = x * f->GetWidth() + y;
-	tr1::shared_ptr<_Pixel> res;
-	res->R = int(pixels[3 * index]);
-	res->G = int(pixels[3 * index + 1]);
-	res->B = int(pixels[3 * index + 2]);
+	const unsigned char* pixels = f->GetPixels(x);
+	tr1::shared_ptr<_Pixel> res(new _Pixel(int(pixels[3 * y]),int(pixels[3 * y + 1]),int(pixels[3 * y + 2])));	
 	return res;	
 }
 

@@ -78,7 +78,7 @@ TestRunningProgram() {
     if [ $keep -eq 0 ] ; then
           rm -f $generatedfiles
     fi
-    echo "Finished"
+    echo "\nFinished"
     echo "###### SUCCESS" 1>&2
     else
     echo "###### FAILED" 1>&2

@@ -440,10 +440,10 @@ tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
 	return n_vec;
 }
 */
-void logClip(tr1::shared_ptr<_Clip> _clip){
+std::string logClip(tr1::shared_ptr<_Clip> _clip){
 	list<Clip*> cliplists = _clip->__instance__->Clips();
 	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
-		std::cout << (*iterator)->Json() << std::endl;
+		return (*iterator)->Json();
 	}
 }
 

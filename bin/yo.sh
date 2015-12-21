@@ -66,8 +66,8 @@ TestRunningProgram() {
     tmpfiles=""
 
     YO="../src/generate_test"
-    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
-    #generatedfiles=""
+    #generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
+    generatedfiles=""
     Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
     g++ ${basename}.f.cpp ../src/yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
     #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&

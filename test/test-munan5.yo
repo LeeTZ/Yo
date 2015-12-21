@@ -1,3 +1,7 @@
-c = Clip("abc.avi")
-d = c[0.1:0.6] ^ c[6:8] @ 3.0
-d.save("video-cascade.avi")
+c = Clip("helloworld.webm")
+#b = Clip("helloworld2.webm")
+a = c[45:80]
+#a.alpha@0 = 1.0
+#a.alpha@73 = 0.1
+#d = b[0.1:3.0] ^ a @ 0.8
+a.save("abcd.webm")

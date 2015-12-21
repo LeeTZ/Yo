@@ -1,0 +1,6 @@
+for i=1 to 10:
+    log i
+    a = 3
+    log a
+    break
+    

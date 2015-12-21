@@ -176,7 +176,6 @@ and var_entry = {
   v_type: type_entry (* type definition *)
   }
 
-
 let rec compare_type t1 t2 = match t1, t2 with 
   | BaseTypeEntry _, ArrayTypeEntry _ | ArrayTypeEntry _,  BaseTypeEntry _ -> false
   | ArrayTypeEntry a, ArrayTypeEntry b -> compare_type a b

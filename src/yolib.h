@@ -163,7 +163,6 @@ tr1::shared_ptr<_Clip> createClip(string filename){
 		// essential: Open the reader otherwise you cannot read
 		reader->Open();
 		Clip* clip = new Clip(reader);
-		// TODO : This infomation should be saved in an config file 
 		tr1::shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 		r->AddClip(clip);
 		r->Open();
@@ -173,7 +172,6 @@ tr1::shared_ptr<_Clip> createClip(string filename){
 		ImageReader* reader = new ImageReader(filename);
 		reader->Open();
 		Clip* clip = new Clip(reader);
-		// TODO : This infomation should be saved in an config file 
 		tr1::shared_ptr<Timeline> r (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));	
 		r->AddClip(clip);
 		r->Open();
@@ -284,8 +282,9 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
 	FFmpegWriter w(filename);
 	string extension = getextension(filename);
 	w.SetAudioOptions(true, "libvorbis", 44100, 2, LAYOUT_STEREO, 188000);
-	if (extension == "webm")
-		w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
+	//if (extension == "webm")
+	w.SetVideoOptions(true, "libvpx", Fraction(V_FPS,1), V_WIDTH, V_HEIGHT, Fraction(V_PIXEL_RATIO,1), false, false, V_BIT_RATE);
+	
 	w.Open();
 	// calculate the ending time
 	double totaltime = 0;
@@ -294,7 +293,7 @@ void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
     	if ((*iterator)->Position() + ((*iterator)->End() - (*iterator)->Start()) > totaltime){
     		totaltime = (*iterator)->Position()+ ((*iterator)->End() - (*iterator)->Start());
     	}   
-    	std::cout << (*iterator)->Position() << " " << (*iterator)->Start() << " " << (*iterator)->End() << std::endl;
+    	//std::cout << (*iterator)->Position() << " " << (*iterator)->Start() << " " << (*iterator)->End() << std::endl;
 		//std::cout << (*iterator)->Json() << endl;
 	}
 	int totalframe = int(V_FPS * totaltime) + 1;
@@ -473,7 +472,7 @@ void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int frame, double
 	   	}
 	}if (attname == "rotate"){
 		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
-	    	(*iterator)->rotate.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	    	(*iterator)->rotation.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
 	   	}
 	}
 

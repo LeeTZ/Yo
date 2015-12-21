@@ -19,7 +19,7 @@ int V_HEIGHT=480;
 int V_PIXEL_RATIO=1;
 int V_BIT_RATE=300000;
 
-struct pixel{
+struct _Pixel{
 	int R;
 	int G;
 	int B;
@@ -390,18 +390,18 @@ pixel : R G B{}
 pixel = getpixel(clip,frame,i,j)
 */
 
-pixel getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){
+tr1::shared_ptr<_Pixel> getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){
 	tr1::shared_ptr<Frame> f = _clip->__instance__->GetFrame(frame);
 	const unsigned char* pixels = f->GetPixels();
 	int index = x * f->GetWidth() + y;
-	pixel res;
-	res.R = int(pixels[3 * index]);
-	res.G = int(pixels[3 * index + 1]);
-	res.B = int(pixels[3 * index + 2]);
+	tr1::shared_ptr<_Pixel> res;
+	res->R = int(pixels[3 * index]);
+	res->G = int(pixels[3 * index + 1]);
+	res->B = int(pixels[3 * index + 2]);
 	return res;	
 }
 
-pixel getPixel(tr1::shared_ptr<_Clip> _clip, double frametime, int x, int y){
+tr1::shared_ptr<_Pixel> getPixel(tr1::shared_ptr<_Clip> _clip, double frametime, int x, int y){
 	int frame = int (frametime*V_FPS);
 	return getPixel(_clip,frame,x,y);	
 }

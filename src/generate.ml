@@ -149,7 +149,7 @@ let rec generate_type parent_name = function
 		(List.filter (fun x -> match x with SMemTypeDecl s -> true | _ -> false) stml))
 
 let generate context program = 
-	let header = ["\"yolib.h\""] in
+	let header = ["\"../src/yolib.h\""] in
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^

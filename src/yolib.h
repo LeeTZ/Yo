@@ -122,6 +122,12 @@ int isVideo(string filename){
 	return -1;
 }
 
+struct _Clip;
+
+tr1::shared_ptr<_Clip> fromTimeline(tr1::shared_ptr<Timeline> tlptr) {
+	return tr1::shared_ptr<_Clip>(new _Clip(tlptr));
+}
+
 /*create a clip from a file, 
   yo prog:
   r = Clip("output.webm") 	
@@ -129,7 +135,7 @@ int isVideo(string filename){
   tr1::shared_ptr<Timeline> r = createClip("output.webm");
 */
 
-tr1::shared_ptr<Timeline> createClip(string filename){
+tr1::shared_ptr<_Clip> createClip(string filename){
 	//check the file type, an image or a video
 	int filetype = isVideo(filename);
 	if (filetype == 1){
@@ -142,7 +148,7 @@ tr1::shared_ptr<Timeline> createClip(string filename){
 		r->AddClip(clip);
 		r->Open();
 		reader->Close();
-		return r;
+		return fromTimeline(r);
 	}else if (filetype == 0){
 		ImageReader* reader = new ImageReader(filename);
 		reader->Open();
@@ -152,7 +158,7 @@ tr1::shared_ptr<Timeline> createClip(string filename){
 		r->AddClip(clip);
 		r->Open();
 		reader->Close();
-		return r;
+		return fromTimeline(r);
 	}else{
 		exit(-1);
 	}
@@ -165,12 +171,12 @@ tr1::shared_ptr<Timeline> createClip(string filename){
    std::vector<tr1::shared_ptr<Timeline>> clips = createClips("dir/");
 */
 
-std::vector<tr1::shared_ptr<Timeline>> createClips(string dirname){
+std::vector<tr1::shared_ptr<_Clip>> createClips(string dirname){
 	//read files into Filenames
 	std::vector<std::string> Filenames = vector<string>();
 	getdir(dirname,Filenames);
 
-	std::vector<tr1::shared_ptr<Timeline>> res;
+	std::vector<tr1::shared_ptr<_Clip>> res;
 	int len = Filenames.size();
 	for (int i = 0; i < len; i++){
 		//std::cout << Filenames[i] << endl;	
@@ -187,9 +193,9 @@ std::vector<tr1::shared_ptr<Timeline>> createClips(string dirname){
    tr1::shared_ptr<Timeline> clip = addClip(clip1,clip2);
 */
 
-tr1::shared_ptr<Timeline> addClip(tr1::shared_ptr<Timeline> lop, tr1::shared_ptr<Timeline> rop){
-	list<Clip*> leftlists = lop->Clips();
-	list<Clip*> rightlists = rop->Clips();
+tr1::shared_ptr<_Clip> addClip(tr1::shared_ptr<_Clip> lop, tr1::shared_ptr<_Clip> rop){
+	list<Clip*> leftlists = lop->__instance__->Clips();
+	list<Clip*> rightlists = rop->__instance__->Clips();
 	tr1::shared_ptr<Timeline> res (new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 
 	double maxpos = 0.0;
@@ -208,7 +214,7 @@ tr1::shared_ptr<Timeline> addClip(tr1::shared_ptr<Timeline> lop, tr1::shared_ptr
    		res->AddClip(*iterator);
 	}
 	res->Open();
-	return res;
+	return fromTimeline(res);
 }
 
 /* clips layering
@@ -218,9 +224,9 @@ tr1::shared_ptr<Timeline> addClip(tr1::shared_ptr<Timeline> lop, tr1::shared_ptr
    tr1::shared_ptr<Timeline> clip = layerClip(clip1,clip2,1.0);
 */
 
-tr1::shared_ptr<Timeline> layerClip(tr1::shared_ptr<Timeline> bottom, tr1::shared_ptr<Timeline> top, double shifttime){
-	list<Clip*>	bottomlists = bottom->Clips();
-	list<Clip*> toplists = top->Clips();
+tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<_Clip> top, double shifttime){
+	list<Clip*>	bottomlists = bottom->__instance__->Clips();
+	list<Clip*> toplists = top->__instance__->Clips();
 	tr1::shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 	
 	int maxlayer = 0;
@@ -238,7 +244,7 @@ tr1::shared_ptr<Timeline> layerClip(tr1::shared_ptr<Timeline> bottom, tr1::share
     	res->AddClip(*iterator);
 	}
 	res->Open();
-	return res;
+	return fromTimeline(res);
 }
 
 /* write clips to a file
@@ -248,7 +254,8 @@ tr1::shared_ptr<Timeline> layerClip(tr1::shared_ptr<Timeline> bottom, tr1::share
    writeClips(clip,"filename.mp4");
 */
 
-void writeClips(tr1::shared_ptr<Timeline> clip, string filename){
+void writeClips(tr1::shared_ptr<_Clip> _clip, string filename){
+	auto clip = _clip->__instance__;
 	FFmpegWriter w(filename);
 	string extension = getextension(filename);
 	if (extension == "webm")
@@ -276,9 +283,9 @@ void writeClips(tr1::shared_ptr<Timeline> clip, string filename){
     a = clipRange(clip,2.0,3.0);
 */
 
-tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,double starttime, double endtime){
+tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,double starttime, double endtime){
 	assert(starttime <= endtime);
-	list<Clip*>	cliplists = clip->Clips();
+	list<Clip*>	cliplists = _clip->__instance__->Clips();
 	tr1::shared_ptr<Timeline> res(new Timeline(V_WIDTH, V_HEIGHT, Fraction(V_FPS, 1), 44100, 2, LAYOUT_STEREO));
 	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
 		if ((*iterator)->Position() < starttime){
@@ -310,10 +317,10 @@ tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,double startt
     a = clipRange(clip,24,48);
 */
 
-tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,int startframe, int endframe){
+tr1::shared_ptr<_Clip> clipRange(tr1::shared_ptr<_Clip> _clip,int startframe, int endframe){
 	double starttime = startframe / V_FPS;
 	double endtime = endframe / V_FPS;
-	return clipRange(clip, starttime, endtime);
+	return clipRange(_clip, starttime, endtime);
 }
 
 /*
@@ -324,8 +331,8 @@ tr1::shared_ptr<Timeline> clipRange(tr1::shared_ptr<Timeline> clip,int startfram
     a = clipIndex(clip,24);
 */
 
-tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<Timeline> clip,int frame){
-	return clip->GetFrame(frame);
+tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<_Clip> _clip,int frame){
+	return _clip->__instance__->GetFrame(frame);
 }
 
 
@@ -337,9 +344,9 @@ tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<Timeline> clip,int frame){
     a = clipIndex(clip,2.4);
 */
 
-tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<Timeline> clip,double frametime){
+tr1::shared_ptr<Frame> clipIndex(tr1::shared_ptr<_Clip> _clip,double frametime){
 	int frame = int(frametime * V_FPS);
-	return clip->GetFrame(frame);
+	return _clip->__instance__->GetFrame(frame);
 }
 
 
@@ -349,8 +356,8 @@ pixel : R G B{}
 pixel = getpixel(clip,frame,i,j)
 */
 
-pixel getPixel(tr1::shared_ptr<Timeline> clip, int frame, int x, int y){
-	tr1::shared_ptr<Frame> f = clip->GetFrame(frame);
+pixel getPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y){
+	tr1::shared_ptr<Frame> f = _clip->__instance__->GetFrame(frame);
 	const unsigned char* pixels = f->GetPixels();
 	int index = x * f->GetWidth() + y;
 	pixel res;
@@ -375,8 +382,8 @@ std::string int_to_hex( T i )
 }
 
 
-void setPixel(tr1::shared_ptr<Timeline> clip, int frame, int x, int y, pixel p){
-	tr1::shared_ptr<Frame> f = clip->GetFrame(frame);
+void setPixel(tr1::shared_ptr<_Clip> _clip, int frame, int x, int y, pixel p){
+	tr1::shared_ptr<Frame> f = _clip->__instance__->GetFrame(frame);
 	string color = "#" + int_to_hex(p.R) + int_to_hex(p.G) + int_to_hex(p.B);
 	cout << color << endl;
 	f->AddColor(x,y,color);
@@ -390,8 +397,8 @@ void setPixel(tr1::shared_ptr<Timeline> clip, int frame, int x, int y, pixel p){
    
 */
 
-void setProperty(tr1::shared_ptr<Timeline> clip, string attname, int second, double value){
-	list<Clip*> lists = clip->Clips();
+void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int second, double value){
+	list<Clip*> lists = _clip->__instance__->Clips();
 	if (attname == "alpha"){
 		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
 	    	(*iterator)->alpha.AddPoint(second,value);    	
@@ -420,8 +427,8 @@ tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
 	return n_vec;
 }
 */
-void logClip(tr1::shared_ptr<Timeline> clip){
-	list<Clip*> cliplists = clip->Clips();
+void logClip(tr1::shared_ptr<_Clip> _clip){
+	list<Clip*> cliplists = _clip->__instance__->Clips();
 	for (std::list<Clip*>::const_iterator iterator = cliplists.begin(), end = cliplists.end(); iterator != end; ++iterator){
 		std::cout << (*iterator)->Json() << std::endl;
 	}
@@ -444,14 +451,20 @@ struct LOG
 
 struct _Clip : Universal  {
 	
-	static tr1::shared_ptr<Timeline> eval(tr1::shared_ptr<Universal> obj, string fileName) {
-		return createClip(fileName);
+	tr1::shared_ptr<Timeline> __instance__;
+
+	_Clip(tr1::shared_ptr<Timeline> tl) {
+		__instance = tl;
+	}
+
+	static tr1::shared_ptr<_Clip> eval(tr1::shared_ptr<Universal> obj, string fileName) {
+		return tr1::shared_ptr<_Clip>(new _Clip(createClip(fileName)));
 	}
 };
 
 struct _Clip_save : Universal {
-	static void eval(tr1::shared_ptr<Timeline> clip, string fileName) {
-		return writeClips(clip, fileName);
+	static void eval(tr1::shared_ptr<_Clip> _clip, string fileName) {
+		return writeClips(_clip->__instance__, fileName);
 	}
 };
 

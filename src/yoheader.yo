@@ -139,76 +139,76 @@ func __Mod(a: Int, b: Int) -> Int:{
     return;
 }
 
-func __Eq(a: Int, b: Int) -> Int:{
+func __Eq(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Eq(a: String, b: String) -> Int:{
+func __Eq(a: String, b: String) -> Bool:{
     return;
 }
 
-func __Eq(a: Double, b: Double) -> Int:{
+func __Eq(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Eq(a: Bool, b: Bool) -> Int:{
+func __Eq(a: Bool, b: Bool) -> Bool:{
     return;
 }
 
 
-func __Neq(a: Int, b: Int) -> Int:{
+func __Neq(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Neq(a: String, b: String) -> Int:{
+func __Neq(a: String, b: String) -> Bool:{
     return;
 }
 
-func __Neq(a: Double, b: Double) -> Int:{
+func __Neq(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Neq(a: Bool, b: Bool) -> Int:{
+func __Neq(a: Bool, b: Bool) -> Bool:{
     return;
 }
 
-func __Less(a: Int, b: Int) -> Int:{
+func __Less(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Less(a: Double, b: Double) -> Double:{
+func __Less(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Leq(a: Int, b: Int) -> Int:{
+func __Leq(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Leq(a: Double, b: Double) -> Double:{
+func __Leq(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Geq(a: Int, b: Int) -> Int:{
+func __Geq(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Geq(a: Double, b: Double) -> Double:{
+func __Geq(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __Gt(a: Int, b: Int) -> Int:{
+func __Gt(a: Int, b: Int) -> Bool:{
     return;
 }
 
-func __Gt(a: Double, b: Double) -> Double:{
+func __Gt(a: Double, b: Double) -> Bool:{
     return;
 }
 
-func __And(a: Bool, b: Bool) -> Int:{
+func __And(a: Bool, b: Bool) -> Bool:{
     return;
 }
 
-func __Or(a: Bool, b: Bool) -> Int:{
+func __Or(a: Bool, b: Bool) -> Bool:{
     return;
 }
 

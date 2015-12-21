@@ -96,8 +96,8 @@ and generate_stmt = function
 	    ^ "}\n\n"
 
 
-	| SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^ "{" ^
-		(generate_stmt_list l) ^ "}"
+	| SWhileStmt (x, l) -> "while (" ^ generate_expr x ^ ")" ^ "{\n" ^
+		(generate_stmt_list l) ^ "}\n\n"
 
 	| SContinue -> "continue;\n"
 	| SBreak -> "break;\n"

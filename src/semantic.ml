@@ -78,14 +78,14 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		(match (extract_semantic smain).type_def with 
 			| BaseTypeEntry t -> (
 				if t.t_name = "CLIP" then 
-					(if (extract_semantic sidx).type_def = double_type
+					(if compare_type (extract_semantic sidx).type_def double_type
 					then SClipTimeIndex(smain, sidx, {actions=[]; type_def=frame_type})
-					else if (extract_semantic sidx).type_def = int_type
+					else if compare_type (extract_semantic sidx).type_def int_type
 					then SClipFrameIndex(smain, sidx, {actions=[]; type_def=frame_type})
 					else raise (SemanticError ((string_of_expr idx) ^ " has to be of either Double or Int type")))
 				else raise (SemanticError ((string_of_expr main) ^ " has to be of Array type")))
 			| ArrayTypeEntry ele_type -> (
-				if (extract_semantic sidx).type_def = int_type
+				if compare_type (extract_semantic sidx).type_def int_type
 				then SArrayIndex(smain, sidx, {actions=[]; type_def=ele_type})
 				else raise (SemanticError ((string_of_expr idx) ^ " has to be of Int type"))))
 			
@@ -96,15 +96,18 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 		(match type_main with 
 			| BaseTypeEntry t -> (
 				if t.t_name = "CLIP" then 
-					(if (extract_semantic sst).type_def = double_type && (extract_semantic sed).type_def = double_type
+					(if compare_type (extract_semantic sst).type_def double_type 
+						&& compare_type (extract_semantic sed).type_def double_type
 					then SClipTimeRange(smain, sst, sed, {actions=[]; type_def=clip_type})
-					else if (extract_semantic sst).type_def = int_type && (extract_semantic sed).type_def = int_type
+					else if compare_type (extract_semantic sst).type_def int_type 
+						&& compare_type (extract_semantic sed).type_def int_type
 					then SClipFrameRange(smain, sst, sed, {actions=[]; type_def=clip_type})
 					else raise (SemanticError ((string_of_expr st) ^ " and " ^ (string_of_expr ed) 
 						^ " have to be of both Double types or Int types")))
 				else raise (SemanticError ((string_of_expr main) ^ " has to be of Array type")))
 			| ArrayTypeEntry _ -> (
-				if (extract_semantic sst).type_def = int_type && (extract_semantic sed).type_def = int_type
+				if compare_type (extract_semantic sst).type_def int_type 
+					&& compare_type (extract_semantic sed).type_def int_type
 				then SArrayRange(smain, sst, sed, {actions=[]; type_def=type_main})
 				else raise (SemanticError ((string_of_expr st) ^ " and " ^ (string_of_expr ed) ^ " have to be of Int type"))))
 	
@@ -148,8 +151,9 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 	
 	| ClipConcat (cl1, cl2, tm) ->
 		let scl1 = build_expr_semantic ctx cl1 and scl2 = build_expr_semantic ctx cl2 and stm = build_expr_semantic ctx tm in
-		if (extract_semantic scl1).type_def=clip_type && (extract_semantic scl2).type_def=clip_type 
-			&& (extract_semantic stm).type_def=double_type
+		if compare_type (extract_semantic scl1).type_def clip_type 
+			&& compare_type (extract_semantic scl2).type_def clip_type 
+			&& compare_type (extract_semantic stm).type_def double_type
 		then SClipConcat(scl1, scl2, stm, {actions=[]; type_def=clip_type})
 		else raise (SemanticError "ClipConcat operation expects type of Clip, Clip and Double")
 	
@@ -171,7 +175,7 @@ let rec build_stmt_semantic ctx = function
 				(* When the l-value is defined, check its type against that of r-value *)
 					let ltype = (extract_semantic l_expr_sem).type_def 
 					and rtype = (extract_semantic r_expr_sem).type_def in
-					if  ltype = rtype 
+					if  compare_type ltype rtype 
 						then SAssign (Some(l_expr_sem), r_expr_sem) 
 						else raise (SemanticError ("Invalid assignment: expecting " ^ (string_of_type ltype) 
 							^ ", but having " ^ (string_of_type rtype) ))
@@ -192,10 +196,10 @@ let rec build_stmt_semantic ctx = function
 				double_type = BaseTypeEntry(look_up_type "DOUBLE" ctx.typetab) and 
 				clip_type = BaseTypeEntry(look_up_type "CLIP" ctx.typetab) in
 			if sem.type_def = clip_type then (
-				if (extract_semantic s_value).type_def = double_type then (
-					if (extract_semantic s_time).type_def=int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
-					else if (extract_semantic s_time).type_def=double_type then STimeSetAttribute (sexpr, x, s_time, s_value)
-					else  raise (SemanticError ("Attribute assignment index" ^ (string_of_expr time) ^ " has to be of Int of Double type"))
+				if compare_type (extract_semantic s_value).type_def double_type then (
+					if compare_type (extract_semantic s_time).type_def int_type then SFrameSetAttribute (sexpr, x, s_time, s_value)
+					else if compare_type (extract_semantic s_time).type_def double_type then STimeSetAttribute (sexpr, x, s_time, s_value)
+					else raise (SemanticError ("Attribute assignment index" ^ (string_of_expr time) ^ " has to be of Int of Double type"))
 				) else raise (SemanticError ((string_of_expr value) ^ ": rvalue for attribute assignment has to be of Double type"))
 			) else raise (SemanticError ("Attribute assignment has to be performed to a Clip, but " ^ (string_of_expr main) ^ "'s type is mismatched"))
 			| _ -> raise (ProcessingError ("SetAttribute analysis error when processing " ^ (string_of_s_expr s_main))))
@@ -208,7 +212,7 @@ let rec build_stmt_semantic ctx = function
 			| None -> SCondExec(None,  s_stmt_list) (* the final else has no predicate *)
 			| Some cond -> 
 				let expr_sem = build_expr_semantic ctx2 cond in (* make sure the predicate has type Bool *)
-				if (extract_semantic expr_sem).type_def=bool_type then SCondExec(Some(expr_sem), s_stmt_list)
+				if compare_type (extract_semantic expr_sem).type_def bool_type then SCondExec(Some(expr_sem), s_stmt_list)
 				else raise (SemanticError ("Condition expression" ^ (string_of_expr cond) 
 					^ " in the if statement should be of Bool type")) )
 		cl)
@@ -217,7 +221,7 @@ let rec build_stmt_semantic ctx = function
 		let bool_type = BaseTypeEntry(look_up_type "BOOL" ctx.typetab) in
 		let ctx2 = push_var_env ctx in
 		let s_pred = build_expr_semantic ctx2 pred in
-		if (extract_semantic s_pred).type_def=bool_type then () 
+		if compare_type (extract_semantic s_pred).type_def bool_type then ()
 		else raise (SemanticError ("Condition expression" ^ (string_of_expr pred) 
 			^ " in the while statement should be of Bool type"));
 		SWhileStmt (s_pred, List.map (build_stmt_semantic ctx2) stmts)
@@ -244,9 +248,9 @@ let rec build_stmt_semantic ctx = function
 		let s_st_expr = build_expr_semantic ctx st_expr and s_ed_expr = build_expr_semantic ctx ed_expr in
 		let nested_env = push_var_env ctx in
 		let svar = new_var nested_env varname 
-			(if (extract_semantic s_st_expr).type_def = int_type
+			(if compare_type (extract_semantic s_st_expr).type_def int_type
 			then let ed_type=(extract_semantic s_ed_expr).type_def in
-			(if ed_type = int_type then ed_type 
+			(if compare_type ed_type int_type then ed_type 
 			else raise (SemanticError ((string_of_expr ed_expr) ^ " is expected to be of type Int")))
 			else raise (SemanticError ((string_of_expr st_expr) ^ " is expected to be of type Int"))) in
 		let s_stmt_list = List.map (build_stmt_semantic nested_env) stmts in

@@ -261,7 +261,7 @@ tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<
 }
 
 tr1::shared_ptr<_Clip> layerClip(tr1::shared_ptr<_Clip> bottom, tr1::shared_ptr<_Clip> top, int shiftframe){
-	double shiftime = double(shifttime) / V_FPS;
+	double shifttime = double(shiftframe) / V_FPS;
 	return layerClip(bottom,top,shifttime);
 }
 /* write clips to a file
@@ -430,7 +430,13 @@ void setProperty(tr1::shared_ptr<_Clip> _clip, string attname, int frame, double
 	    	(*iterator)->alpha.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
 	    	//std::cout << (*iterator)->Position() << " " << (*iterator)->Start() <<" " << (*iterator)->End() << " " << keytime <<" " << value << std::endl;
 		}
-	}// add more..
+	}if (attname == "location_x"){
+		for (std::list<Clip*>::const_iterator iterator = lists.begin(), end = lists.end(); iterator != end; ++iterator) {
+	    	(*iterator)->location_x.AddPoint(frame + (*iterator)->Start() * V_FPS,value);
+	   	}
+	}
+
+	// add more..
 }
 
 template<typename T>

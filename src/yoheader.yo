@@ -70,6 +70,14 @@ type Clip:{
         return;
     }
 
+    func log(self: Clip) -> Void: {
+        return;
+    }
+
+    func log(self: Clip, a: String) -> Void: {
+        return;
+    }
+
 }
 type Frame:{
     width: Int;

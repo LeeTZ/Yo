@@ -1,7 +1,7 @@
 #!/bin/sh
 
 binaryoutput="./a.out"
-preproc_path="../src/preprocessor.py"
+preproc_path="../util/pre.py"
 
 # Set time limit for all operations
 ulimit -t 30
@@ -57,18 +57,15 @@ TestRunningProgram() {
                              s/.yo//'`
     reffile=`echo $1 | sed 's/.yo$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
-
-    echo -n "$basename..."
-    echo 1>&2
-    echo "###### Testing $basename" 1>&2
-
+    echo "\033[32mRunning $basename... \033[0m"
+    echo "###### Running $basename" 1>&2
     generatedfiles=""
     tmpfiles=""
 
     YO="../src/generate_test"
-    #generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog"
-    generatedfiles=""
-    Run "$YO" "<" "../test/intermediate/$basename.yo" ">" ${basename}.f.cpp &&
+    generatedfiles="$generatedfiles ${basename}.f.cpp ${basename}.f.out yo.prog ${basedir%.}${basename}.yo.pre"
+    #generatedfiles=""
+    Run "$YO" "<" "${basedir%.}$basename.yo.pre" ">" ${basename}.f.cpp &&
     g++ ${basename}.f.cpp ../src/yolib.h -lstdc++ -lopenshot-audio -lopenshot -I/usr/local/include/libopenshot -I/usr/local/include/libopenshot-audio -lconfig++ -lavdevice -lavformat  -lavcodec -lavutil -lz `pkg-config --cflags --libs libconfig++ Qt5Gui Qt5Widgets Magick++` -fPIC -std=c++11 -o yo.prog 
     #g++ -o yo.prog ${basename}.f.cpp yolib.h -std=c++11 &&
     Run "./yo.prog" 
@@ -78,7 +75,7 @@ TestRunningProgram() {
     if [ $keep -eq 0 ] ; then
           rm -f $generatedfiles
     fi
-    echo "\nFinished"
+    echo "\033[32m\nFinished\033[0m"
     echo "###### SUCCESS" 1>&2
     else
     echo "###### FAILED" 1>&2

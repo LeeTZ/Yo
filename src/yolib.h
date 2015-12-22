@@ -547,3 +547,14 @@ struct _Array_add {
 	}
 };
 
+template<typename T>
+struct _Array_length {
+	static int length(tr1::shared_ptr<std::vector<tr1::shared_ptr<T>>> arr) {
+		return arr->size();
+	}
+
+	static int eval(tr1::shared_ptr<std::vector<T>> arr) {
+		return arr->size();
+	}
+};
+

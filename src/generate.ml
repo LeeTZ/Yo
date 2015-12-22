@@ -9,7 +9,8 @@ let rec generate_type_modifier = function
 	| BaseTypeEntry b -> (match b.t_name with 
 		| "Int" -> "int" | "Double" -> "double" | "Bool" -> "bool" | "String" -> "string" | "Void" -> "void"
 		| _ -> "tr1::shared_ptr<" ^ b.t_actual ^ ">")
-	| ArrayTypeEntry a -> "tr1::shared_ptr<vector<" ^ (generate_type_modifier a) ^ ">>"
+	| ArrayTypeEntry a -> "tr1::shared_ptr<std::vector<" ^ (generate_type_modifier a) ^ ">>"
+
 
 let extract_array_ele_type t = match t with ArrayTypeEntry a -> a | _ -> raise (GenerationError "Expect an array type here")
 
@@ -18,7 +19,7 @@ let rec generate_expr = function
 	| SArrayLiteral (x, s)-> "create_array<" ^ (generate_type_modifier (extract_array_ele_type s.type_def)) ^ 
 		">({" ^ String.concat ", " (List.map generate_expr x) ^ "})"
 	| SVar (x, s) -> x
-	| SArrayIndex (x, y, s) -> "*" ^ generate_expr x ^ "[" ^ generate_expr y ^ "]"
+	| SArrayIndex (x, y, s) -> "(*" ^ generate_expr x ^ ")[" ^ generate_expr y ^ "]"
 	| SDotExpr (x, y, s) -> generate_expr x ^ "->" ^ y 
 	| SBinop (x, op, y, s) -> "(" ^ (generate_expr x) ^ " " ^ (string_of_op op) ^ " " ^ (generate_expr y) ^ ")"
 	| SCall (obj, func_type, el, s) -> func_type.t_actual ^ "::eval(" ^
@@ -117,12 +118,12 @@ and generate_stmt_list stmt_list = String.concat "\n" (List.map generate_stmt st
 let generate_var_decl = function
 	| SVarDecl (name, s) -> (generate_type_modifier s.type_def) ^ " " ^ name
 
-let generate_init_eval args stmts s = 
+let generate_init_eval tname args stmts s = 
 	let initialObject = 
 		let extract_arg_name = function SVarDecl(arg_name, arg_sem) -> arg_name in
 		match args with hd :: tail ->
 			let selfName = extract_arg_name hd and typeName = (generate_type_modifier s.type_def) in
-			selfName ^ " = " ^ typeName ^ "( new " ^ typeName ^ "(" ^ (String.concat ", " (List.map extract_arg_name tail)) ^ "));\n"
+			selfName ^ " = " ^ typeName ^ "( new " ^ tname ^ "());\n"
 		in
 		"static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
 		(String.concat ", " (List.map (
@@ -146,7 +147,7 @@ let generate_func parent_name = function
 let rec generate_type parent_name = function
 	| STypeDecl (s, stml) -> 
 	let this_name = parent_name ^ "_" ^ s in
-  	"struct " ^ parent_name ^ "_" ^ s ^ " {\n" ^ 
+  	"struct " ^ this_name ^ " {\n" ^ 
 
 	(let generate_member content = function
 		| SMemVarDecl v -> content ^ (generate_var_decl v) ^ ";\n" | _ -> raise (GenerationError "Expecting SMemVarDecl here")
@@ -154,10 +155,9 @@ let rec generate_type parent_name = function
 
 	(let generate_type_eval content = function
 		| SMemFuncDecl f -> content ^
-			(match f with SFuncDecl(name, args, stmts, s) -> if name <> "eval" then "" else (generate_init_eval args stmts s))
+			(match f with SFuncDecl(name, args, stmts, s) -> if name <> "eval" then "" else (generate_init_eval this_name args stmts s))
 		| _ -> raise (GenerationError "Expecting SMemVarDecl here")
 	 in List.fold_left generate_type_eval "" (List.filter (fun x -> match x with SMemFuncDecl s -> true | _ -> false) stml)) ^
-
 	"\n};\n\n" ^
 
 	(let generate_mem_func content = function

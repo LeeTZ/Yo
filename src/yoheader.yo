@@ -244,8 +244,9 @@ func __Or(a: Bool, b: Bool) -> Bool:{
 }
 
 type Array:{
-    length: Int;
-    empty: Bool;
+    func length(self: Array) -> Int:{
+        return;
+    }
 
     func add(self: Array, ele: ArrayElementT) -> Array:{
         return;

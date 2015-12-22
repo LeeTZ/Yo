@@ -170,11 +170,19 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 				| _ -> (find_matching_eval func_type call_arg_types).ret (* get the matching eval *)
 			with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " does not take params of type (" 
 						^ (String.concat ", " (List.map string_of_expr args)) ^ ")")) in
-		SCall ((match obj with 
+		(
+			match type_obj with
+			| ArrayTypeEntry t -> 
+				SArrayOperation ((match obj with 
+		 				| None -> raise (ProcessingError("Expecting obj in ArrayOperation")) 
+						| Some s -> build_expr_semantic ctx s),
+					fname, s_call_args, 
+					{actions=[]; type_def=func_eval_ret})
+			| _ -> SCall ((match obj with 
 		 				| None -> None 
 						| Some s -> Some(build_expr_semantic ctx s)), 
 					func_type, s_call_args, 
-					{actions=[]; type_def=func_eval_ret})
+					{actions=[]; type_def=func_eval_ret}))
 	
 	| ClipCascade (cl1, cl2, tm) ->
 		let scl1 = build_expr_semantic ctx cl1 and scl2 = build_expr_semantic ctx cl2 and stm = build_expr_semantic ctx tm in

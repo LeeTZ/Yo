@@ -1,4 +1,6 @@
 a = Int[]()
+
+a = [1,2,3,4]
 a.add(5)
 
 type NType:
@@ -9,3 +11,5 @@ d = NType()
 c.add(d)
 
 clips = Clip[]("dir")
+
+clips.add(Clip("hello.avi"))

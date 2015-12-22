@@ -1,0 +1,13 @@
+func gcd(a: Int, b: Int) -> Int:
+    if (a==0):
+        return b
+    return gcd(b%a, a)
+
+
+func compute() -> Int:
+    a = 2302
+    b = 42
+    gcd(a, b)
+
+
+compute()

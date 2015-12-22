@@ -14,10 +14,10 @@ using namespace std;
 using namespace libconfig;
 /*Global output configuration*/
 int V_FPS=24;
-int V_WIDTH=960;
-int V_HEIGHT=480;
+int V_WIDTH=640;
+int V_HEIGHT=360;
 int V_PIXEL_RATIO=1;
-int V_BIT_RATE=300000;
+int V_BIT_RATE=240000;
 
 struct _Pixel{
 	int R;

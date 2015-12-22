@@ -99,7 +99,7 @@ and generate_stmt = function
 	| SForRange (loop_var_name, sem, st, ed, stmt_list,sign) ->
 		let startstr = generate_expr st in 
 		let endstr = generate_expr ed in 
-		"for (auto" ^ loop_var_name ^ "=" ^ startstr ^ ";" ^ loop_var_name ^ 
+		"for (auto " ^ loop_var_name ^ "=" ^ startstr ^ ";" ^ loop_var_name ^ 
 		(if sign = Inc 
 			then "<" ^ endstr ^ ";" ^ loop_var_name ^ "++" 
 			else ">" ^ startstr ^ ";" ^ loop_var_name ^ "--") ^ ") {\n" ^

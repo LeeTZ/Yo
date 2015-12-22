@@ -1,0 +1,21 @@
+a = Clip("abcde.webm")
+black = Bool[]()
+for time = 1 to 180:
+    isblack = false
+    for i = 300 to 350:
+        for j = 300 to 350:
+            p = a<i!j>@time
+            if (p.R == 0) && (p.G == 0) && (p.B == 0):
+                isblack = true
+    if isblack:
+        black.add(true)
+    else:
+        black.add(false)
+l = black.length()
+cuttime = 0
+for time = 1 to l:
+    if black[time] == true:
+        cuttime = time
+        break
+b = a[1:cuttime]
+b.save("cutabcde.webm")

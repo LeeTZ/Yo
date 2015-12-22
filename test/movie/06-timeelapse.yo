@@ -1,0 +1,5 @@
+photos = Clip[]("photo/")
+mymovie = Clip()
+for p in photos:
+    mymovie = mymovie & p[1:2]
+mymovie.save("timelapse.webm")

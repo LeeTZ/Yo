@@ -1,0 +1,7 @@
+photos = Clip[]("photo/");
+mymovie = Clip("start.jpg");
+mymovie = mymovie[1:2];
+for p in photos:{
+    mymovie = mymovie & p[1:2];
+}
+mymovie.save("timelapse.webm");

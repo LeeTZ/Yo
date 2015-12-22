@@ -1,0 +1,19 @@
+a = Clip("abcde.webm")
+func isblack(a: Clip, time: Int) -> Bool:
+    for i = 300 to 350:
+        for j = 200 to 250:
+            p = a<i!j>@time
+            if (p.R == 0) && (p.G == 0) && (p.B == 0):
+                return true
+    return false
+
+cuttime = 0
+for time = 1 to 180:
+    if isblack(a,time):
+        cuttime = time
+        log("black screen detected, cut at:")
+        log(cuttime)
+        break    
+
+b = a[1:cuttime]
+b.save("cutabcde.webm")

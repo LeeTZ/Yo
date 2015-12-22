@@ -107,7 +107,7 @@ fi
 for file in $files
 do
         python $preproc_path $file
-        TestRunningProgram $file #2>> $globallog
+        TestRunningProgram $file 2>> $globallog
 done
 
 exit $globalerror

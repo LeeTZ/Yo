@@ -175,7 +175,7 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
-	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="_Array_add" 
+	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="Array_add" 
 								then content else content ^ "struct " ^ x.t_actual ^ ";\n") 
 		"" (NameMap.fold (fun k v lst -> v :: lst) context.typetab [])) ^
 	"\n/********************DECLARATION END*****************/\n" ^

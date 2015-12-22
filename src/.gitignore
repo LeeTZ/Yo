@@ -1,3 +1,4 @@
+*.webm
 scanner.ml
 *.native
 parser_test

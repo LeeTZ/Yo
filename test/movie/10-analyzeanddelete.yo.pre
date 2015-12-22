@@ -1,0 +1,29 @@
+func iswhite(a: Clip, time: Int) -> Bool:{
+    for i = 100 to 150:{
+        for j = 100 to 150:{
+            p = a<i!j>@time;
+            if (p.R > 240) && (p.G > 240) && (p.B > 240):{
+                return true;
+}
+}
+}
+    return false;
+}
+a = Clip("flashfullwhite.webm");
+cuttime = Int[]();
+for time = 1 to 420:{
+    if iswhite(a,time):{
+        cuttime.add(time);
+        log("white screen detected, cut at:");
+        log(time);
+        break;
+}
+}
+l = cuttime.length();
+prev = 1;
+b = Clip("white.png")[1:2];
+for i = 0 to l:{
+   b = b & Clip("flashfullwhite.webm")[prev:cuttime[i]];
+   prev = cuttime[i];
+}
+b.save("cutwhite.webm");

@@ -1,0 +1,9 @@
+a = Clip("Muppets.mp4")[0:420];
+for i=1 to 20:{
+    white = Clip("white.png")[1:11];
+    #white.alpha@0 = 0.0;
+    #white.alpha@5 = 1.0;
+    a = a ^ white@ (i*12 + 75);
+    a = a ^ Clip("comment2.png")[1:5] @ (i*12 + 75);
+}
+a.save("flashfullwhite.webm");

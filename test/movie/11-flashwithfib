@@ -1,0 +1,13 @@
+a = Clip("Muppets.mp4")[0:420]
+fib = Int[]()
+fib.add(1)
+fib.add(1)
+for i=2 to 20:
+    fib.add(fib[i - 1] + fib[i - 2])
+for i=1 to 20:
+    white = Clip("white.png")[1:11]
+    white.alpha@0 = 0.0
+    white.alpha@5 = 1.0
+    a = a ^ white@ (fib[i]) 
+    a = a ^ Clip("comment2.png")[1:5] @ (fib[i])
+a.save("flashwithfib.webm")

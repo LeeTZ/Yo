@@ -1,3 +1,7 @@
+type Universal:{
+    
+}
+
 type Int:{
     a: Int;
     func eval(a: Double) -> Int:{

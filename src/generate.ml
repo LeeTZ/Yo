@@ -131,10 +131,10 @@ let generate_init_eval args stmts s =
 		^ ") {\n" ^ initialObject ^ (generate_stmt_list stmts) ^ "}\n\n"
 
 let generate_eval args stmts s = 
-		"static " ^ (generate_type_modifier s.type_def) ^ " eval(tr1::shared_ptr<Universal>, " ^ 
-		(String.concat ", " (List.map (
-			fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
-			 ^ " " ^ arg_name )) args) ) 
+		"static " ^ (generate_type_modifier s.type_def) ^ " eval(tr1::shared_ptr<Universal>" ^ 
+			(if (List.length args)>0 then ", " else "") ^ (String.concat ", " (List.map (
+				fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
+			 	^ " " ^ arg_name )) args) ) 
 		^ ") {\n" ^ (generate_stmt_list stmts) ^ "}\n\n"
 
 

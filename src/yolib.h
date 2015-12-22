@@ -534,7 +534,7 @@ struct _Clip_log : Universal {
 	}
 };
 
-template<T>
+template<typename T>
 struct _Array_add {
 	static tr1::shared_ptr<std::vector<T>> eval(tr1::shared_ptr<std::vector<tr1::shared_ptr<T>>> arr, tr1::shared_ptr<T> obj) {
 		arr->push_back(obj);

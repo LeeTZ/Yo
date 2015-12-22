@@ -40,6 +40,10 @@ let rec generate_expr = function
 	| SClipTimeIndex (smain, sidx, _) -> "clipIndex(" ^ (generate_expr smain) ^  ", " ^ (generate_expr sidx) ^ ")"
 	| SClipPixel (clip, x, y, tm, _) -> "getPixel(" ^ (generate_expr clip) ^  ", " ^ (generate_expr tm) ^  ", " 
 		^ (generate_expr x) ^  ", " ^ (generate_expr y) ^ ")"
+	| SArrayOperation (smain, opname, el, s) -> "_Array_" ^ opname ^ 
+		(match (extract_semantic smain).type_def with
+			| ArrayTypeEntry t -> "<" ^ (generate_type_modifier t) ^ ">" | _ -> raise (ProcessingError("Expecting ArrayTypeEntry here"))) ^ 
+		"::eval(" ^ (String.concat ", " (List.map (fun x -> generate_expr x) (smain::el))) ^ ")"
 
 
 let rec generate_cond = function
@@ -89,7 +93,7 @@ and generate_stmt = function
 	    in generate_cond_list l)
 
 	| SForIn (loop_var_name, loop_var_sem, array_expr, stmt_list) -> 
-		"for (auto& " ^ loop_var_name ^ " : *(" ^ (generate_expr array_expr) ^ ")) {\n" ^
+		"for (auto " ^ loop_var_name ^ " : *(" ^ (generate_expr array_expr) ^ ")) {\n" ^
 		(generate_stmt_list  stmt_list) ^ "}\n\n"
 
 	| SForRange (loop_var_name, sem, st, ed, stmt_list,sign) ->
@@ -121,7 +125,7 @@ let generate_var_decl = function
 let generate_init_eval tname args stmts s = 
 	let initialObject = 
 		let extract_arg_name = function SVarDecl(arg_name, arg_sem) -> arg_name in
-		match args with hd :: tail ->
+		match args with | [] -> raise (ProcessingError "Expecting a self argument in the eval function") | hd :: tail ->
 			let selfName = extract_arg_name hd and typeName = (generate_type_modifier s.type_def) in
 			selfName ^ " = " ^ typeName ^ "( new " ^ tname ^ "());\n"
 		in
@@ -175,6 +179,9 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
+	(let template_struct = ["Array_add"; "Array_length"] in
+	let template_decl = List.map (fun h -> "template<typename T> struct " ^ h ^ "<T>;\n") template_struct in
+	String.concat "" template_decl ) ^
 	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="Array_add" || x.t_name="Array_length" 
 								then content else content ^ "struct " ^ x.t_actual ^ ";\n") 
 		"" (NameMap.fold (fun k v lst -> v :: lst) context.typetab [])) ^

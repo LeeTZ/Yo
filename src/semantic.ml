@@ -157,12 +157,9 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			List.map (fun e -> (extract_semantic e).type_def) augmented_s_args in
 		let func_eval_ret = 
 			try match type_obj with 
-				| ArrayTypeEntry t -> (let element_type_t = BaseTypeEntry(look_up_type "ArrayElementT" ctx.typetab) 
-					and element_type = match type_obj with 
-						| ArrayTypeEntry t -> t 
-						| _ -> raise (ProcessingError("Expecting ArrayTypeEntry")) in 
+				| ArrayTypeEntry t -> (let element_type_t = BaseTypeEntry(look_up_type "ArrayElementT" ctx.typetab) in 
 					let type_replace_list = 
-						[{src_type=element_type_t; tgt_type=element_type};
+						[{src_type=element_type_t; tgt_type=t};
 						{src_type=array_type; tgt_type=type_obj}] in
 					let matching_eval = find_matching_template_eval func_type call_arg_types type_replace_list in
 						try (List.find (fun p -> compare_type p.src_type matching_eval.ret) type_replace_list).tgt_type

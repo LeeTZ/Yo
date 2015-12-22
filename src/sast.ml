@@ -101,6 +101,7 @@ let rec string_of_s_expr = function
   | SClipPixel (cl, x, y, tm, s) -> (string_of_s_expr cl) ^ "<" ^ (string_of_s_expr x) ^ (string_of_s_expr y) ^ ">" ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
   | SBuildArray (t, el, s) -> (string_of_type t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
   | SBuildClipArray (d, s) -> "Clips under \"" ^ (string_of_s_expr d) ^ "\"" ^ (string_of_sem s)
+  | SArrayOperation (smain, fname, el, s) -> (string_of_s_expr smain) ^ "." ^ fname ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
 
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
@@ -148,6 +149,7 @@ let extract_semantic = function
   | SClipPixel (_,_,_,_,s) -> s
   | SBuildArray (_, _, s) -> s
   | SBuildClipArray (_, s) -> s
+  | SArrayOperation (_, _, _, s) -> s
 
 
 let rec string_of_s_var_decl = function

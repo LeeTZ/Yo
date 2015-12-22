@@ -489,18 +489,15 @@ tr1::shared_ptr<vector<T>> slice_array(tr1::shared_ptr<vector<T>> vec, int start
 	return n_vec;
 }
 
-/*
+
 template<typename T>
-tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T>[] elements)
+tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T> elements[])
 {
 	tr1::shared_ptr<vector<T>> n_vec;
 	for (auto e : elements)
 		n_vec.push_back(e);
 	return n_vec;
 }
-*/
-
-
 
 
 tr1::shared_ptr<Universal> DUMMY_SELF;
@@ -537,3 +534,15 @@ struct _Clip_log : Universal {
 	}
 };
 
+template<T>
+struct _Array_add {
+	static void eval(tr1::shared_ptr<std::vector<tr1::shared_ptr<T>>> arr, tr1::shared_ptr<T> obj) {
+		arr->push_back(obj);
+		return arr;
+	}
+
+	static void eval(tr1::shared_ptr<std::vector<T>> arr, T obj) {
+		arr->push_back(obj);
+		return arr;
+	}
+};

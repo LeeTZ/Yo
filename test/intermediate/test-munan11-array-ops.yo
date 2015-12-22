@@ -1,0 +1,8 @@
+a = Int[]();
+a.add(5);
+type NType:{
+    b: Double;
+}
+c = NType[]();
+d = NType();
+c.add(d);

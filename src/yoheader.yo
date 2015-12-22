@@ -42,8 +42,13 @@ type Bool:{
 type Void:{
     func eval(a: Void) -> Void:{
         return;
+    }
 }
+
+type ArrayElementT:{
+    
 }
+
 type Attribute:{
     second: Double;
     value: Double;
@@ -230,3 +235,11 @@ func __Or(a: Bool, b: Bool) -> Bool:{
     return;
 }
 
+type Array:{
+    length: Int;
+    empty: Bool;
+
+    func add(self: Array, ele: ArrayElementT) -> Array:{
+        return;
+    }
+}

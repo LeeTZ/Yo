@@ -40,14 +40,25 @@ let find_matching_eval func_type call_arg_types =
 		| [], [] -> true | _, [] | [], _ -> false |  x::xs, y::ys -> (compare_type x y) && (compare_args xs ys) in
 	List.find (fun e ->	compare_args (List.map (fun k -> k.v_type) e.args) call_arg_types) func_type.evals
 
+type replace_item = {src_type: type_entry; tgt_type: type_entry}
+
+let find_matching_template_eval func_type call_arg_types replace_list=
+	let rec compare_args args1 args2 = match args1, args2 with 
+		| [], [] -> true | _, [] | [], _ -> false 
+		| x::xs, y::ys -> 
+			(compare_type (try (List.find (fun t -> compare_type t.src_type x) replace_list).tgt_type
+				with Not_found -> x) y) && (compare_args xs ys) in
+	List.find (fun e ->	compare_args (List.map (fun k -> k.v_type) e.args) call_arg_types) func_type.evals
+
 (* build semantic for an expression; extract_semantic can be usd to get the semantic*)
 let rec build_expr_semantic ctx (expression:expr) : s_expr=  
 	let int_type = BaseTypeEntry(look_up_type "Int" ctx.typetab) 
 	and double_type = BaseTypeEntry(look_up_type "Double" ctx.typetab)
-	and string_type = BaseTypeEntry (look_up_type "String" ctx.typetab) in
+	and string_type = BaseTypeEntry (look_up_type "String" ctx.typetab)in
 	let bool_type = BaseTypeEntry(look_up_type "Bool" ctx.typetab) 
 	and clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab)
 	and pixel_type = BaseTypeEntry(look_up_type "Pixel" ctx.typetab)
+	and void_type = BaseTypeEntry(look_up_type "Void" ctx.typetab)
 	and frame_type = BaseTypeEntry(look_up_type "Frame" ctx.typetab) in
 	match expression with
 	(* Int, Double, Bool, Str are consolidated into SLiteral since there aren't much*)
@@ -113,7 +124,7 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			SDotExpr (sexpr, x,  (try {actions=[]; type_def=NameMap.find x (
 										match (extract_semantic sexpr).type_def with 
 											| BaseTypeEntry t -> t.members
-											| ArrayTypeEntry t -> (look_up_type "ARRAY" ctx.typetab).members)} 
+											| ArrayTypeEntry t -> (look_up_type "Array" ctx.typetab).members)} 
 								with Not_found -> raise (VariableNotDefined (x ^ " in " ^ (string_of_expr expr)))))
   		
   	| Binop (x, op, y) -> 
@@ -128,25 +139,42 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
   														  		
   	| Call (obj, fname, args) -> 	
   		let s_call_args = List.map (fun e -> build_expr_semantic ctx e) args in (*build semantics for args*)
-		let func_name = match obj with (*should we change a name when searching for the function?*)
-			| None -> fname
-			| Some x -> let sobj = build_expr_semantic ctx x in 
-						let t = (extract_semantic sobj).type_def in
-						(string_of_type t) ^ "_" ^ fname in
+  		let type_obj = match obj with
+  			| None -> void_type
+  			| Some x -> (extract_semantic (build_expr_semantic ctx x)).type_def in
+  		let array_type = BaseTypeEntry(look_up_type "Array" ctx.typetab) in
+		let func_name = 
+			if compare_type void_type type_obj then fname
+			else (match type_obj with 
+				| ArrayTypeEntry t -> (string_of_type array_type)
+				| _ ->(string_of_type type_obj)) ^ "_" ^ fname in
 		let func_type = try NameMap.find func_name ctx.typetab (* get type_entry for this func *)
 						with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " is not defined")) in
 		let augmented_s_args = match obj with 
 			| None -> s_call_args
 			| Some x -> (build_expr_semantic ctx x) :: s_call_args in
-		let call_arg_types = List.map (fun e -> (extract_semantic e).type_def) augmented_s_args in
-		let func_eval = try find_matching_eval func_type call_arg_types (* get the matching eval *)
-						with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " does not take params of type " 
-								^ (String.concat ", " (List.map string_of_expr args)))) in
+		let call_arg_types = 
+			List.map (fun e -> (extract_semantic e).type_def) augmented_s_args in
+		let func_eval_ret = 
+			try match type_obj with 
+				| ArrayTypeEntry t -> (let element_type_t = BaseTypeEntry(look_up_type "ArrayElementT" ctx.typetab) 
+					and element_type = match type_obj with 
+						| ArrayTypeEntry t -> t 
+						| _ -> raise (ProcessingError("Expecting ArrayTypeEntry")) in 
+					let type_replace_list = 
+						[{src_type=element_type_t; tgt_type=element_type};
+						{src_type=array_type; tgt_type=type_obj}] in
+					let matching_eval = find_matching_template_eval func_type call_arg_types type_replace_list in
+						try (List.find (fun p -> compare_type p.src_type matching_eval.ret) type_replace_list).tgt_type
+						with Not_found -> matching_eval.ret)
+				| _ -> (find_matching_eval func_type call_arg_types).ret (* get the matching eval *)
+			with Not_found -> raise (TypeNotDefined ("Function " ^ fname ^ " does not take params of type (" 
+						^ (String.concat ", " (List.map string_of_expr args)) ^ ")")) in
 		SCall ((match obj with 
 		 				| None -> None 
 						| Some s -> Some(build_expr_semantic ctx s)), 
 					func_type, s_call_args, 
-					{actions=[]; type_def=func_eval.ret})
+					{actions=[]; type_def=func_eval_ret})
 	
 	| ClipCascade (cl1, cl2, tm) ->
 		let scl1 = build_expr_semantic ctx cl1 and scl2 = build_expr_semantic ctx cl2 and stm = build_expr_semantic ctx tm in

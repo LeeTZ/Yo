@@ -118,8 +118,10 @@ func log(a: String) -> Void: {
 }
 
 func log(a: Bool) -> Void: {
+
     return;
 }
+
 func __Add(a: Int, b: Int) -> Int:{
     return;
 }

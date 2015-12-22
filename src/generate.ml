@@ -25,7 +25,7 @@ let rec generate_expr = function
 	| SCall (obj, func_type, el, s) -> func_type.t_actual ^ "::eval(" ^
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^
 		(List.fold_left (fun content x -> content ^ ", " ^ (generate_expr x)) "" el) ^ ")"
-	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">({})"
+	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">()"
 	| SBuildClipArray (d, _) -> "createClips(" ^ (generate_expr d) ^ ")"
 	| SArrayRange (smain, sst, sed, sem) -> "slice_array<" ^ (generate_type_modifier (extract_array_ele_type sem.type_def)) 
 		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
@@ -179,9 +179,6 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
-	(let template_struct = ["_Array_add"; "_Array_length"] in
-	let template_decl = List.map (fun h -> "template<typename T> struct " ^ h ^ "<T>;\n") template_struct in
-	String.concat "" template_decl ) ^
 	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="Array_add" || x.t_name="Array_length" 
 								then content else content ^ "struct " ^ x.t_actual ^ ";\n") 
 		"" (NameMap.fold (fun k v lst -> v :: lst) context.typetab [])) ^

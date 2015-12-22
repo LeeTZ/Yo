@@ -1,15 +1,7 @@
-a = Int[]()
-
-a = [1,2,3,4]
-a.add(5)
-
-type NType:
-    b: Double
-
-c = NType[]()
-d = NType()
-c.add(d)
-
-clips = Clip[]("dir")
-
-clips.add(Clip("hello.avi"))
+a = Bool[]()
+a.add(true)
+a.add(true)
+a.add(false)
+if (a[0]):
+    log(a[0])
+log(a.length())

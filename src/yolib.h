@@ -493,13 +493,15 @@ tr1::shared_ptr<vector<T>> slice_array(tr1::shared_ptr<vector<T>> vec, int start
 
 
 template<typename T>
-tr1::shared_ptr<vector<T>> create_array(tr1::shared_ptr<T> elements[])
+tr1::shared_ptr<vector<T>> create_array()
 {
-	tr1::shared_ptr<vector<T>> n_vec;
-	for (auto e : elements)
-		n_vec.push_back(e);
+   auto n_vec = tr1::shared_ptr<vector<T> >(new vector<T>());
+    
+	//for (auto e : elements)
+	//	n_vec->push_back(e);
 	return n_vec;
 }
+
 
 
 tr1::shared_ptr<Universal> DUMMY_SELF;

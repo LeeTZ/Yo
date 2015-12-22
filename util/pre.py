@@ -123,6 +123,6 @@ if __name__ == "__main__":
 
   out_str = process(f_in)
 
-  #f_out = open(dir_ext + fname + ".yo.pre", 'w')
-  #f_out.write(out_str.getvalue())
-  print out_str.getvalue()
+  f_out = open(dir_ext + fname + ".yo.pre", 'w')
+  f_out.write(out_str.getvalue())
+  #print out_str.getvalue()

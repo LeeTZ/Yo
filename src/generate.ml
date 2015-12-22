@@ -131,7 +131,7 @@ let generate_init_eval args stmts s =
 		^ ") {\n" ^ initialObject ^ (generate_stmt_list stmts) ^ "}\n\n"
 
 let generate_eval args stmts s = 
-		"static " ^ (generate_type_modifier s.type_def) ^ " eval(" ^
+		"static " ^ (generate_type_modifier s.type_def) ^ " eval(tr1::shared_ptr<Universal>, " ^ 
 		(String.concat ", " (List.map (
 			fun x -> (match x with SVarDecl(arg_name, arg_sem) -> (generate_type_modifier arg_sem.type_def)
 			 ^ " " ^ arg_name )) args) ) 
@@ -175,7 +175,7 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
-	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" 
+	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="_Array_add" 
 								then content else content ^ "struct " ^ x.t_actual ^ ";\n") 
 		"" (NameMap.fold (fun k v lst -> v :: lst) context.typetab [])) ^
 	"\n/********************DECLARATION END*****************/\n" ^

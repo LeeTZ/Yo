@@ -31,6 +31,7 @@ type s_expr =                                 (* Expressions*)
   | SDotExpr of s_expr * string * sem        (* A.B *)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * base_type * s_expr list * sem      (* foo(a, b) *)
+  | SArrayOperation of s_expr * string * s_expr list * sem
   | SBuildArray of type_entry * s_expr list * sem
   | SBuildClipArray of s_expr * sem 
   | SClipTimeIndex of s_expr * s_expr * sem

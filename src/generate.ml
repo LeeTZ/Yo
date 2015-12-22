@@ -179,7 +179,7 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
-	(let template_struct = ["Array_add"; "Array_length"] in
+	(let template_struct = ["_Array_add"; "_Array_length"] in
 	let template_decl = List.map (fun h -> "template<typename T> struct " ^ h ^ "<T>;\n") template_struct in
 	String.concat "" template_decl ) ^
 	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" || x.t_name="Array_add" || x.t_name="Array_length" 

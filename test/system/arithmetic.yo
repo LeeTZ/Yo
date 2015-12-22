@@ -7,7 +7,7 @@ func gcd(a: Int, b: Int) -> Int:
 func compute() -> Int:
     a = 2302
     b = 42
-    gcd(a, b)
+    return gcd(a, b)
 
 
-compute()
+log(compute())

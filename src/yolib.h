@@ -491,15 +491,25 @@ tr1::shared_ptr<vector<T>> slice_array(tr1::shared_ptr<vector<T>> vec, int start
 	return n_vec;
 }
 
+template<class T, class... Tail>
+auto make_array(T head, Tail... tail) -> std::array<T, 1 + sizeof...(Tail)>
+{
+     std::array<T, 1 + sizeof...(Tail)> a = { head, tail ... };
+     return a;
+}
 
 template<typename T>
-tr1::shared_ptr<vector<T>> create_array()
-{
-   auto n_vec = tr1::shared_ptr<vector<T> >(new vector<T>());
-    
-	//for (auto e : elements)
-	//	n_vec->push_back(e);
-	return n_vec;
+std::shared_ptr<std::vector<T>> create_array(T arr[], n) {
+	auto vec = std::shared_ptr<std::vector<T>>(new std::vector<T>());
+	for (int i=0; i<n; ++i)
+		vec->push_back(arr[i]);
+	return vec;
+}
+
+template<typename T>
+std::shared_ptr<std::vector<T>> create_array() {
+	auto vec = std::shared_ptr<std::vector<T>>(new std::vector<T>());
+	return vec;
 }
 
 

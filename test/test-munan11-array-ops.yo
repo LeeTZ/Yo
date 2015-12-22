@@ -2,6 +2,7 @@ a = Bool[]()
 a.add(true)
 a.add(true)
 a.add(false)
+c = [1,2,3,4]
 if (a[0]):
     log(a[0])
 log(a.length())

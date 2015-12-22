@@ -7,3 +7,5 @@ type NType:
 c = NType[]()
 d = NType()
 c.add(d)
+
+clips = Clip[]("dir")

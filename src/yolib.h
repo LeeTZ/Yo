@@ -192,17 +192,17 @@ tr1::shared_ptr<_Clip> createClip(string filename){
    std::vector<tr1::shared_ptr<Timeline>> clips = createClips("dir/");
 */
 
-std::vector<tr1::shared_ptr<_Clip>> createClips(string dirname){
+tr1::shared_ptr<std::vector<tr1::shared_ptr<_Clip>>> createClips(string dirname){
 	//read files into Filenames
-	std::vector<std::string> Filenames = vector<string>();
+	auto Filenames = vector<string>();
 	getdir(dirname,Filenames);
 
-	std::vector<tr1::shared_ptr<_Clip>> res;
+	auto res = tr1::shared_ptr<std::vector<tr1::shared_ptr<_Clip>>>();
 	int len = Filenames.size();
 	for (int i = 0; i < len; i++){
 		//std::cout << Filenames[i] << endl;	
 		// form clips
-		res.push_back(createClip(dirname + Filenames[i]));
+		res->push_back(createClip(dirname + Filenames[i]));
 	}
 	return res;
 }
@@ -546,3 +546,4 @@ struct _Array_add {
 		return arr;
 	}
 };
+

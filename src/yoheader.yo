@@ -71,6 +71,10 @@ type Clip:{
         return;
     }
 
+    func eval(dir: String, ext: String) -> Clip[]: {
+        return;
+    }
+
     func save(self: Clip, a: String) -> Void: {
         return;
     }

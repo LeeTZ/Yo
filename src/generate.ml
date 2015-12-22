@@ -25,6 +25,7 @@ let rec generate_expr = function
 		(match obj with | None -> "DUMMY_SELF" | Some (expr) -> (generate_expr expr)) ^
 		(List.fold_left (fun content x -> content ^ ", " ^ (generate_expr x)) "" el) ^ ")"
 	| SBuildArray (ele_type, _, _) -> "create_array<" ^ (generate_type_modifier ele_type) ^ ">({})"
+	| SBuildClipArray (d, _) -> "createClips(" ^ (generate_expr d) ^ ")"
 	| SArrayRange (smain, sst, sed, sem) -> "slice_array<" ^ (generate_type_modifier (extract_array_ele_type sem.type_def)) 
 		^ ">(" ^ (generate_expr smain) ^ ", " ^ (generate_expr sst) ^ ", " ^ (generate_expr sed) ^ ")"
 	| SClipTimeCascade (scl1, scl2, stm, _) -> "layerClip(" ^ (generate_expr scl1) ^ ", " ^ (generate_expr scl2) ^ ", " 
@@ -174,8 +175,9 @@ let generate context program =
 	let pre_defined = List.map (fun h ->"#include " ^ h ^ "\n") header in
 	String.concat "\n" pre_defined ^  
 	"\n/********************INCLUDE END******************/\n" ^
-	(List.fold_left (fun content x -> content ^ "struct " ^ x.t_actual ^ ";\n") 
-		"" (NameMap.fold (fun k v lst -> v:: lst) context.typetab [])) ^
+	(List.fold_left (fun content x -> if x.t_name="Array" || x.t_name="ArrayElementT" 
+								then content else content ^ "struct " ^ x.t_actual ^ ";\n") 
+		"" (NameMap.fold (fun k v lst -> v :: lst) context.typetab [])) ^
 	"\n/********************DECLARATION END*****************/\n" ^
 	(List.fold_left (fun content x -> content ^ (match x with 
 		| SGlobalType t -> generate_type "" t 

@@ -212,7 +212,15 @@ let rec build_expr_semantic ctx (expression:expr) : s_expr=
 			| SimpleArrayConstructor expr -> BaseTypeEntry(look_up_type (string_of_expr expr) ctx.typetab)
 			| CompositeArrayConstructor arr -> ArrayTypeEntry(resolve_ele_type arr) in
 		let ele_type = resolve_ele_type main in
-		SBuildArray (ele_type, [], {actions=[NewArr]; type_def=ArrayTypeEntry(ele_type)}) (*TODO: the constructor argument is currently ignored*)
+		let clip_type = BaseTypeEntry(look_up_type "Clip" ctx.typetab) in
+		if compare_type ele_type clip_type 
+		then 
+			(if (List.length args)=1 then 
+				(let sarg1 = build_expr_semantic ctx (List.hd args) in
+				if compare_type (extract_semantic sarg1).type_def string_type then SBuildClipArray(sarg1, {actions=[NewArr]; type_def=ArrayTypeEntry(ele_type)})
+				else raise (SemanticError "Clip array constructor expects directory name of String type"))
+			else raise (SemanticError "Clip array constructor expects exactly one argument"))
+		else SBuildArray (ele_type, [], {actions=[NewArr]; type_def=ArrayTypeEntry(ele_type)}) (*TODO: the constructor argument is currently ignored*)
 
 let rec build_stmt_semantic ctx = function
 	| Assign (e1, e2) -> 

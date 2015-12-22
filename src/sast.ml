@@ -32,6 +32,7 @@ type s_expr =                                 (* Expressions*)
   | SBinop of s_expr * op * s_expr * sem      (* 3+4 *)
   | SCall of s_expr option * base_type * s_expr list * sem      (* foo(a, b) *)
   | SBuildArray of type_entry * s_expr list * sem
+  | SBuildClipArray of s_expr * sem 
   | SClipTimeIndex of s_expr * s_expr * sem
   | SClipFrameIndex of s_expr * s_expr * sem
   | SClipTimeRange of s_expr * s_expr * s_expr * sem
@@ -98,6 +99,7 @@ let rec string_of_s_expr = function
   | SClipFrameIndex (cl, idx, s) -> (string_of_s_expr cl) ^ "[" ^ (string_of_s_expr idx) ^ "]" ^ (string_of_sem s)
   | SClipPixel (cl, x, y, tm, s) -> (string_of_s_expr cl) ^ "<" ^ (string_of_s_expr x) ^ (string_of_s_expr y) ^ ">" ^ "@" ^ (string_of_s_expr tm) ^ (string_of_sem s)
   | SBuildArray (t, el, s) -> (string_of_type t) ^ "(" ^ (String.concat ", " (List.map string_of_s_expr el)) ^ ")" ^ (string_of_sem s)
+  | SBuildClipArray (d, s) -> "Clips under \"" ^ (string_of_s_expr d) ^ "\"" ^ (string_of_sem s)
 
 and string_of_s_stmt = function
   | SAssign(None,rvalue) -> string_of_s_expr rvalue
@@ -144,6 +146,7 @@ let extract_semantic = function
   | SClipConcat (_, _, s) -> s  
   | SClipPixel (_,_,_,_,s) -> s
   | SBuildArray (_, _, s) -> s
+  | SBuildClipArray (_, s) -> s
 
 
 let rec string_of_s_var_decl = function

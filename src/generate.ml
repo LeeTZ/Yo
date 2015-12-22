@@ -17,7 +17,7 @@ let extract_array_ele_type t = match t with ArrayTypeEntry a -> a | _ -> raise (
 let rec generate_expr = function
  	| SLiteral (x, s) -> x
 	| SArrayLiteral (x, s)-> "create_array<" ^ (generate_type_modifier (extract_array_ele_type s.type_def)) ^ 
-		">({" ^ String.concat ", " (List.map generate_expr x) ^ "})"
+		">(make_array(" ^ String.concat ", " (List.map generate_expr x) ^ ").data(), " ^ (string_of_int (List.length x)) ^ ")"
 	| SVar (x, s) -> x
 	| SArrayIndex (x, y, s) -> "(*" ^ generate_expr x ^ ")[" ^ generate_expr y ^ "]"
 	| SDotExpr (x, y, s) -> generate_expr x ^ "->" ^ y 

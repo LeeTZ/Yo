@@ -105,31 +105,21 @@ type Frame:{
     
 }
 
-func log(a: Int) -> Int:{
+func log(a: Int) -> Void:{
     return;
 }
 
-func log(a: Double) -> Double: {
+func log(a: Double) -> Void: {
     return;
 }
 
-func log(a: String) -> String: {
+func log(a: String) -> Void: {
     return;
 }
 
-func log(a: Clip) -> Clip: {
+func log(a: Bool) -> Void: {
     return;
 }
-
-func log(a: Frame) -> Frame: {
-    return;
-}
-
-func log(a: Attribute) -> Attribute: {
-    return;
-}
-
-
 func __Add(a: Int, b: Int) -> Int:{
     return;
 }

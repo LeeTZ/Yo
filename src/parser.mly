@@ -20,17 +20,19 @@
 %nonassoc NOELSE
 %nonassoc ELSE
 %nonassoc COMMA
-%left RPAREN RBRACKET
-%right LPAREN LBRACKET
+%left RPAREN
+%right LPAREN
+%left OR
+%left AND
 %left LT GT LEQ GEQ
 %left EQ NEQ
 %left HAT AT
 %left AMPERSAND
-%left OR
-%left AND
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %left DOT
+%left  RBRACKET
+%right  LBRACKET
 %nonassoc EXCLAMATION
 
 %start global

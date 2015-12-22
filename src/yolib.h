@@ -533,8 +533,9 @@ struct _Clip_log : Universal {
 	}
 
 	static void eval(tr1::shared_ptr<_Clip> _clip, string fileName) {
-		std::fstream fout(fileName);
+		std::ofstream fout(fileName);
 		fout << logClip(_clip);
+        fout.close();
 	}
 };
 

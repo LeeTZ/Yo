@@ -1,4 +1,3 @@
-a = Clip("abcde.webm")
 func isblack(a: Clip, time: Int) -> Bool:
     for i = 300 to 350:
         for j = 200 to 250:
@@ -7,6 +6,7 @@ func isblack(a: Clip, time: Int) -> Bool:
                 return true
     return false
 
+a = Clip("abcde.webm")
 cuttime = 0
 for time = 1 to 180:
     if isblack(a,time):

@@ -1,0 +1,6 @@
+# This script converts a movie to any other format. Details could be configured in config.ini
+clips = Clip[]("dir/")
+a = Clip("mactest.mov")
+b = a & clips[0]
+c = b & clips[1]
+c.save("readdir.webm")

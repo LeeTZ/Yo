@@ -1,0 +1,9 @@
+#This script cuts videos and links them together;
+a = Clip("helloworld.webm");
+b = Clip("helloworld2.webm");
+# select part of the video, double represents time in seconds, integer represent frame;
+e = a[0.0:(1.6 - 0.1)];
+f = b[0:1 + 24 * 2];
+# concat videos;
+d = (e & f);
+d.save("hello-combined.webm");

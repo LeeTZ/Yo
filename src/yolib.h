@@ -197,7 +197,9 @@ tr1::shared_ptr<std::vector<tr1::shared_ptr<_Clip>>> createClips(string dirname)
 	auto Filenames = vector<string>();
 	getdir(dirname,Filenames);
 
-	auto res = tr1::shared_ptr<std::vector<tr1::shared_ptr<_Clip>>>();
+    auto res = tr1::shared_ptr<vector<tr1::shared_ptr<_Clip>> >(new vector<tr1::shared_ptr<_Clip>>());
+	
+    //auto res = tr1::shared_ptr<std::vector<tr1::shared_ptr<_Clip>>>();
 	int len = Filenames.size();
 	for (int i = 0; i < len; i++){
 		//std::cout << Filenames[i] << endl;	

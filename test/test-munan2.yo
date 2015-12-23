@@ -1,8 +1,0 @@
-type A:
-    a: Int
-    type B:
-        b: Int
-        a: A.B
-
-    func calc(self: A, b: A.B) -> Int:
-        return self.a + b.b

@@ -1,5 +1,0 @@
-i = 2
-while i <= 10:
-    log (i)
-    log (" hello world\n")
-    i = i + 1

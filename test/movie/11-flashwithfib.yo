@@ -10,4 +10,5 @@ for i = 1 to 12:
     white.alpha @ 5 = 1.0
     a = a ^ white @ (fib[i]) 
     a = a ^ Clip("comment2.png")[1:5] @ (fib[i])
+a.log("11-flashwithfib.out")
 a.save("flashwithfib.webm")

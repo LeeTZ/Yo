@@ -18,4 +18,5 @@ for time = 1 to l:
         cuttime = time
         break
 b = a[1:cuttime]
+b.log("07-analyze.out")
 b.save("cutabcde.webm")

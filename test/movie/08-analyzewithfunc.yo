@@ -16,4 +16,5 @@ for time = 1 to 180:
         break    
 
 b = a[1:cuttime]
+b.log("08-analyzewithfunc.out")
 b.save("cutabcde.webm")

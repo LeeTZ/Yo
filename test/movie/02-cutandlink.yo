@@ -7,3 +7,4 @@ f = b[0:1 + 24 * 2]
 # concat videos
 d = (e & f)        
 d.save("hello-combined.webm")
+d.log("02-cutandlink.out")

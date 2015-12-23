@@ -20,4 +20,5 @@ for time = 1 to 180:{
 }
 }
 b = a[1:cuttime];
-b.save("cutabcde.webm");
+b.log("08-analyzewithfunc.out");
+#b.save("cutabcde.webm");

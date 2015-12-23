@@ -26,4 +26,5 @@ for time = 1 to l:{
 }
 }
 b = a[1:cuttime];
-b.save("cutabcde.webm");
+b.log("07-analyze.out");
+#b.save("cutabcde.webm");

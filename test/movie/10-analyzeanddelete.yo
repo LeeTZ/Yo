@@ -21,4 +21,5 @@ b = Clip("white.png")[1:2]
 for i = 0 to l:
    b = b & Clip("flashfullwhite.webm")[prev:cuttime[i]]
    prev = cuttime[i]
+b.log("10-analyzeanddelete.out")
 b.save("cutwhite.webm")

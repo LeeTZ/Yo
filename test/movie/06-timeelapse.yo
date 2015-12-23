@@ -1,5 +1,12 @@
+# read all pics in directory photos/ and create a clip 
+# for each of the pic
 photos = Clip[]("photo/")
+# create mymovie
 mymovie = Clip()
+# set the playing time of every pic as 1 frame (2 - 1 = 1)
+# and concatanate it to the end of the main clip
 for p in photos:
     mymovie = mymovie & p[1:2]
-mymovie.save("timelapse.webm")
+# save the file 
+mymovie.log("06-timeelapse.out")
+mymovie.save("timelapse.webm") 

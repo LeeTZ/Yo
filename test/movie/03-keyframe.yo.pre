@@ -23,5 +23,5 @@ comment2.location_x @ 170 = (0.0-1.0);
 #put them in correct layer;
 d = c ^ comment[1:151] @ 40;
 f = d ^ comment2[1:171] @ 30;
-f.log("logclip.txt");
-f.save("bullet.webm");
+f.log("03-keyframe.out");
+#f.save("bullet.webm");

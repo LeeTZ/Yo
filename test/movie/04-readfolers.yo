@@ -3,4 +3,5 @@ clips = Clip[]("dir/")
 a = Clip("mactest.mov")
 for c in clips:
     a = a & c
+a.log("04-readfolders.out")
 a.save("readdir.webm")

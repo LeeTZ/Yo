@@ -5,4 +5,5 @@ for i=1 to 20:
     white.alpha@5 = 1.0
     a = a ^ white@ (i*12 + 75) 
     a = a ^ Clip("comment2.png")[1:5] @ (i*12 + 75)
+a.log("flash.out")
 a.save("flash.webm")

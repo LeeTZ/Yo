@@ -1,6 +1,0 @@
-func ocamlisgood (a$Int new$)
-return 123$Int $$Int $
-func ocamlisgood (b$String new$)
-return "123"$String $$String $
-func ocamlisgood (c$Double new$)
-return "aaa"$String $$String $

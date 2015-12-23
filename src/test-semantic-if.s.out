@@ -1,1 +1,0 @@
-Fatal error: exception Ast.SemanticError("Invalid assignment: expecting Int, but having String")

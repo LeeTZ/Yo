@@ -1,5 +1,0 @@
-i$Int new$ = 1$Int $
-while i$Int $ < 10$Int $$Bool $:
-log(i$Int $)$Int $
-log("hello world\n"$String $)$String $
-i$Int $ = i$Int $ + 1$Int $$Int $

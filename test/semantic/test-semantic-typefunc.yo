@@ -1,14 +1,14 @@
-type ocamlisbad:
-    a: ocamlisbad
-    b: ocamlisbad
+type A:
+    a: A
+    b: A
 
 
-    type ocamlisgood:
-        a:ocamlisbad.ocamlisgood
-        b:ocamlisbad
+    type B:
+        a: A.B
+        b: A
 
-        func eval(c: Int) -> ocamlisbad.ocamlisgood:
-            return 
+        func eval(self: A.B, c: Int) -> A.B:
+            return self
 
-        func eval(d: String) -> Int:
-            return 
+        func eval(self: A.B) -> A.B:
+            return self

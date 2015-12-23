@@ -1,5 +1,6 @@
-if a > 1:
-branch = 1
-elif a == 1:
-branch = "1"
-else:branch = 1
+func ocamlisgood (a$Int new$)
+return 123$Int $$Int $
+func ocamlisgood (b$String new$)
+return "123"$String $$String $
+func ocamlisgood (c$Double new$)
+return "aaa"$String $$String $

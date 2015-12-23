@@ -1,0 +1,6 @@
+func gcd (a$Int new$, b$Int new$)
+if a$Int $ == 0$Int $$Bool $:
+return b$Int $
+
+c$Int new$ = gcd(b$Int $ % a$Int $$Int $, a$Int $)$Int $
+return c$Int $$Int $

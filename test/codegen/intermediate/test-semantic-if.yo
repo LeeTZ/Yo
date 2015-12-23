@@ -1,9 +1,9 @@
 a=10;
 if (a>1):{
-    branch = 4;
+    branch = 1;
 }
 elif a==1:{
-    branch = 3;
+    branch = "1";
 }
 else:{
     branch = 1;

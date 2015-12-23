@@ -1,0 +1,14 @@
+type ocamlisbad:{
+    a: ocamlisbad;
+    b: ocamlisbad;
+    type ocamlisgood:{
+        a:ocamlisbad.ocamlisgood;
+        b:ocamlisbad;
+        func eval(c: Int) -> ocamlisbad.ocamlisgood:{
+            return;
+}
+        func eval(d: String) -> Int:{
+            return;
+}
+}
+}

@@ -1,5 +1,9 @@
-i = 1
-while i < 10:
-log(i)
-log("hello world\n")
-i = i + 1
+type aaa
+a$Int $
+b$Double $
+func bbb (a$Int new$)
+a$Int $ = 1$Int $
+b$Double new$ = 2.$Double $
+return a$Int $$Int $
+type clip
+h$String $

@@ -1,0 +1,34 @@
+for i=1 to 10:{
+    log (i);
+    a = 3;
+    log (a);
+    break;
+}
+for i = 10 downto 1:{
+    if i == 3:{
+        continue;
+}
+    log (i);
+}
+arr2 = [1,2,3,4];
+for i in arr2:{
+    if i == 3:{
+        break;
+}
+    log (i);
+}
+arr3 = ["a","b","c","d"];
+for i in arr3:{
+    if i == "a":{
+        log (i);
+}
+    elif i == "b":{
+        log (i);
+        log (i);
+}
+    else:{
+        for j = 1 to 3:{
+            log (i);
+}
+}
+}

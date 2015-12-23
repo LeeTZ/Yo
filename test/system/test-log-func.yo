@@ -1,0 +1,5 @@
+func log_clip(p: Clip) -> Void:
+    p.log()
+    p.log("helloworld.webm.log")
+
+log_clip(Clip("helloworld.webm"))

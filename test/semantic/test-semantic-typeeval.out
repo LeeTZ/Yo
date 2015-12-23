@@ -1,0 +1,10 @@
+type udf
+a$Int $
+b$String $
+func eval (self$udf new$)
+self$udf $.a$Int $ = 2$Int $
+self$udf $.b$String $ = "1"$String $
+return self$udf $$udf $
+func eval (self$udf new$, c$Int new$)
+a$Int new$ = 1$Int $
+return self$udf $$udf $

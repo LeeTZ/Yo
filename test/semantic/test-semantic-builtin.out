@@ -1,0 +1,3 @@
+c$Clip new$ = Clip("path"$String $)$Clip $
+a$Frame[] new$ = Frame()$Frame[] new array$
+b$Attribute new$ = Attribute()$Attribute $

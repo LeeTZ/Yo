@@ -8,6 +8,5 @@ type udf:{
 }
     func eval(self:udf, c:Int) -> udf:{
         a = 1;
-        return self;
 }
 }

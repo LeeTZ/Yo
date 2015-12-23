@@ -1,0 +1,22 @@
+42
+4.1
+true
+"hello"
+foo = 1
+a = 1
+b = 2
+a = a + b
+a - b
+a * b
+a / b
+a == b
+a >= b
+a <= b
+a > b
+a < b
+a != b
+c = true
+d = false
+c = c && d
+c = c || d
+e = a+b

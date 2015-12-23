@@ -1,0 +1,4 @@
+c = Clip("path")
+a = Frame[]()
+b = Attribute()
+

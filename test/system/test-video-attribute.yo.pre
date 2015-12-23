@@ -1,0 +1,4 @@
+c = Clip("mactest.mov");
+c.alpha@1 = 0.1;
+c.alpha@96 = 1.0;
+c.save("abcde.webm");

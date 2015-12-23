@@ -1,9 +1,6 @@
-dist[i] = INT_MAX
-sptset[i] = false
-if dist[i]:
-a = 1
-elif sptset[i] != false:
-dist[2] = INT_MAX
-elif dist[i] < m:
-return m
-else:return n
+a$Int new$ = 10$Int $
+if a$Int $ > 1$Int $$Bool $:
+branch$Int new$ = 4$Int $
+elif a$Int $ == 1$Int $$Bool $:
+branch$Int $ = 3$Int $
+else:branch$Int $ = 1$Int $

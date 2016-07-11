@@ -14,8 +14,7 @@ A time elapse video
 ~~~~~~~~~~~~~~~~~~~
 The following program creates a time-elapse video with thousands of photographs with only 5 lines of code:
 
-.. highlight:: python
-    :linenos:
+::
     photos = Clip[]("photo/")  # read all pics in directory photos/ and create a clip 
     mymovie = Clip() # create mymovie for final rendering
     for p in photos:               # set the playing time of every pic as 1 frame (2 - 1 = 1)   
@@ -37,7 +36,9 @@ Features in **video editting level**:
 * Unit Tests (Stability)
 * All FFmpeg Formats and Codecs Supported (Images, Videos, and Audio files)
 
-Features in **language level**
+
+Features in **language level**:
+
 * Basic arithemtic, boolean, string operations and control flow (condition / loop)
 * Use indent as blocks
 * Type inference 

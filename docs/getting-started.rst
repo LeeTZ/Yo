@@ -15,18 +15,27 @@ The current distributions are available for the Linux, Mac OS X (10.7 and above)
 Build Tools
 -----------
 
-The latest version of ``g\+\+`` and ``OCaml`` is needed to run **Yo** compiler. 
-`Install g\+\+ <http://askubuntu.com/questions/271388/how-to-install-gcc-4-8>`__
-`Install OCaml <https://ocaml.org/docs/install.html>`__
+The latest version of ``g++`` and ``OCaml`` is needed to run **Yo** compiler. 
+
+`Install g\+\+ <http://askubuntu.com/questions/271388/how-to-install-gcc-4-8>`__,
+
+`Install OCaml <https://ocaml.org/docs/install.html>`__.
 
 
-To provide various manipulation on videos, audio and images, **YO** depends on the library ``libopenshot`` and ``libopenshot-audio``, which is not available in a Debian package. please follow the `Installation Guide <http://openshot.org/files/libopenshot/InstallationGuide.pdf>`__ to get them installed.
+To provide various manipulation on videos, audio and images, **Yo** depends on the library ``libopenshot`` and ``libopenshot-audio``, which is not available in a Debian package. please follow the `Installation Guide <http://openshot.org/files/libopenshot/InstallationGuide.pdf>`__ to get them installed.
 
+
+Go to the folder `src/` and run
+::
+
+    make
+
+Then the executables needed are built up.
 
 Complie & Run
 --------------
 
-Once the dependencies are installed correctly, to complie a program, go to the `bin/` directory under the **Yo** home folder and run
+Once the dependencies are installed correctly, to complie and run a program, go to the `bin/` directory under the **Yo** home folder and run
 ::
 
      ./yo.sh yourprogram.yo

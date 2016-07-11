@@ -14,3 +14,4 @@ Contents:
    :glob:
 
    getting-started
+   a-tour-of-yo

@@ -15,11 +15,13 @@ A time elapse video
 The following program creates a time-elapse video with thousands of photographs with only 5 lines of code:
 
 ::
-    photos = Clip[]("photo/")  # read all pics in directory photos/ and create a clip 
-    mymovie = Clip() # create mymovie for final rendering
-    for p in photos:               # set the playing time of every pic as 1 frame (2 - 1 = 1)   
-        mymovie = mymovie & p[1:2] # and concatenate it to the end of the main clip
+
+    photos = Clip[]("photo/")       # read all pics in photos/ and create a array of clips 
+    mymovie = Clip()                # create mymovie for final rendering
+    for p in photos:                # set the playing time of every pic as 1 frame   
+        mymovie = mymovie & p[1:2]  # and concatenate it to the end of the main clip
     mymovie.save("timelapse.webm")  # render and save the file 
+
 
 Features
 ---------

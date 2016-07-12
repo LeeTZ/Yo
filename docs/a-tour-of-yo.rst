@@ -50,18 +50,18 @@ The following code adds a bunch of white flashes on a video, with a interval of 
 
 ::
 
-fib = Int[]()
-fib.add(1)
-fib.add(1)
-for i = 2 to 12:
-    fib.add((fib[i - 1]) + (fib[i - 2]))  # calculate the fibonacci numbers
-a = Clip("Muppets.mp4")[0:420]            # read a clip and select the first 420 frames
-for i = 1 to 12:
-    white = Clip("white.png")[1:11]       # create a clip with pure white color for 10 frames
-    white.alpha @ 0 = 0.0                 # set the alpha value to 0.0 at 0th frame
-    white.alpha @ 5 = 1.0                 # set the alpha value to 1.0 at 5th frame
-    a = a ^ white @ (fib[i])              # put the white screen on top of the original clip 
-    a.save("flashwithfib.webm")           # with an offset of fibonacci numbers
+    fib = Int[]()
+    fib.add(1)
+    fib.add(1)
+    for i = 2 to 12:
+        fib.add((fib[i - 1]) + (fib[i - 2]))  # calculate the fibonacci numbers
+    a = Clip("Muppets.mp4")[0:420]            # read a clip and select the first 420 frames
+    for i = 1 to 12:
+        white = Clip("white.png")[1:11]       # create a clip with pure white color for 10 frames
+        white.alpha @ 0 = 0.0                 # set the alpha value to 0.0 at 0th frame
+        white.alpha @ 5 = 1.0                 # set the alpha value to 1.0 at 5th frame
+        a = a ^ white @ (fib[i])              # put the white screen on top of the original clip 
+        a.save("flashwithfib.webm")           # with an offset of fibonacci numbers
 
 In the first five lines we calculate the first 13 Fibonacci number in a dynamic programming way. Results are stored in array ``fib``. 
 
@@ -87,30 +87,28 @@ Video Content Analyzing
 
 ::
 
-# a function definition, reads Clip and Int, returns with Bool
-func isblack(a: Clip, f: Int) -> Bool:
-    for i = 300 to 350:
-        for j = 200 to 250:
-            # get pixel at frame f at coordinate (i,j) 
-            p = a<i!j>@f
-            # get RGB values of the pixel
-            if (p.R == 0) && (p.G == 0) && (p.B == 0):
-                return true
-    return false
-
-a = Clip("video-with-black-screen.webm")
-cuttime = 0
-for time = 1 to 180:
-    # if a black screen detected
-    if isblack(a,time):
-        cuttime = time
-        # log it to standard output
-        log("black screen detected, cut at:")
-        log(cuttime)
-        break    
-
-b = a[1:cuttime]
-b.save("video-without-black-screen.webm")
+    # a function definition, reads Clip and Int, returns with Bool
+    func isblack(a: Clip, f: Int) -> Bool:
+        for i = 300 to 350:
+            for j = 200 to 250:
+                # get pixel at frame f at coordinate (i,j) 
+                p = a<i!j>@f
+                # get RGB values of the pixel
+                if (p.R == 0) && (p.G == 0) && (p.B == 0):
+                    return true
+        return false
+    a = Clip("video-with-black-screen.webm")
+    cuttime = 0
+    for time = 1 to 180:
+        # if a black screen detected
+        if isblack(a,time):
+            cuttime = time
+            # log it to standard output
+            log("black screen detected, cut at:")
+            log(cuttime)
+            break    
+    b = a[1:cuttime]
+    b.save("video-without-black-screen.webm")
 
 
 This tasks involves more 

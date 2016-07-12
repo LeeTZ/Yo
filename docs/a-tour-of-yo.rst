@@ -30,13 +30,34 @@ The input files are directly taken from the camera storage. The filenames are au
 
 The operator `&` means to concatenate in **Yo** language. As `p` is an image file, it is viewed as a video clip with same content at every frame, and infinite length. `p[1:2]` builds up a video clip from frame 1 to frame 2, of that infinte long frame. Thus it forms a picture of 1 frame long.
 
-The output can be viewed here: `Time elapse video <https://www.youtube.com/watch?v=rSdKi49fduw>`__
+The output can be viewed here: `In a new window <https://www.youtube.com/watch?v=rSdKi49fduw>`__
 
 
 .. raw:: html
 
    <iframe width="640" height="360" src="https://www.youtube.com/embed/rSdKi49fduw" frameborder="0" allowfullscreen></iframe>
 
+Special thanks to `Mr Li <mailto:lhhtsinghua@foxmail.com>`__ for photography.
+
+
+Flash in a Fibonacci way
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The following code adds a bunch of white flashes on a video, with a interval of seconds of fibonacci numbers:
+
+::
+fib = Int[]()
+fib.add(1)
+fib.add(1)
+for i = 2 to 12:
+    fib.add((fib[i - 1]) + (fib[i - 2]))  # calculate the fibonacci numbers
+a = Clip("Muppets.mp4")[0:420]            # read a clip and select the first 420 frames
+for i = 1 to 12:
+    white = Clip("white.png")[1:11]       # create a clip with pure white color for 10 frames
+    white.alpha @ 0 = 0.0                 # set the alpha value to 0.0 at 0th frame
+    white.alpha @ 5 = 1.0                 # set the alpha value to 1.0 at 5th frame
+                                          # Yo will do interpolation
+    a = a ^ white @ (fib[i])              # put the white screen on top of the original clip 
+    a.save("flashwithfib.webm")           # with an offset of fibonacci numbers
 
 
 Features

@@ -35,15 +35,15 @@ Then the executables needed are built up.
 Complie & Run
 --------------
 
-Once the dependencies are installed correctly, to complie and run a program, go to the `bin/` directory under the **Yo** home folder and run
+Once the dependencies are installed correctly, to complie and run a program, go to the ``bin/`` directory under the **Yo** home folder and run
 ::
 
      ./yo.sh yourprogram.yo
 
-A valid **Yo** program ended with extension `.yo`.
-A config file named `config.ini` can be put in the same directory with `yo.sh` to define the output details of the videos including the width, height, fps(frame per second) and bit rate.
+A valid **Yo** program ended with extension ``.yo``.
+A config file named ``config.ini`` can be put in the same directory with ``yo.sh`` to define the output details of the videos including the width, height, fps(frame per second) and bit rate.
 
-For **Yo** program examples, see next chapter *A Tour with Yo*.
+For **Yo** program examples, see next chapter **A Tour with Yo**.
 
 Getting Helps
 --------------

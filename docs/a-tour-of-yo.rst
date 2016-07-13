@@ -78,7 +78,7 @@ The output can be viewed here: `In a new window <https://www.youtube.com/watch?v
 
    <iframe width="640" height="360" src="https://www.youtube.com/embed/zFZyuuah9YI" frameborder="0" allowfullscreen></iframe>
 
-Special thanks to `Stephen Edwards`__ for providing the movie clip.
+Special thanks to Stephen Edwards for providing the movie clip.
 
 
 Video Content Analyzing

@@ -111,7 +111,9 @@ Video Content Analyzing
     b.save("video-without-black-screen.webm")
 
 
-This tasks involves more 
+This tasks involves more subtle manipulation on video content. The function ``isblack`` is defined to check if a certain area of a frame consists of all black pixels, then return with a judgement of whether this frame is a black screen. 
+
+In the main process, we go through all frames in the video and cut out all black frames. In addition, the built-in function ``log`` is used to write execution logs to the standard output.
 
 
 Features

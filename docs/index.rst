@@ -15,3 +15,5 @@ Contents:
 
    getting-started
    a-tour-of-yo
+   language-reference
+   authors

@@ -49,6 +49,16 @@ An identifier of **Yo** is a case-sensitive string different from any reserved w
 
 Formally, an identifier can be any non-reserved word expressed in regular expression as:
 
-* Identifier ::= [**a**-**zA**-**Z_**][**a**-**zA**-**Z0**-**9_**]{0,255}
+ ``Identifier ::= [**a**-**zA**-**Z_**][**a**-**zA**-**Z0**-**9_**]{0,255}``
 
+.. tip:: _number _number1 number2 number_3 Number
+
+.. error:: 2num *num func $2 Int Double Bool
+
+.. note:: ``Int``, ``Double``, ``Bool`` are illegal because they are keywords. A list of keyword can be found in **reserved words**.
+
+
+Reserved Words
+~~~~~~~~~~~~~~
+This is a list of reserved words in **Yo**. Since they are used by the language, these words are not available for naming variable or functions. The reserved words are consistent of keywords, built-in-type words and special constants.
 

@@ -39,6 +39,4 @@ Multi-line comment starts with ``#(`` and ended with ``#)``
     comment #)
 
 
-Note
-
-Nested comments are not allowed in **Yo**.
+.. note:: Nested comments are not allowed in **Yo**.

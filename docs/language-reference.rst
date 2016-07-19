@@ -49,8 +49,6 @@ An identifier of **Yo** is a case-sensitive string different from any reserved w
 
 Formally, an identifier can be any non-reserved word expressed in regular expression as:
 
-.. code-block:: none
-
-    Identifier ::= [a-zA-Z_][a-zA-Z0-9_]{0,255}
+* Identifier ::= [**a**-**zA**-**Z_**][**a**-**zA**-**Z0**-**9_**]{0,255}
 
 

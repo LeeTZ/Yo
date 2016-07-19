@@ -27,16 +27,30 @@ Comments
 ~~~~~~~~~
 Single line comment is made with a leading ``#`` in the line:
 
-::
+.. code-block:: none
 
     # This is a single line comment
 
 Multi-line comment starts with ``#(`` and ended with ``#)``
 
-::
+.. code-block:: none
 
     #( This is a multiline
     comment #)
 
 
 .. note:: Nested comments are not allowed in **Yo**.
+
+
+
+Identifiers
+~~~~~~~~~~~~
+An identifier of **Yo** is a case-sensitive string different from any reserved words (see next chapter). It starts with a letter or an underscore, optionally followed by a series of characters (letter, underscorce, number). The length varies from 1 to 256.
+
+Formally, an identifier can be any non-reserved word expressed in regular expression as:
+
+.. code-block:: none
+
+    Identifier ::= [a-zA-Z_][a-zA-Z0-9_]{0,255}
+
+

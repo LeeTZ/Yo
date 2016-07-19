@@ -1,4 +1,3 @@
-
 Getting Started
 ===============
 
@@ -43,7 +42,7 @@ Once the dependencies are installed correctly, to complie and run a program, go 
 A valid **Yo** program ended with extension ``.yo``.
 A config file named ``config.ini`` can be put in the same directory with ``yo.sh`` to define the output details of the videos including the width, height, fps(frame per second) and bit rate.
 
-For **Yo** program examples, see next chapter **A Tour with Yo**.
+For **Yo** program examples, see next chapter `A Tour with Yo <a-tour-of-yo>`__.
 
 Getting Helps
 --------------
@@ -51,7 +50,3 @@ Getting Helps
 For real-time help, ask the helpful yophers or mail to the author `Tiezheng Li <mailto:litiezheng513@gmail.com>`__.
 
 Report bugs using `Github issue tracker <https://github.com/LeeTZ/Yo/issues>`__.
-
-
-
-

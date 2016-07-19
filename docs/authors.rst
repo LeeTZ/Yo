@@ -1,14 +1,14 @@
-Author
+Authors
 ========
 
 Author
 -------
 
-* `Tiezheng Li <leetz.github.io/resume>`__
+* `Tiezheng Li <https://leetz.github.io/resume>`__
 
 Designer and current maintainer of **Yo** language. 
 
-For any real-time questions, feel free to `email me <litiezheng513@gmail.com>`__
+For any real-time questions, feel free to `email me <mailto:litiezheng513@gmail.com>`__.
 
 Co-Authors
 ----------
@@ -27,7 +27,7 @@ Co-Authors
 
 Special Thanks to
 -----------------
-* Stephen Edwards
-* Richard Townsend
+* **Stephen Edwards**
+* **Richard Townsend**
 
 for their suggestions on **Yo** language features and documents.

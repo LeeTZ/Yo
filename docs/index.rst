@@ -11,7 +11,7 @@ Contents:
 
 .. toctree::
    :maxdepth: 3
-   :glob:
+   :numbered:
 
    getting-started
    a-tour-of-yo

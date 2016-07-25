@@ -128,7 +128,7 @@ Below we list the built-in types in **Yo**. As they are used as the building blo
 
 **IntLiteral** ::= [**0**-**9**]+
 
-..note :: A compile error will be generated if the **Int** literal exceeds range defined above.
+.. note:: A compile error will be generated if the **Int** literal exceeds range defined above.
 Yo does not support the leading positive/negative sign (because in most cases, negative number would not be used). But user can still create negative numbers by subtracting from zero
 ``0 - 5``, which is ``5``.
 
@@ -136,4 +136,4 @@ Yo does not support the leading positive/negative sign (because in most cases, n
 
 **DoubleLiteral** ::= [**0**-**9**]***.**[**0**-**9**]+
 
-.. note::Note that the dot and the fractional number is compulsory (otherwise it can be identified as ``Int``. For example,``32.45  .5`` are of valid ``Double`` type. 
+.. note:: Note that the dot and the fractional number is compulsory (otherwise it can be identified as ``Int``. For example,``32.45  .5`` are of valid ``Double`` type. 

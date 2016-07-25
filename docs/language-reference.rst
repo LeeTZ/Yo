@@ -103,7 +103,7 @@ In contrast to **Python**, **Yo** only accepts tabs ``\t`` for leading indent, a
 		im_another_child
 			im_a_grandchild
 
-Usually, ``for``,``while``,``if``,``else`` and function definition may start a new code block. The code block ends with an un-indent. In the above example ``im_a_child`` and ``im_another_child`` are at the same code indention level.
+Usually, ``for``, ``while``, ``if``, ``else`` and function definition may start a new code block. The code block ends with an un-indent. In the above example ``im_a_child`` and ``im_another_child`` are at the same code indention level.
 
 
 Types
@@ -124,3 +124,16 @@ Built-in Types
 ~~~~~~~~~~~~~~
 Below we list the built-in types in **Yo**. As they are used as the building blocks for the program, **Yo** provides **literals** to initialize them conveniently in users' source code. The operators on this types are covered in next section.
 
+* ``Int`` 32-bit signed integral number, ranging from :math:`- 2^31 ` to :math:`2^31 - 1`. The literal has to be represented in decimal:
+
+**IntLiteral** ::= [**0**-**9**]+
+
+..note :: A compile error will be generated if the **Int** literal exceeds range defined above.
+Yo does not support the leading positive/negative sign (because in most cases, negative number would not be used). But user can still create negative numbers by subtracting from zero
+``0 - 5``, which is ``5``.
+
+* ``Double` ` 64-bit double-precision floating number. The literal is represented as follows:
+
+**DoubleLiteral** ::= [**0**-**9**]***.**[**0**-**9**]+
+
+.. note::Note that the dot and the fractional number is compulsory (otherwise it can be identified as ``Int``. For example,``32.45  .5`` are of valid ``Double`` type. 

@@ -124,16 +124,59 @@ Built-in Types
 ~~~~~~~~~~~~~~
 Below we list the built-in types in **Yo**. As they are used as the building blocks for the program, **Yo** provides **literals** to initialize them conveniently in users' source code. The operators on this types are covered in next section.
 
-* ``Int`` 32-bit signed integral number, ranging from :math:`- 2^31 ` to :math:`2^31 - 1`. The literal has to be represented in decimal:
+* ``Int`` 32-bit signed integral number, ranging from :math:`-2^31` to :math:`2^31 - 1`. The literal has to be represented in decimal:
 
-**IntLiteral** ::= [**0**-**9**]+
+  **IntLiteral** ::= [**0**-**9**]+
 
-.. note:: A compile error will be generated if the **Int** literal exceeds range defined above.
-Yo does not support the leading positive/negative sign (because in most cases, negative number would not be used). But user can still create negative numbers by subtracting from zero
-``0 - 5``, which is ``5``.
+  .. note:: A compile error will be generated if the **Int** literal exceeds range defined above.
+  
+  Yo does not support the leading positive/negative sign (because in most cases, negative number would not be used). But user can still create negative numbers by subtracting from zero，for example ``0-5``, which is just``-5``.
 
-* ``Double` ` 64-bit double-precision floating number. The literal is represented as follows:
 
-**DoubleLiteral** ::= [**0**-**9**]***.**[**0**-**9**]+
+* ``Double`` 64-bit double-precision floating number. The literal is represented as follows:
 
-.. note:: Note that the dot and the fractional number is compulsory (otherwise it can be identified as ``Int``. For example,``32.45  .5`` are of valid ``Double`` type. 
+  **DoubleLiteral** ::= [**0**-**9**]*.[**0**-**9**]+
+
+  .. note:: Note that the dot and the fractional number is compulsory (otherwise it can be identified as ``Int``. For example,``32.45  .5`` are of valid ``Double`` type. 
+
+* ``Bool`` Binary value of either ``true`` or ``false``
+
+  **BoolLiteral** ::= **true** | **false**
+
+* ``String`` A contiguous set of characters. The literal has zero or more characters enclosed in double quotes. A character can be a regular character or an escape sequence. 
+
+  **StringLiteral** ::= \"**StringCharacter**\"
+  
+  **StringCharacter** ::= [ˆ\"\\’] **StringCharacter**
+                         
+             \| [ˆ\"\\’]
+
+             \| **EscapeSequence** **StringCharacter**
+
+             \| **EscapeSequence**
+
+  **EscapeSequence** ::= \\b \| \\t \| \\n \| \\r \| \\" \| \\’ | \\ \\
+
+  Escape sequences are listed in Table below.
+
+  +-------------------+--------------------+
+  | Escape Sequence   | Meaning            |
+  +===================+====================+
+  | \\b               | Backspace          | 
+  +-------------------+--------------------+
+  | \\t               | Horizontal Tab     | 
+  +-------------------+--------------------+
+  | \\n               | New Line           | 
+  +-------------------+--------------------+
+  | \\r               | Carriage Return    | 
+  +-------------------+--------------------+
+  | \\"               | Double Quote       | 
+  +-------------------+--------------------+
+  | \\'               | Single Quote       | 
+  +-------------------+--------------------+
+  | \\ \\             | Backslash          | 
+  +-------------------+--------------------+
+
+  Examples of valid String: ``"abc"``, ``"9j32 f0kca0"``, ``"Hello\nYo!"``
+
+  
